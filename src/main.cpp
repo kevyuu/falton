@@ -4,110 +4,55 @@
 #include <iostream>
 #include <string>
 #include <fstream>
-// Include GLEW
-#include <GL/glew.h>
-// Include GLFW
-#include <GLFW/glfw3.h>
 
 // Include falton
-#include <falton/math.h>
-#include <falton/physics.h>
+#include <falton/math/math.h>
+#include <falton/physics/physics.h>
+#include <falton/physics/shape/Shape.h>
 
-#include <limits>
-typedef std::numeric_limits< double > dbl;
-GLFWwindow* window;
-
-using namespace falton;
 using namespace std;
+
+ftBodyTable bodyTable(128);
+ftColliderTable colliderTable;
+ftShapeTable shapeTable;
+
+ftBodyHandle bodyHandle1;
+ftBodyHandle bodyHandle2;
+
+ftShapeHandle shapeHandle1;
+ftShapeHandle shapeHandle2;
+
+ftColliderHandle colHandle1;
+ftColliderHandle colHandle2;
+
+real gravity = 9.8f;
+
+void step(real dt) {
+    ftVector2 velocity = bodyTable.getVelocity(bodyHandle2);
+    velocity.y += gravity * dt;
+    bodyTable.setVelocity(bodyHandle2, velocity);
+
+    ftVector2 position = bodyTable.getPosition(bodyHandle2);
+    position += velocity * dt;
+    bodyTable.setPosition(bodyHandle2, position);
+}
 
 int main( void )
 {
-    Vector3 windspeed(0,0,0);
+    ftBodyDef bodyDef;
+    bodyHandle1 = bodyTable.create(bodyDef);
+    bodyDef.position = ftVector2(100,100);
+    bodyHandle2 = bodyTable.create(bodyDef);
 
-    AeroControl right_wing(falton::Matrix3x3(0,0,0, -1,-0.5f,0, 0,0,0),
-               falton::Matrix3x3(0,0,0, -0.995f,-0.5f,0, 0,0,0),
-               falton::Matrix3x3(0,0,0, -1.005f,-0.5f,0, 0,0,0),
-               falton::Vector3(-1.0f, 0.0f, 2.0f), &windspeed);
+    shapeHandle1 = shapeTable.createBox(ftVector2(100,100));
+    shapeHandle2 = shapeTable.createBox(ftVector2(10,10));
 
-    AeroControl left_wing(falton::Matrix3x3(0,0,0, -1,-0.5f,0, 0,0,0),
-                      falton::Matrix3x3(0,0,0, -0.995f,-0.5f,0, 0,0,0),
-                      falton::Matrix3x3(0,0,0, -1.005f,-0.5f,0, 0,0,0),
-                      falton::Vector3(-1.0f, 0.0f, -2.0f), &windspeed);
+    ftColliderDef colliderDef;
+    colliderDef.restitution = 0.2;
+    colliderDef.friction = 0.3;
 
-    AeroControl rudder(falton::Matrix3x3(0,0,0, 0,0,0, 0,0,0),
-                   falton::Matrix3x3(0,0,0, 0,0,0, 0.01f,0,0),
-                   falton::Matrix3x3(0,0,0, 0,0,0, -0.01f,0,0),
-                   falton::Vector3(2.0f, 0.5f, 0), &windspeed);
-
-    Aero tail(falton::Matrix3x3(0,0,0, -1,-0.5f,0, 0,0,-0.1f),
-                 falton::Vector3(2.0f, 0, 0), &windspeed);
-
-
-    real left_wing_control(-0.1), right_wing_control(0.1), rudder_control(0);
-
-    right_wing.setControl(right_wing_control);
-    left_wing.setControl(left_wing_control);
-    rudder.setControl(rudder_control);
-
-    RigidBody aircraft;
-    aircraft.setOrientation(Quaternion(1,0,0,0));
-    aircraft.setMass(2.5);
-    aircraft.setLinearDamping(0.8f);
-    aircraft.setAngularDamping(0.8f);
-    Matrix3x3 it;
-    it.setBlockInertiaTensor(Vector3(2,1,1), 1);
-    aircraft.setInertiaTensor(it);
-
-    ForceRegistry registry;
-    Gravity gravity(Vector3(0,-9.81*2.5,0));
-    registry.add(&aircraft,&gravity);
-    registry.add(&aircraft,&right_wing);
-    registry.add(&aircraft,&left_wing);
-    registry.add(&aircraft,&rudder);
-    registry.add(&aircraft,&tail);
-
-    int numberOfIteration;
-    cout<<"Number of Iteration :";
-    cin>>numberOfIteration;
-    while(numberOfIteration!=0) {
-        for (int i=0;i<numberOfIteration;i++){
-
-            aircraft.clear_accumulator();
-
-            Vector3 propulsion = aircraft.localToWorldDirection(Vector3(-10,0,0));
-            aircraft.applyForceToCenterOfMass(propulsion);
-            registry.applyForce(0.016);
-            aircraft.integrate(0.016);
-
-            falton::Vector3 pos = aircraft.getPosition();
-            if (pos.y < 0.0f)
-            {
-                pos.y = 0.0f;
-                aircraft.setPosition(pos);
-
-                if (aircraft.getLinearVelocity().y < -10.0f)
-                {
-                    aircraft.setPosition(falton::Vector3(0,0,0));
-                    aircraft.setOrientation(falton::Quaternion(1,0,0,0));
-
-                    aircraft.setLinearVelocity(falton::Vector3(0,0,0));
-                    aircraft.setAngularVelocity(falton::Vector3(0,0,0));
-                }
-            }
-
-        }
-
-        Vector3 pos = aircraft.getPosition();
-        cout.precision(dbl::max_digits10);
-        std::cout<<pos.x<<" "<<pos.y<<" "<<pos.z<<std::endl;
-
-        Quaternion orientation = aircraft.getOrientation();
-        cout.precision(dbl::max_digits10);
-        cout<<orientation.scalar()<<" "<<orientation.vector().x<<" "<<orientation.vector().y<<" "<<orientation.vector().z<<endl;
-
-        cout<<"Number of Iteration :";
-        cin>>numberOfIteration;
-    }
+    colHandle1 = colliderTable.addCollider(bodyHandle1, colliderDef);
+    colHandle2 = colliderTable.addCollider(bodyHandle2, colliderDef);
 
     return 0;
 }

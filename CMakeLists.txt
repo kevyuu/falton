@@ -29,11 +29,9 @@ pkg_search_module(GLFW REQUIRED glfw3)
 find_package(GLEW REQUIRED)
 
 include_directories(${CMAKE_SOURCE_DIR}/Falton/include)
-include_directories(${CMAKE_SOURCE_DIR}/Polycode/Core/include)
-link_directories(${CMAKE_SOURCE_DIR}/Polycode/Core/lib)
 add_subdirectory(Falton)
 
-link_libraries(${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} ${GLFW_STATIC_LIBRARIES} falton libPolycore.a)
+link_libraries(${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} ${GLFW_STATIC_LIBRARIES} falton)
 include_directories(${GLFW_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS} ${GLEW_INCLUDE_DIRS})
 
 add_subdirectory(src)
