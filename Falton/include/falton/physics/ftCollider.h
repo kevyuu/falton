@@ -1,53 +1,32 @@
 //
-// Created by Kevin Yu on 12/12/15.
+// Created by Kevin Yu on 12/29/15.
 //
 
-#ifndef FALTON_COLLIDER_H
-#define FALTON_COLLIDER_H
+#ifndef FALTON_FTCOLLIDER_H
+#define FALTON_FTCOLLIDER_H
 
-#include "falton/math/precision.h"
-#include "ftHandle.h"
-#include "ftDef.h"
+#include "falton/math/math.h"
+#include "falton/physics/shape/ftShape.h"
+#include "falton/physics/ftDef.h"
+#include "falton/physics/Collision/ftCollisionSystem.h"
 
-struct ftCollider {
-    ftVector2 position;
-    real orientation;
-
-    real restitution;
-    real friction;
-
-    ftShapeHandle shape;
-    ftColliderHandle next;
-};
-
-class ftColliderTable {
-
+class ftCollider {
 public:
 
-    ftColliderTable();
-    ~ftColliderTable();
+    ftBody *body;
 
-    ftColliderHandle create(const ftColliderDef& colliderDef);
-    void destroy(ftColliderHandle colHandle);
+    //position and orientation relative to body
+    ftTransform transform;
 
-    ftColliderHandle addCollider(ftBodyHandle bodyHandle, const ftColliderDef& colliderDef);
+    real friction;
+    real restitution;
+    ColHandle collisionHandle;
 
-    void setRestitution(ftColliderHandle colHandle, real newRestitution);
-    void setFriction(ftColliderHandle colHandle, real newFriction);
-    void setShape(ftColliderHandle colHandle, ftShapeHandle shapeHandle);
+    ftShape* shape;
+    ftCollider* next;
 
-    real getRestitution(ftColliderHandle colHandle);
-    real getFriction(ftColliderHandle colHandle);
-    ftColliderHandle getColliders(ftBodyHandle bodyHandle);
-    ftShapeHandle getShape(ftColliderHandle colHandle);
-
-    ftColliderHandle next(ftColliderHandle colliderHandle);
-
-private:
-
-    ftColliderHandle bodyToColliderMap[100];
-
+    ftCollider(const ftColliderDef& colliderDef);
 };
 
 
-#endif //FALTON_COLLIDER_H
+#endif //FALTON_FTCOLLIDER_H

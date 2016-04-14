@@ -1,6 +1,7 @@
-file(GLOB MATH_SRC src/math/*.cpp)
-file(GLOB PHYSICS_SRC src/physics/*.cpp src/physics/shape/*.cpp)
+file (GLOB_RECURSE SRC src/*.cpp)
 
-add_library(falton ${MATH_SRC} ${PHYSICS_SRC})
+file (GLOB_RECURSE SOURCE_FILES src/*.cpp include/*.h)
+
+add_library(falton ${SOURCE_FILES} src/physics/ftMassComputer.cpp src/physics/joint/ftPinJoint.cpp include/falton/physics/joint/ftPinJoint.h)
 
 add_subdirectory(test)

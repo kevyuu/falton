@@ -6,24 +6,23 @@
 #define FALTON_FTDEF_H
 
 #include "falton/math/math.h"
+#include "falton/physics/ftBody.h"
 
-struct ftBodyDef {
-    ftVector2 position;
-    ftVector2 velocity;
+class ftCollider;
+class ftShape;
 
-    real orientation;
-    real angular_velocity;
 
-    real mass;
-
-    real rotation_inertia;
-};
 
 struct ftColliderDef {
-    ftVector2 position;
+    ftBody *body = nullptr;
 
-    real restitution;
-    real friction;
+    ftVector2 position;
+    real orientation = 0;
+
+    real restitution = 0;
+    real friction = 0.2;
+
+    ftShape *shape = nullptr;
 };
 
 

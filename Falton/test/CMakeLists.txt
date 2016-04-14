@@ -1,3 +1,5 @@
+enable_testing()
+
 set(GTEST_DIR "./gtest-1.7.0"
         CACHE PATH "The path to the GoogleTest test framework." FORCE)
 
@@ -16,5 +18,14 @@ set_property(TARGET gtest APPEND_STRING PROPERTY COMPILE_FLAGS " -w")
 
 include_directories(SYSTEM ${GTEST_DIR}/include)
 
-add_subdirectory(math)
+add_executable(PolygonTest ftPolygonTest.cpp)
+add_executable(CollisionTest ftCollisionTest.cpp ../include/Ball.cpp ../include/Ball.h)
+
+target_link_libraries(PolygonTest falton gtest gtest_main)
+target_link_libraries(CollisionTest falton gtest gtest_main)
+
+add_test(PolygonTest PolygonTest)
+add_test(CollisionTest CollisionTest)
+
+
 

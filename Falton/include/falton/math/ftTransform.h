@@ -7,22 +7,44 @@
 
 #include "falton/math/precision.h"
 #include "falton/math/ftVector2.h"
+#include "falton/math/ftRotation.h"
+
 
 class ftTransform {
 public:
     ftVector2 center;
 
-    real cosAngle;
-    real sinAngle;
+    ftRotation rotation;
 
-    ftVector2 operator*(const ftVector2& vec) {
-        ftVector2 result(0,0);
-        result.x = cosAngle * vec.x - sinAngle * vec.y + center.x;
-        result.y = sinAngle * vec.y + cosAngle * vec.x + center.y;
+    ftTransform() : center(0,0), rotation(0) {}
+
+    ftTransform(ftVector2 center, real angle) : center(center), rotation(angle) {}
+
+    ftVector2 operator*(const ftVector2& vec) const {
+        ftVector2 result = rotation * vec;
+
+        result += center;
 
         return result;
     }
 
+    ftTransform operator*(const ftTransform& transform) const {
+        ftTransform result;
+
+        result.rotation = this->rotation * transform.rotation;
+
+        result.center = this->rotation * transform.center;
+        result.center += this->center;
+
+        return result;
+    }
+
+    void operator*=(const ftTransform& transform) {
+
+        this->center = (this->rotation * transform.center) + this->center;
+        this->rotation *= transform.rotation;
+
+    }
 };
 
 

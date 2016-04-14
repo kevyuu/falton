@@ -7,6 +7,8 @@
 
 #include "ftVector2.h"
 #include "precision.h"
+#include "type.h"
 #include "ftTransform.h"
+#include "ftMat2x2.h"
 
 #endif //FALTON_MATH_H

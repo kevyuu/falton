@@ -5,83 +5,63 @@
 #ifndef FALTON_RIGIDBODY_H
 #define FALTON_RIGIDBODY_H
 
-#include <deque>
 #include "falton/math/math.h"
-#include "ftHandle.h"
-#include "falton/container/ChunkArray.h"
-#include "ftDef.h"
-
-struct ftColliderHandle;
 
 
+class ftCollider;
+struct ftBodyDef;
 
-
-struct ftBody {
-
-    ftBodyHandle bodyHandle;
-
-    ftVector2 position;
-    ftVector2 velocity;
-
-    real orientation;
-    real angular_velocity;
-
-    real mass;
-    real inverse_mass;
-    real rotation_inerita;
-    real inverse_rotation_inertia;
-
+enum ftBodyType {
+    STATIC,
+    KINEMATIC,
+    DYNAMIC
 };
 
-class ftBodyTable {
+struct ftBodyDef {
+    ftVector2 position;
+    ftVector2 velocity;
+    ftVector2 centerOfMass;
 
+    ftBodyType bodyType = STATIC;
+
+    real mass;
+    real moment;
+
+    real orientation = 0;
+    real angularVelocity = 0;
+};
+
+class ftBody {
 public:
-    ftBodyTable(int initialSize);
 
-    ~ftBodyTable();
+    ftTransform transform;
 
-    ftBodyHandle create(const ftBodyDef& bodyDef);
+    ftVector2 velocity;
 
-    void destroy(ftBodyHandle bodyHandle);
+    ftVector2 forceAccum;
 
-    void setPosition(ftBodyHandle bodyHandle, const ftVector2& newPosition);
+    ftVector2 centerOfMass;
 
-    void setVelocity(ftBodyHandle bodyHandle, const ftVector2& newVelocity);
+    ftBodyType bodyType;
 
-    void setOrientation(ftBodyHandle bodyHandle, const real newOrientation);
+    real torqueAccum;
 
-    void setAngularVelocity(ftBodyHandle bodyHandle, const real newAngularVelocity);
+    real angularVelocity;
 
-    void setMass(ftBodyHandle bodyHandle, const real newMass);
+    real mass;
+    real inverseMass;
+    real moment;
+    real inverseMoment;
 
-    void setRotationInertia(ftBodyHandle bodyHandle, const real newInertia);
+    ftBody* next;
+    ftBody* prev;
 
-    ftVector2 getPosition(ftBodyHandle bodyHandle);
+    ftCollider* colliders;
 
-    ftVector2 getVelocity(ftBodyHandle bodyHandle);
+    ftBody(const ftBodyDef& bodyDef);
+    void init(const ftBodyDef& bodyDef);
+    void addCollider(ftCollider *collider);
 
-    real getOrientation(ftBodyHandle bodyHandle);
-
-    real getAngularVelocity(ftBodyHandle bodyHandle);
-
-    real getMass(ftBodyHandle bodyHandle);
-
-    real getInverseMass(ftBodyHandle bodyHandle);
-
-    real getRotationInertia(ftBodyHandle bodyHandle);
-
-    real getInverseRotationInertia(ftBodyHandle bodyHandle);
-
-private:
-    ftBody** handleMap;
-    int lastId;
-
-    ChunkArray<ftBody> bodies;
-    int nBody;
-
-    std::deque<int> freeID;
-
-    int nextID();
 };
 
 #endif //FALTON_RIGIDBODY_H
