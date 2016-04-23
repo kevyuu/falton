@@ -37,7 +37,6 @@ void ftNSquaredBroadphase::findPairs(ftChunkArray<ftBroadPhasePair> &pairs) {
     ftBroadPhasePair pair;
     for (uint32 i=0;i<=lastHandle;i++) {
         for (uint32 j = i+1; j <= lastHandle; j++) {
-
             if (!(aabbBuffers[i].max == aabbBuffers[i].min) &&
                 aabbBuffers[i].overlap(aabbBuffers[j])) {
                 pair.handleA = i;

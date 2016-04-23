@@ -16,9 +16,8 @@ struct ftBroadPhasePair {
 class ftBroadPhase {
 public:
 
-    ftBroadPhase() {
-
-    };
+    ftBroadPhase() {};
+    virtual ~ftBroadPhase() {};
 
     virtual void init(ftTransformShape *collisionShapes) = 0;
     virtual void shutdown() = 0;

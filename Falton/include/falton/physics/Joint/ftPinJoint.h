@@ -6,7 +6,7 @@
 #define FALTON_FTPINJOINT_H
 #include "falton/math/math.h"
 
-class ftBody;
+struct ftBody;
 
 class ftPinJoint {
     ftBody* bodyA;

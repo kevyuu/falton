@@ -8,18 +8,7 @@
 #include "falton/physics/shape/ftCircle.h"
 
 class ftShape;
-
-struct ftContactPoint {
-    ftVector2 r1; //first shape contact point
-    ftVector2 r2; //second shape contact point
-};
-
-struct ftManifold {
-    ftVector2 normal; //normal pointing from second shape to first shape
-    ftContactPoint contactPoints[2];
-    real penetrationDepth[2];
-    uint8 numContact = 0;
-};
+struct ftManifold;
 
 typedef void (* CollisionFunc)(const ftTransformShape&, const ftTransformShape&, ftManifold&);
 

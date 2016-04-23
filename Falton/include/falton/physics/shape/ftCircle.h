@@ -16,7 +16,6 @@ public:
     real area;
     ftCircle(real radius);
     real getArea();
-    real computeMomentInertia(real density);
     ftAABB constructAABB(ftTransform transform);
 };
 

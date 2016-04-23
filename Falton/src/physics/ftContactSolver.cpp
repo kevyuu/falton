@@ -3,21 +3,33 @@
 //
 
 #include "falton/physics/ftContactSolver.h"
+#include "falton/physics/dynamic/ftContactConstraint.h"
 #include <iostream>
+#include <falton/physics/dynamic/ftIsland.h>
 
 using namespace std;
 
-void ftContactSolver::createContactConstraint(ftCollider* colliderA, ftCollider* colliderB, ftManifold *manifold, ftContactConstraint* constraint) {
+void ftContactSolver::createContactConstraint(ftCollider* colliderA, ftCollider* colliderB,
+                                              ftContact* contact, ftContactConstraint* constraint) {
+
+    ftManifold *manifold = &(contact->manifold);
+
     ftBody *bodyA = colliderA->body;
     ftBody *bodyB = colliderB->body;
 
-    constraint->bodyA = bodyA;
-    constraint->bodyB = bodyB;
+    constraint->bodyIDA = bodyA->islandId;
+    constraint->bodyIDB = bodyB->islandId;
     constraint->normal = manifold->normal;
     constraint->numContactPoint = manifold->numContact;
-    constraint->frictionCoef = real_sqrt(colliderA->friction * colliderB->friction);
+    constraint->contact = contact;
+    constraint->invMassA = bodyA->inverseMass;
+    constraint->invMassB = bodyB->inverseMass;
+    constraint->invMomentA = bodyA->inverseMoment;
+    constraint->invMomentB = bodyB->inverseMoment;
 
-    ftVector2 oneVector(1,1);
+    constraint->frictionCoef = real_sqrt(colliderA->friction * colliderB->friction);
+    constraint->restitution = (colliderA->restitution + colliderB->restitution) / 2;
+
 
     for (int i=0;i<constraint->numContactPoint;i++) {
         ftContactPointConstraint *pointConstraint = &(constraint->pointConstraint[i]);
@@ -25,25 +37,22 @@ void ftContactSolver::createContactConstraint(ftCollider* colliderA, ftCollider*
         pointConstraint->r1 = manifold->contactPoints[i].r1 - bodyA->transform.center;
         pointConstraint->r2 = manifold->contactPoints[i].r2 - bodyB->transform.center;
 
-        float kNormal = bodyA->inverseMass + bodyB->inverseMass;
+        real kNormal = bodyA->inverseMass + bodyB->inverseMass;
 
-        float rnA = pointConstraint->r1.cross(constraint->normal);
-        float rnB = pointConstraint->r2.cross(constraint->normal);
+        real rnA = pointConstraint->r1.cross(constraint->normal);
+        real rnB = pointConstraint->r2.cross(constraint->normal);
 
         kNormal += (bodyA->inverseMoment * rnA * rnA + bodyB->inverseMoment * rnB * rnB);
 
         pointConstraint->normalMass = 1/kNormal;
 
-        float kTangent = bodyA->inverseMass + bodyB->inverseMass;
+        real kTangent = bodyA->inverseMass + bodyB->inverseMass;
         ftVector2 tangent = constraint->normal.perpendicular();
-        float rtA = pointConstraint->r1.cross(tangent);
-        float rtB = pointConstraint->r2.cross(tangent);
+        real rtA = pointConstraint->r1.cross(tangent);
+        real rtB = pointConstraint->r2.cross(tangent);
 
         kTangent += (bodyA->inverseMoment * rtA * rtA + bodyB->inverseMoment * rtB * rtB);
         pointConstraint->tangentMass = 1/kTangent;
-
-        pointConstraint->accumNormalImpulse = 0;
-        pointConstraint->accumTangentImpulse = 0;
 
         real slop = manifold->penetrationDepth[i] - option.allowedPenetration;
         if (slop < 0) slop = 0;
@@ -52,77 +61,55 @@ void ftContactSolver::createContactConstraint(ftCollider* colliderA, ftCollider*
     }
 }
 
-ftContactSolver::ftContactSolver(const ftContactSolverOption& option) : option(option) {
-    constraintBuffer = new ftChunkArray<ftContactConstraint>(64);
-    constraintCache = new ftChunkArray<ftContactConstraint>(64);
+void ftContactSolver::init(const ftContactSolverOption &option){
+    this->option = option;
 }
 
-ftContactSolver::~ftContactSolver() {
-    delete constraintBuffer;
-    delete constraintCache;
-}
-
-void ftContactSolver::addConstraint(ftCollider* colliderA, ftCollider* colliderB, ftContact* contact) {
-
-    int pos = constraintBuffer->add();
-    createContactConstraint(colliderA, colliderB, &(contact->manifold) , &((*constraintBuffer)[pos]));
-    contact->constraint = (void *)&((*constraintBuffer)[pos]);
-
-}
-
-void ftContactSolver::updateConstraint(ftCollider* colliderA, ftCollider* colliderB, ftContact* contact) {
-
-    ftContactConstraint *oldConstraint = (ftContactConstraint*) contact->constraint;
-
-    int pos = constraintBuffer->add();
-    createContactConstraint(colliderA, colliderB, &(contact->manifold), &((*constraintBuffer)[pos]));
-    ftContactConstraint &newConstraint = (*constraintBuffer)[pos];
-
-    if (oldConstraint -> numContactPoint == newConstraint.numContactPoint) {
-        for (int i=0;i<newConstraint.numContactPoint;i++) {
-            //newConstraint.pointConstraint[i].accumNormalImpulse = oldConstraint->pointConstraint[i].accumNormalImpulse;
-            //newConstraint.pointConstraint[i].accumTangentImpulse = oldConstraint->pointConstraint[i].accumTangentImpulse;
-        }
-
-    }
-
-    contact->constraint = &newConstraint;
-
+void ftContactSolver::shutdown() {
+    //do nothing
 }
 
 void ftContactSolver::warmStart() {
-    for (uint32 i = 0;i < constraintBuffer->getSize(); ++i) {
-        ftContactConstraint *constraint = &((*constraintBuffer)[i]);
-        ftBody *bodyA = ((*constraintBuffer)[i]).bodyA;
-        ftBody *bodyB = ((*constraintBuffer)[i]).bodyB;
+    for (uint32 i = 0;i<constraintGroup.numConstraint;++i) {
+        ftContactConstraint *constraint = &(constraintGroup.constraints[i]);
 
+        uint32 bodyIDA = constraint->bodyIDA;
+        uint32 bodyIDB = constraint->bodyIDB;
         ftVector2 normal = constraint->normal;
-        ftVector2 tangent = normal.perpendicular();
-        for (uint8 j = 0; j < constraint->numContactPoint; ++j) {
-            ftContactPointConstraint *pc = &(constraint->pointConstraint[i]);
-            ftVector2 linearI = normal * pc->accumNormalImpulse + tangent * pc->accumTangentImpulse;
+        ftVector2 tangent = normal.tangent();
 
-            bodyA->velocity -= linearI * bodyA->inverseMass;
-            bodyB->velocity += linearI * bodyA->inverseMass;
+        ftManifold* manifold = &(constraint->contact->manifold);
 
-            bodyA->angularVelocity -= pc->r1.cross(linearI) * bodyA->inverseMoment;
-            bodyB->angularVelocity += pc->r2.cross(linearI) * bodyB->inverseMoment;
+        for (uint32 j = 0;j < constraint->numContactPoint; ++j) {
+
+            ftContactPointConstraint* pointConstraint = &(constraint->pointConstraint[j]);
+
+            pointConstraint->nIAcc = manifold->contactPoints[j].nIAcc;
+            pointConstraint->tIAcc = manifold->contactPoints[j].tIAcc;
+
+            ftVector2 impulse = pointConstraint->nIAcc * normal;
+            impulse += pointConstraint->tIAcc * tangent;
+
+            constraintGroup.velocities[bodyIDA] -= constraint->invMassA * impulse;
+            constraintGroup.velocities[bodyIDB] += constraint->invMassB * impulse;
+
+            ftVector2 r1 = pointConstraint->r1;
+            ftVector2 r2 = pointConstraint->r2;
+            constraintGroup.angularVelocities[bodyIDA] -= constraint->invMomentA * r1.cross(impulse);
+            constraintGroup.angularVelocities[bodyIDB] += constraint->invMomentB * r2.cross(impulse);
         }
     }
 }
 
 void ftContactSolver::solve(real dt) {
-
     uint8 numIteration = option.numIteration;
-    while (numIteration) {
+    while (numIteration > 0) {
 
-        for (uint32 i = 0; i < constraintBuffer->getSize(); ++i) {
+        for (uint32 i = 0; i < constraintGroup.numConstraint; ++i) {
 
-            ftContactConstraint *constraint = &((*constraintBuffer)[i]);
-            ftBody *bodyA = ((*constraintBuffer)[i]).bodyA;
-            ftBody *bodyB = ((*constraintBuffer)[i]).bodyB;
-
-
+            ftContactConstraint *constraint = &(constraintGroup.constraints[i]);
+            uint32 bodyIDA = constraint->bodyIDA;
+            uint32 bodyIDB = constraint->bodyIDB;
             ftVector2 normal = constraint->normal;
             ftVector2 tangent = normal.tangent();
 
@@ -130,73 +117,76 @@ void ftContactSolver::solve(real dt) {
 
                 ftContactPointConstraint *pointConstraint = &(constraint->pointConstraint[j]);
 
-                ftVector2 vA = bodyA->velocity;
-                ftVector2 vB = bodyB->velocity;
-                float wA = bodyA->angularVelocity;
-                float wB = bodyB->angularVelocity;
-
                 //normal impulse
                 {
+                    ftVector2 vA = constraintGroup.velocities[bodyIDA];
+                    ftVector2 vB = constraintGroup.velocities[bodyIDB];
+                    real wA = constraintGroup.angularVelocities[bodyIDA];
+                    real wB = constraintGroup.angularVelocities[bodyIDB];
 
-                    float rnA = pointConstraint->r1.cross(normal);
-                    float rnB = pointConstraint->r2.cross(normal);
+                    real rnA = pointConstraint->r1.cross(normal);
+                    real rnB = pointConstraint->r2.cross(normal);
 
-                    float jnV = vB.dot(normal) + wB * rnB - vA.dot(normal) - wA * rnA;
-                    float nLambda = (-jnV + pointConstraint->positionBias/dt) * pointConstraint->normalMass;
+                    real jnV = vB.dot(normal) + wB * rnB - vA.dot(normal) - wA * rnA;
+                    real nLambda = (-jnV + pointConstraint->positionBias/dt) * pointConstraint->normalMass;
 
-                    float oldAccumI = pointConstraint->accumNormalImpulse;
-                    pointConstraint->accumNormalImpulse += nLambda;
-                    if (pointConstraint->accumNormalImpulse < 0) {
-                        pointConstraint->accumNormalImpulse = 0;
+
+//                    ftVector2 dv = (vB + pointConstraint->r2.invCross(wB) - vA + pointConstraint->r1.invCross(wA));
+//                    real jnV = dv.dot(normal);
+//                    real nLambda = (-jnV + pointConstraint->positionBias/dt) * pointConstraint->normalMass
+
+                    real oldAccumI = pointConstraint->nIAcc;
+                    pointConstraint->nIAcc += nLambda;
+                    if (pointConstraint->nIAcc < 0) {
+                        pointConstraint->nIAcc = 0;
                     }
-                    float I = pointConstraint->accumNormalImpulse - oldAccumI;
+                    real I = pointConstraint->nIAcc - oldAccumI;
 
                     ftVector2 nLinearI = normal * I;
-                    float nAngularIA = rnA * I;
-                    float nAngularIB = rnB * I;
+                    real nAngularIA = rnA * I;
+                    real nAngularIB = rnB * I;
 
-                    bodyA->velocity -= bodyA->inverseMass * nLinearI;
-                    bodyB->velocity += bodyB->inverseMass * nLinearI;
+                    constraintGroup.velocities[bodyIDA] -= constraint->invMassA * nLinearI;
+                    constraintGroup.velocities[bodyIDB] += constraint->invMassB * nLinearI;
 
-                    bodyA->angularVelocity -= bodyA->inverseMoment * nAngularIA;
-                    bodyB->angularVelocity += bodyB->inverseMoment * nAngularIB;
+                    constraintGroup.angularVelocities[bodyIDA] -= constraint->invMomentA * nAngularIA;
+                    constraintGroup.angularVelocities[bodyIDB] += constraint->invMomentB * nAngularIB;
 
                 }
 
-                vA = bodyA->velocity;
-                vB = bodyB->velocity;
-                wA = bodyA->angularVelocity;
-                wB = bodyB->angularVelocity;
-
                 //tangent impulse
                 {
-                    float rtA = pointConstraint->r1.cross(tangent);
-                    float rtB = pointConstraint->r2.cross(tangent);
-                    float jtV = vB.dot(tangent) + wB * rtB - vA.dot(tangent) - wA * rtA;
+                    ftVector2 vA = constraintGroup.velocities[bodyIDA];
+                    ftVector2 vB = constraintGroup.velocities[bodyIDB];
+                    real wA = constraintGroup.angularVelocities[bodyIDA];
+                    real wB = constraintGroup.angularVelocities[bodyIDB];
 
-                    float nLambda = -jtV * pointConstraint->tangentMass;
+                    real rtA = pointConstraint->r1.cross(tangent);
+                    real rtB = pointConstraint->r2.cross(tangent);
+                    real jtV = vB.dot(tangent) + wB * rtB - vA.dot(tangent) - wA * rtA;
 
-                    float oldAccumI = pointConstraint->accumTangentImpulse;
-                    pointConstraint->accumTangentImpulse += nLambda;
+                    real nLambda = -jtV * pointConstraint->tangentMass;
 
-                    float frictionBound = constraint->frictionCoef * pointConstraint->accumNormalImpulse;
-                    if (pointConstraint->accumTangentImpulse > frictionBound) {
-                        pointConstraint->accumTangentImpulse = frictionBound;
-                    } else if (pointConstraint->accumTangentImpulse < -frictionBound) {
-                        pointConstraint->accumTangentImpulse = -frictionBound;
+                    real oldAccumI = pointConstraint->tIAcc;
+                    pointConstraint->tIAcc += nLambda;
+
+                    real frictionBound = constraint->frictionCoef * pointConstraint->nIAcc;
+                    if (pointConstraint->tIAcc > frictionBound) {
+                        pointConstraint->tIAcc = frictionBound;
+                    } else if (pointConstraint->tIAcc < -frictionBound) {
+                        pointConstraint->tIAcc = -frictionBound;
                     }
-                    float I = pointConstraint->accumTangentImpulse - oldAccumI;
+                    real I = pointConstraint->tIAcc - oldAccumI;
 
                     ftVector2 nLinearI = tangent * I;
-                    float nAngularIA = rtA * I;
-                    float nAngularIB = rtB * I;
+                    real nAngularIA = rtA * I;
+                    real nAngularIB = rtB * I;
 
-                    bodyA->velocity -= bodyA->inverseMass * nLinearI;
-                    bodyB->velocity += bodyB->inverseMass * nLinearI;
+                    constraintGroup.velocities[bodyIDA] -= constraint->invMassA * nLinearI;
+                    constraintGroup.velocities[bodyIDB] += constraint->invMassB * nLinearI;
 
-                    bodyA->angularVelocity -= bodyA->inverseMoment * nAngularIA;
-                    bodyB->angularVelocity += bodyB->inverseMoment * nAngularIB;
-
+                    constraintGroup.angularVelocities[bodyIDA] -= constraint->invMomentA * nAngularIA;
+                    constraintGroup.angularVelocities[bodyIDB] += constraint->invMomentB * nAngularIB;
 
                 }
 
@@ -204,12 +194,63 @@ void ftContactSolver::solve(real dt) {
 
         }
         numIteration --;
+    }
+
+    for (uint32 i = 0;i < constraintGroup.numBody; i++) {
+        constraintGroup.bodies[i]->velocity = constraintGroup.velocities[i];
+        constraintGroup.bodies[i]->angularVelocity = constraintGroup.angularVelocities[i];
+    }
+
+    for (uint32 i = 0; i < constraintGroup.numConstraint; ++i) {
+        ftContact* contact = constraintGroup.constraints[i].contact;
+        ftManifold* manifold = &(contact->manifold);
+        ftContactConstraint* constraint = &(constraintGroup.constraints[i]);
+        for (uint32 j = 0; j < contact->manifold.numContact; ++j) {
+            manifold->contactPoints[j].nIAcc =
+                    constraint->pointConstraint[j].nIAcc;
+            manifold->contactPoints[j].tIAcc =
+                    constraint->pointConstraint[j].tIAcc;
+        }
+    }
+}
+
+void ftContactSolver::createConstraints(const ftIsland *island) {
+
+    int nBody = island->bodies.getSize();
+    int nContact = island->contacts.getSize();
+
+    constraintGroup.positions = new ftVector2[nBody];
+    constraintGroup.velocities = new ftVector2[nBody];
+    constraintGroup.angularVelocities = new real[nBody];
+    constraintGroup.bodies = new ftBody*[nBody];
+    constraintGroup.constraints = new ftContactConstraint[nContact];
+
+    for (int i=0;i<nBody;i++) {
+        ftBody* body = island->bodies[i];
+        ftVector2 haha = body->transform.center;
+        constraintGroup.positions[i] = haha;
+        constraintGroup.velocities[i] = island->bodies[i]->velocity;
+        constraintGroup.angularVelocities[i] = island->bodies[i]->angularVelocity;
+        constraintGroup.bodies[i] = island->bodies[i];
+    }
+
+    for (int i=0;i<nContact;i++) {
+        ftContact* contact = island->contacts[i];
+
+        ftCollider* colliderA = (ftCollider*) contact->userdataA;
+        ftCollider* colliderB = (ftCollider*) contact->userdataB;
+        createContactConstraint(colliderA, colliderB, contact, &(constraintGroup.constraints[i]));
 
     }
 
-    delete constraintCache;
-    constraintCache = constraintBuffer;
-    constraintBuffer = new ftChunkArray<ftContactConstraint>(64);
+    constraintGroup.numConstraint = nContact;
+    constraintGroup.numBody = nBody;
 
 }
 
+void ftContactSolver::clearConstraints() {
+    delete[] constraintGroup.positions;
+    delete[] constraintGroup.velocities;
+    delete[] constraintGroup.angularVelocities;
+    delete[] constraintGroup.constraints;
+}

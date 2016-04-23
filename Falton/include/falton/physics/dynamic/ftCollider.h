@@ -7,13 +7,27 @@
 
 #include "falton/math/math.h"
 #include "falton/physics/shape/ftShape.h"
-#include "falton/physics/ftDef.h"
 #include "falton/physics/Collision/ftCollisionSystem.h"
 
-class ftCollider {
+struct ftBody;
+
+struct ftColliderDef {
+    ftBody *body = nullptr;
+
+    ftVector2 position;
+    real orientation = 0;
+
+    real restitution = 0;
+    real friction = 0.2;
+
+    ftShape *shape = nullptr;
+};
+
+struct ftCollider {
+
 public:
 
-    ftBody *body;
+    ftBody *body = nullptr;
 
     //position and orientation relative to body
     ftTransform transform;
@@ -22,10 +36,11 @@ public:
     real restitution;
     ColHandle collisionHandle;
 
-    ftShape* shape;
-    ftCollider* next;
+    ftShape* shape = nullptr;
+    ftCollider* next = nullptr;
 
-    ftCollider(const ftColliderDef& colliderDef);
+    friend class ftPhysicsSystem;
+    friend class ftContactSolver;
 };
 
 

@@ -14,10 +14,6 @@ real ftCircle::getArea() {
     return area;
 }
 
-real ftCircle::computeMomentInertia(real density) {
-    return density * area * radius * radius / 2;
-}
-
 ftAABB ftCircle::constructAABB(ftTransform transform) {
     ftAABB aabb;
     ftVector2 halfWidthVector(radius,radius);

@@ -16,6 +16,7 @@ class ftNSquaredBroadphase : public ftBroadPhase{
 public:
 
     ftNSquaredBroadphase() : aabbBuffers(128) , lastHandle(0){ };
+    ~ftNSquaredBroadphase() {};
 
     void init(ftTransformShape* collisionShapes);
     void shutdown();

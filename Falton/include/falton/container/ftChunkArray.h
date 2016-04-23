@@ -15,7 +15,7 @@ public:
     ftChunkArray(int chunkSize);
     ~ftChunkArray();
 
-    T& operator[](const uint32 idx);
+    T& operator[](const uint32 idx) const;
 
     void addChunk();
     void push(T obj);
@@ -23,9 +23,8 @@ public:
     void reserve(uint32 size);
     void remove();
 
-    uint32 getCapacity();
-
-    uint32 getSize();
+    uint32 getCapacity() const;
+    uint32 getSize() const;
 
 private:
 
@@ -74,7 +73,7 @@ void ftChunkArray<T>::push(T obj) {
 
 
 template <typename T>
-T& ftChunkArray<T>::operator[] (uint32 index) {
+T& ftChunkArray<T>::operator[] (uint32 index) const {
     uint32 chunkIndex = index / chunkSize;
     uint32 locationInChunk = index % chunkSize;
 
@@ -84,22 +83,22 @@ T& ftChunkArray<T>::operator[] (uint32 index) {
 template <typename T>
 uint32 ftChunkArray<T>::add() {
     if (nObject == capacity) addChunk();
-    nObject++;
+    ++nObject;
     return nObject - 1;
 }
 
 template <typename T>
 void ftChunkArray<T>::remove() {
-    nObject--;
+    --nObject;
 }
 
 template <typename T>
-uint32 ftChunkArray<T>::getCapacity() {
+uint32 ftChunkArray<T>::getCapacity() const{
     return capacity;
 }
 
 template <typename T>
-uint32 ftChunkArray<T>::getSize() {
+uint32 ftChunkArray<T>::getSize() const{
     return nObject;
 }
 

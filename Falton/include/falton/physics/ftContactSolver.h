@@ -6,9 +6,15 @@
 #define FALTON_FTCONTACTCONSTRAINTSOLVER_H
 
 #include <falton/physics/Collision/ftCollisionSystem.h>
-#include "falton/physics/ftBody.h"
-#include "falton/physics/ftCollider.h"
+#include <falton/physics/dynamic/ftContactConstraint.h>
+#include "falton/physics/dynamic/ftBody.h"
+#include "falton/physics/dynamic/ftCollider.h"
 #include "falton/math/type.h"
+
+struct ftContactConstraint;
+ struct ftContactConstraintGroup;
+struct ftContact;
+struct ftIsland;
 
 struct ftContactSolverOption {
     uint8 numIteration;
@@ -16,53 +22,24 @@ struct ftContactSolverOption {
     real allowedPenetration;
 };
 
-struct ftContactPointConstraint {
-
-    real normalMass;
-    real tangentMass;
-    real positionBias;
-
-    real accumNormalImpulse;
-    real accumTangentImpulse;
-
-    ftVector2 r1;
-    ftVector2 r2;
-
-};
-
-struct ftContactConstraint {
-
-    ftBody *bodyA, *bodyB;
-    ftVector2 normal;
-    ftContactPointConstraint pointConstraint[2];
-    float frictionCoef;
-    uint8 numContactPoint;
-
-};
-
-
 class ftContactSolver {
-
 public:
-    ftContactSolverOption option;
 
-    ftContactSolver(const ftContactSolverOption& option);
-
-    ~ftContactSolver();
-
-    ftChunkArray<ftContactConstraint> *constraintBuffer;
-    ftChunkArray<ftContactConstraint> *constraintCache;
-
-    void addConstraint(ftCollider* colliderA, ftCollider* colliderB, ftContact* contact);
-
-    void updateConstraint(ftCollider* colliderA, ftCollider* collider, ftContact* contact);
+    void init(const ftContactSolverOption& option);
+    void shutdown();
 
     void warmStart();
     void solve(real dt);
 
+    void createConstraints(const ftIsland* island);
+    void clearConstraints();
+
 private:
     void createContactConstraint(ftCollider *colliderA, ftCollider *colliderB,
-                                 ftManifold *manifold, ftContactConstraint *constraint);
+                                 ftContact *contact, ftContactConstraint *constraint);
+
+    ftContactConstraintGroup constraintGroup;
+    ftContactSolverOption option;
 
 };
 

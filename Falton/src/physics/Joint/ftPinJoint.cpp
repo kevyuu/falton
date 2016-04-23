@@ -2,7 +2,7 @@
 // Created by Kevin Yu on 4/13/16.
 //
 
-#include <falton/physics/ftBody.h>
+#include <falton/physics/dynamic/ftBody.h>
 #include "falton/physics/Joint/ftPinJoint.h"
 
 ftPinJoint* ftPinJoint::create(ftBody *bodyA, ftBody *bodyB, ftVector2 anchorPoint) {
@@ -16,8 +16,8 @@ ftPinJoint* ftPinJoint::create(ftBody *bodyA, ftBody *bodyB, ftVector2 anchorPoi
 
 }
 
-void ftPinJoint::preSolve(real dt) {
-    r1 = anchorPoint - bodyA->transform.center;
+void ftPinJoint::preSolve(real dt __attribute__((unused))) {
+    /*r1 = anchorPoint - bodyA->transform.center;
     r2 = anchorPoint - bodyB->transform.center;
 
     invK.element[0][0] = bodyA->inverseMass + bodyB->inverseMass +
@@ -27,13 +27,13 @@ void ftPinJoint::preSolve(real dt) {
     invK.element[1][1] = bodyA->inverseMass + bodyB->inverseMass +
             bodyA->inverseMoment * r1.x * r1.x + bodyB->inverseMoment * r2.x * r2.x;
 
-    invK.invert();
+    invK.invert();*/
 
 }
 
 void ftPinJoint::solve() {
 
-    ftVector2 jv = bodyB->velocity + r2.invCross(bodyB->angularVelocity) - bodyA->velocity - r1.invCross(bodyA->angularVelocity);
+    /*ftVector2 jv = bodyB->velocity + r2.invCross(bodyB->angularVelocity) - bodyA->velocity - r1.invCross(bodyA->angularVelocity);
 
     ftVector2 impulse = invK * (jv * -1);
 
@@ -41,5 +41,5 @@ void ftPinJoint::solve() {
     bodyA->angularVelocity -= (bodyA->inverseMoment * r1.cross(impulse));
 
     bodyB->velocity += (bodyB->inverseMass * impulse);
-    bodyB->angularVelocity += (bodyB->inverseMoment * r2.cross(impulse));
+    bodyB->angularVelocity += (bodyB->inverseMoment * r2.cross(impulse));*/
 }
