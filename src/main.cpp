@@ -115,7 +115,7 @@ void Demo1_init() {
     physicsSystem = new ftPhysicsSystem;
     physicsSystem->init(ftVector2(0,-10));
 
-    createStaticBox(ftVector2(0,-10), 3.14/8, ftVector2(50,10),1);
+    createStaticBox(ftVector2(0,-10), 0, ftVector2(50,10),1);
 
     createDynamicBox(ftVector2(0,4), ftVector2(0.5,0.5), 200, 1);
 
@@ -162,7 +162,7 @@ void Demo3_init() {
 
 void init() {
     allegro_init();
-    Demo3_init();
+    Demo2_init();
 }
 
 void shutdown(void)

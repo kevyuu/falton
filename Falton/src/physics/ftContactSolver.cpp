@@ -30,7 +30,6 @@ void ftContactSolver::createContactConstraint(ftCollider* colliderA, ftCollider*
     constraint->frictionCoef = real_sqrt(colliderA->friction * colliderB->friction);
     constraint->restitution = (colliderA->restitution + colliderB->restitution) / 2;
 
-
     for (int i=0;i<constraint->numContactPoint;i++) {
         ftContactPointConstraint *pointConstraint = &(constraint->pointConstraint[i]);
 
@@ -124,16 +123,10 @@ void ftContactSolver::solve(real dt) {
                     real wA = constraintGroup.angularVelocities[bodyIDA];
                     real wB = constraintGroup.angularVelocities[bodyIDB];
 
-                    real rnA = pointConstraint->r1.cross(normal);
-                    real rnB = pointConstraint->r2.cross(normal);
-
-                    real jnV = vB.dot(normal) + wB * rnB - vA.dot(normal) - wA * rnA;
-                    real nLambda = (-jnV + pointConstraint->positionBias/dt) * pointConstraint->normalMass;
-
-
-//                    ftVector2 dv = (vB + pointConstraint->r2.invCross(wB) - vA + pointConstraint->r1.invCross(wA));
-//                    real jnV = dv.dot(normal);
-//                    real nLambda = (-jnV + pointConstraint->positionBias/dt) * pointConstraint->normalMass
+                    ftVector2 dv = (vB + pointConstraint->r2.invCross(wB) - vA - pointConstraint->r1.invCross(wA));
+                    real jnV = dv.dot(normal);
+                    real restitutionBias = constraint->restitution * jnV;
+                    real nLambda = (-jnV + pointConstraint->positionBias/dt + restitutionBias) * pointConstraint->normalMass;
 
                     real oldAccumI = pointConstraint->nIAcc;
                     pointConstraint->nIAcc += nLambda;
@@ -143,6 +136,9 @@ void ftContactSolver::solve(real dt) {
                     real I = pointConstraint->nIAcc - oldAccumI;
 
                     ftVector2 nLinearI = normal * I;
+
+                    real rnA = pointConstraint->r1.cross(normal);
+                    real rnB = pointConstraint->r2.cross(normal);
                     real nAngularIA = rnA * I;
                     real nAngularIB = rnB * I;
 
@@ -161,14 +157,12 @@ void ftContactSolver::solve(real dt) {
                     real wA = constraintGroup.angularVelocities[bodyIDA];
                     real wB = constraintGroup.angularVelocities[bodyIDB];
 
-                    real rtA = pointConstraint->r1.cross(tangent);
-                    real rtB = pointConstraint->r2.cross(tangent);
-                    real jtV = vB.dot(tangent) + wB * rtB - vA.dot(tangent) - wA * rtA;
-
-                    real nLambda = -jtV * pointConstraint->tangentMass;
+                    ftVector2 dv = (vB + pointConstraint->r2.invCross(wB) - vA - pointConstraint->r1.invCross(wA));
+                    real jtV = dv.dot(tangent);
+                    real tLambda = -jtV * pointConstraint->tangentMass;
 
                     real oldAccumI = pointConstraint->tIAcc;
-                    pointConstraint->tIAcc += nLambda;
+                    pointConstraint->tIAcc += tLambda;
 
                     real frictionBound = constraint->frictionCoef * pointConstraint->nIAcc;
                     if (pointConstraint->tIAcc > frictionBound) {
@@ -179,6 +173,8 @@ void ftContactSolver::solve(real dt) {
                     real I = pointConstraint->tIAcc - oldAccumI;
 
                     ftVector2 nLinearI = tangent * I;
+                    real rtA = pointConstraint->r1.cross(tangent);
+                    real rtB = pointConstraint->r2.cross(tangent);
                     real nAngularIA = rtA * I;
                     real nAngularIB = rtB * I;
 

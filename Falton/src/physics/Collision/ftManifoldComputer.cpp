@@ -4,6 +4,7 @@
 
 #include "falton/physics/Collision/ftManifoldComputer.h"
 #include "falton/physics/shape/ftPolygon.h"
+#include "falton/physics/collision/ftContact.h"
 
 const CollisionFunc ftManifoldComputer::collisionFunctions[SHAPE_TYPE_NUMBER_ITEM][SHAPE_TYPE_NUMBER_ITEM] = {
 
