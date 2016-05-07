@@ -7,31 +7,39 @@
 
 #include<queue>
 
-#include "ftBroadPhase.h"
-#include "falton/container/ftIntQueue.h"
-#include "falton/container/ftChunkArray.h"
-#include "falton/physics/shape/ftAABB.h"
+#include <falton/physics/collision/broadphase/ftBroadphaseSystem.h>
+#include <falton/container/ftIntQueue.h>
+#include <falton/container/ftChunkArray.h>
+#include <falton/physics/shape/ftAABB.h>
 
-class ftNSquaredBroadphase : public ftBroadPhase{
+struct ftCollisionShape;
+
+class ftNSquaredBroadphase : public ftBroadphaseSystem{
 public:
 
-    ftNSquaredBroadphase() : aabbBuffers(128) , lastHandle(0){ };
+    ftNSquaredBroadphase() {};
     ~ftNSquaredBroadphase() {};
 
-    void init(ftTransformShape* collisionShapes);
+    void init();
     void shutdown();
 
-    void newShape(ColHandle handle);
-    void removeShape(ColHandle handle);
-    void moveShape(ColHandle handle);
-    void findPairs(ftChunkArray<ftBroadPhasePair> &pairs);
+    ftBroadphaseHandle addShape(const ftCollisionShape* const colShape, const void* const userData);
+    void removeShape(ftBroadphaseHandle handle);
+    void moveShape(ftBroadphaseHandle handle);
+    void findPairs(ftChunkArray<ftBroadPhasePair> *pairs);
 
 private:
 
-    ftChunkArray<ftAABB> aabbBuffers;
-    ftIntQueue dirtyHandles;
+    struct ftElem {
+        ftAABB aabb;
+        const ftCollisionShape* collisionShape;
+        const void* userdata;
 
-    uint32 lastHandle;
+    };
+
+    uint32 nShape;
+    ftChunkArray<ftElem> *elements;
+    ftIntQueue freeHandleList;
 
 };
 

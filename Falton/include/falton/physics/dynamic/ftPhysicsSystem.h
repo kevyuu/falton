@@ -14,6 +14,7 @@
 struct ftBodyDef;
 struct ftColliderDef;
 struct ftCollider;
+class ftPinJoint;
 
 class ftIslandSystem;
 
@@ -26,6 +27,7 @@ public:
 
     ftBody* createBody(const ftBodyDef& bodyDef);
     ftCollider* createCollider(const ftColliderDef& colliderDef);
+    ftPinJoint* createJoint(ftBody* bodyA, ftBody* bodyB, ftVector2 anchorPoint);
 
     void destroyBody(ftBody* body);
     void destroyCollider(ftCollider* collider);
@@ -43,7 +45,9 @@ private:
     ftContactSolver *contactSolver;
     ftCollisionSystem *collisionSystem;
     ftIslandSystem *islandSystem;
-    ftBroadPhase *broadphase;
+    ftBroadphaseSystem *broadphase;
+
+    ftChunkArray<ftPinJoint*> *joints;
 
     ftVector2 gravity;
 
@@ -53,6 +57,7 @@ private:
     static void beginContactListener(ftContact* contact, void* data);
     static void updateContactListener(ftContact* contact, void* data);
     static void endContactListener(ftContact* contact, void* data);
+    static bool collisionFilter(void* userdataA, void* userdataB);
 
 };
 

@@ -6,6 +6,7 @@
 #include "falton/physics/dynamic/ftCollider.h"
 #include "falton/physics/dynamic/ftBody.h"
 #include "falton/physics/dynamic/ftIsland.h"
+#include "falton/physics/collision/ftContact.h"
 
 
 void ftIslandSystem::init(ftBodyBuffers bodyBuffers) {

@@ -12,8 +12,11 @@ template <typename T>
 class ftChunkArray {
 public:
 
+    ftChunkArray();
     ftChunkArray(int chunkSize);
     ~ftChunkArray();
+
+    void initialize(int chunkSize);
 
     T& operator[](const uint32 idx) const;
 
@@ -36,6 +39,14 @@ private:
 
 };
 
+template <typename T>
+ftChunkArray<T>::ftChunkArray() {
+    this->chunkSize = 0;
+    this->nChunk = 0;
+    this->capacity = 0;
+    nObject = 0;
+}
+
 
 template <typename T>
 ftChunkArray<T>::ftChunkArray(int chunkSize) {
@@ -48,6 +59,18 @@ ftChunkArray<T>::ftChunkArray(int chunkSize) {
     objects[0] = new T[chunkSize];
     nObject = 0;
 
+}
+
+template <typename T>
+void ftChunkArray<T>::initialize(int chunkSize) {
+    this->chunkSize = chunkSize;
+    this->nChunk = 1;
+    this->capacity = chunkSize;
+
+    memset(objects,0,sizeof(T*) * 100);
+
+    objects[0] = new T[chunkSize];
+    nObject = 0;
 }
 
 template <typename T>

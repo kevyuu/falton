@@ -28,10 +28,6 @@ public:
 
 };
 
-struct ftTransformShape {
-public:
-    ftShape *shape;
-    ftTransform transform;
-};
+
 
 #endif //FALTON_SHAPE_H

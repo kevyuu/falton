@@ -34,7 +34,7 @@ public:
 
     real friction;
     real restitution;
-    ColHandle collisionHandle;
+    ftColHandle collisionHandle;
 
     ftShape* shape = nullptr;
     ftCollider* next = nullptr;

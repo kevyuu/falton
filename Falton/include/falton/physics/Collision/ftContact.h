@@ -5,12 +5,13 @@
 #ifndef FALTON_FTCONTACT_H
 #define FALTON_FTCONTACT_H
 
+#include <cstdint>
 #include <falton/math/math.h>
+#include <falton/physics/collision/ftCollisionSystem.h>
 
-typedef uint32 ColHandle;
 class ftShape;
 struct ftContactEdge;
-struct ftTransformShape;
+struct ftCollisionShape;
 
 struct ftManifoldPoint {
 
@@ -35,7 +36,8 @@ typedef enum ftCollisionState {
 
 struct ftContact {
 
-    ColHandle handleA, handleB; //handle A alwalys < handle B
+    ftColHandle handleA, handleB;
+
     void *userdataA, *userdataB;
 
     ftManifold manifold;
@@ -55,17 +57,18 @@ private:
     struct ftContactElem {
         ftContact contact;
         uint32 hashValue;
-        ftContactElem *next = nullptr;
-        ftContactElem *prev = nullptr;
+        ftContactElem *next;
+        ftContactElem *prev;
     };
 
     ftContactElem **contacts;
     uint32 capacity;
     uint32 nContact;
 
-    uint32 hash(ColHandle handleA, ColHandle handleB, uint32 capacity);
-    uint64 pairingFunction(ColHandle handleA, ColHandle handleB);
+    uint32 hash(ftColHandle keyA, ftColHandle keyB, uint32 capacity);
+    uint64 pairingFunction(ftColHandle keyA, ftColHandle keyB);
     void rehash(uint32 newCapacity);
+    void add(ftContactElem* elem, uint32 hashVal);
 
 public:
 
@@ -79,7 +82,8 @@ public:
             friend class ftContactBuffer;
     };
 
-    ftContact* create(ColHandle handle1, ColHandle handle2);
+    ftContact* find(ftColHandle  key1, ftColHandle key2);
+    ftContact* create(ftColHandle key1, ftColHandle key2);
     void destroy(ftContact* contact);
 
     uint32 getSize();
@@ -88,7 +92,6 @@ public:
     ftContact* start(ftIter* iter);
     ftContact* next(ftIter* iter);
 
-    ftContact* find(ColHandle handle1, ColHandle handle2);
 };
 
 

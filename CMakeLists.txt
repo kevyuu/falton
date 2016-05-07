@@ -7,7 +7,7 @@ enable_testing()
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR
     "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    set(warnings "-Wall -Wextra -Wno-missing-braces -Wno-reorder")
+    set(warnings "-Wall -Wextra -Wno-missing-braces -Wno-reorder -g")
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     set(warnings "/W4 /WX /Ehsc")
 endif()
@@ -28,13 +28,12 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake_modules")
 
 find_package(OpenGL REQUIRED)
 find_package(PkgConfig REQUIRED)
-pkg_search_module(GLFW REQUIRED glfw3)
 find_package(GLEW REQUIRED)
 
 include_directories(${CMAKE_SOURCE_DIR}/Falton/include)
 add_subdirectory(Falton)
 
-link_libraries(${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} ${GLFW_STATIC_LIBRARIES} falton)
+link_libraries(${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} falton)
 include_directories(${GLFW_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS} ${GLEW_INCLUDE_DIRS})
 
 include_directories(/usr/local/Cellar/allegro/5.0.11/include)

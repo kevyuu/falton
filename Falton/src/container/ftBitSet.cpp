@@ -15,7 +15,7 @@ int ftBitSet::table_offset(int index) {
 
 ftBitSet::ftBitSet(int size) {
 
-    int nChar = (size/8) + 1;
+    nChar = (size/8) + 1;
 
     bitTable = new char [nChar];
     capacity = nChar * 8;
@@ -24,7 +24,11 @@ ftBitSet::ftBitSet(int size) {
 }
 
 ftBitSet::~ftBitSet() {
-    delete bitTable;
+    delete[] bitTable;
+}
+
+void ftBitSet::clear() {
+    memset(bitTable,0,nChar);
 }
 
 bool ftBitSet::test(int index) {

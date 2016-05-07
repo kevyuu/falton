@@ -10,6 +10,7 @@ class ftBitSet {
 private:
     char* bitTable;
     int capacity;
+    int nChar;
 
     int table_index(int index);
     int table_offset(int index);
@@ -18,6 +19,7 @@ public:
     ftBitSet(int size);
     ~ftBitSet();
 
+    void clear();
     void resize(int size);
     bool test(int index);
     void on(int index);

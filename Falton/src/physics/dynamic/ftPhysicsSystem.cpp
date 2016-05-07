@@ -2,13 +2,13 @@
 // Created by Kevin Yu on 4/14/16.
 //
 
+#include <falton/physics/joint/ftPinJoint.h>
 #include "falton/physics/dynamic/ftPhysicsSystem.h"
 #include "falton/physics/dynamic/ftBody.h"
-#include "falton/physics/Collision/BroadPhase/ftNSquaredBroadphase.h"
+#include <falton/physics/Collision/BroadPhase/ftHierarchicalGrid.h>
 #include "falton/math/math.h"
 #include "falton/physics/dynamic/ftIsland.h"
 #include "falton/physics/dynamic/ftIslandSystem.h"
-
 
 void ftPhysicsSystem::init(ftVector2 gravity) {
 
@@ -19,7 +19,7 @@ void ftPhysicsSystem::init(ftVector2 gravity) {
     contactSolver = new ftContactSolver;
     contactSolver->init(option);
 
-    broadphase = new ftNSquaredBroadphase;
+    broadphase = new ftHierarchicalGrid;
     collisionSystem = new ftCollisionSystem;
     collisionSystem->init(broadphase);
 
@@ -29,6 +29,8 @@ void ftPhysicsSystem::init(ftVector2 gravity) {
     buffers.staticBuffer = &staticBodies;
     islandSystem = new ftIslandSystem;
     islandSystem->init(buffers);
+
+    joints = new ftChunkArray<ftPinJoint*>(64);
 
     this->gravity = gravity;
 }
@@ -41,6 +43,8 @@ void ftPhysicsSystem::shutdown() {
 
     islandSystem->shutdown();
     delete islandSystem;
+
+    delete joints;
 
     delete broadphase;
     if (contactConstraint) {
@@ -121,16 +125,24 @@ ftCollider* ftPhysicsSystem::createCollider(const ftColliderDef &colliderDef) {
 
 }
 
+ftPinJoint* ftPhysicsSystem::createJoint(ftBody *bodyA, ftBody *bodyB, ftVector2 anchorPoint) {
+    ftPinJoint* joint = ftPinJoint::create(bodyA, bodyB, anchorPoint);
+
+    joints->push(joint);
+
+    return joint;
+}
+
 void ftPhysicsSystem::step(real dt) {
 
     integrateVelocity(dt);
 
-    CollisionCallback callback;
+    ftCollisionCallback callback;
     callback.beginContact = &beginContactListener;
     callback.updateContact = &updateContactListener;
     callback.endContact = &endContactListener;
     callback.data = islandSystem;
-    collisionSystem->updateContacts(&contactBuffer, callback);
+    collisionSystem->updateContacts(&contactBuffer, &collisionFilter, callback);
 
     ftIslandSystem::ftIter islandIter = islandSystem->iterate();
     for (ftIsland* island = islandSystem->start(&islandIter); island!=nullptr; island = islandSystem->next(&islandIter)) {
@@ -138,6 +150,13 @@ void ftPhysicsSystem::step(real dt) {
         contactSolver->warmStart();
         contactSolver->solve(dt);
         contactSolver->clearConstraints();
+    }
+
+    for (uint32 iter = 5 ; iter >0 ; --iter) {
+        for (uint32 i = 0; i < joints->getSize(); ++i) {
+            (*joints)[i]->preSolve(dt);
+            (*joints)[i]->solve();
+        }
     }
 
     integratePosition(dt);
@@ -203,6 +222,20 @@ void ftPhysicsSystem::updateContactListener(ftContact *contact __attribute__((un
 void ftPhysicsSystem::endContactListener(ftContact *contact, void *data) {
     ftIslandSystem* islandSystem = (ftIslandSystem*) data;
     islandSystem->removeContact(contact);
+}
+
+bool ftPhysicsSystem::collisionFilter(void *userdataA, void *userdataB) {
+
+    ftCollider* colliderA = (ftCollider*) userdataA;
+    ftCollider* colliderB = (ftCollider*) userdataB;
+
+    ftBody* bodyA = colliderA->body;
+    ftBody* bodyB = colliderB->body;
+
+    if (bodyA == bodyB) return false;
+
+    return true;
+
 }
 
 

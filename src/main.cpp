@@ -72,7 +72,7 @@ void allegro_init(void)
     done = false;
 }
 
-void createDynamicBox(ftVector2 position, ftVector2 halfWidth, real mass, real friction) {
+ftBody* createDynamicBox(ftVector2 position, ftVector2 halfWidth, real mass, real friction) {
     ftPolygon *boxShape = ftPolygon::createBox(-1 * halfWidth, halfWidth);
     ftMassProperty boxmp = ftMassComputer::computeForPolygon(*boxShape,mass, ftVector2(0,0));
     ftBodyDef boxDef;
@@ -92,9 +92,11 @@ void createDynamicBox(ftVector2 position, ftVector2 halfWidth, real mass, real f
     boxColDef.friction = friction;
     ftCollider* boxCollider = physicsSystem->createCollider(boxColDef);
     colliders.push(boxCollider);
+
+    return box;
 }
 
-void createStaticBox(ftVector2 position, real orientation, ftVector2 halfWidth, real friction) {
+ftBody*  createStaticBox(ftVector2 position, real orientation, ftVector2 halfWidth, real friction) {
     ftPolygon *groundShape = ftPolygon::createBox(-1 * halfWidth, halfWidth);
     ftBodyDef groundDef;
     groundDef.bodyType = STATIC;
@@ -109,6 +111,8 @@ void createStaticBox(ftVector2 position, real orientation, ftVector2 halfWidth, 
     colliderDef.position = ftVector2(0,0);
     ftCollider* groundCollider = physicsSystem->createCollider(colliderDef);
     colliders.push(groundCollider);
+
+    return ground;
 }
 
 void Demo1_init() {
@@ -159,10 +163,44 @@ void Demo3_init() {
     }
 }
 
+void Demo4_init() {
+
+    physicsSystem = new ftPhysicsSystem;
+    physicsSystem->init(ftVector2(0,-10));
+
+    createStaticBox(ftVector2(0,-10), 0,ftVector2(50,10), 0.2);
+
+    ftVector2 x(-6, 0.75);
+    ftVector2 y;
+
+    for (int i = 0; i < 12 ; ++i) {
+        y = x;
+        for (int j = i; j < 12; ++j) {
+            createDynamicBox(y, ftVector2(0.5, 0.5), 10, 0.2);
+            y += ftVector2(1.125f, 0.0f);
+        }
+        x += ftVector2(0.5625f, 2.0f);
+    }
+
+}
+
+void Demo5_init() {
+    physicsSystem = new ftPhysicsSystem;
+    physicsSystem->init(ftVector2(0,-10));
+
+    ftBody* body1 = createStaticBox(ftVector2(0,-10),0, ftVector2(50,10), 0.2);
+    ftBody* body2 = createDynamicBox(ftVector2(0,1),ftVector2(6,0.125), 100, 0.2);
+    ftBody* body3 = createDynamicBox(ftVector2(-5,2), ftVector2(0.125,0.125), 25, 0.2);
+    ftBody* body4 = createDynamicBox(ftVector2(-5.5,2), ftVector2(0.125,0.125), 25, 0.2);
+    ftBody* body5 = createDynamicBox(ftVector2(5.5,15), ftVector2(0.5,0.5), 100, 0.2);
+
+    physicsSystem->createJoint(body1, body2, ftVector2(0,1));
+}
+
 
 void init() {
     allegro_init();
-    Demo2_init();
+    Demo5_init();
 }
 
 void shutdown(void)
@@ -248,8 +286,7 @@ void game_loop(void)
 
 int main(int argc __attribute__((unused)), char* argv[] __attribute((unused)))
 {
-    init();
-    game_loop();
-    shutdown();
+    Demo4_init();
+    update_logic();
     return 0;
 }

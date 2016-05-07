@@ -5,19 +5,20 @@
 #ifndef FALTON_COLLISION_H
 #define FALTON_COLLISION_H
 
-#include "falton/physics/shape/ftCircle.h"
+#include "falton/math/math.h"
+#include <falton/physics/shape/ftShape.h>
 
-class ftShape;
 struct ftManifold;
+struct ftCollisionShape;
 
-typedef void (* CollisionFunc)(const ftTransformShape&, const ftTransformShape&, ftManifold&);
+typedef void (* CollisionFunc)(const ftCollisionShape&, const ftCollisionShape&, ftManifold&);
 
 class ftManifoldComputer {
 
 public :
 
-    static void Collide(const ftTransformShape &shapeA,
-                        const ftTransformShape &shapeB,
+    static void Collide(const ftCollisionShape &shapeA,
+                        const ftCollisionShape &shapeB,
                         ftManifold& manifold);
 private:
 
@@ -51,12 +52,12 @@ private:
 
     static const CollisionFunc collisionFunctions[SHAPE_TYPE_NUMBER_ITEM][SHAPE_TYPE_NUMBER_ITEM];
 
-    static void PolygonToPolgonCollision(const ftTransformShape& shapeA,
-                                         const ftTransformShape& shapeB,
+    static void PolygonToPolgonCollision(const ftCollisionShape& shapeA,
+                                         const ftCollisionShape& shapeB,
                                          ftManifold& manifold);
 
-    static void CircleToCircleCollission(const ftTransformShape& shapeA,
-                                         const ftTransformShape& shapeB,
+    static void CircleToCircleCollission(const ftCollisionShape& shapeA,
+                                         const ftCollisionShape& shapeB,
                                          ftManifold& manifold);
 
     static MTVOutput FindPolygonToPolygonMTV(const MTVInput& mtvInput);

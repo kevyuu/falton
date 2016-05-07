@@ -3,6 +3,7 @@
 //
 
 #include "falton/physics/Collision/ftManifoldComputer.h"
+#include "falton/physics/shape/ftCircle.h"
 #include "falton/physics/shape/ftPolygon.h"
 #include "falton/physics/collision/ftContact.h"
 
@@ -14,14 +15,14 @@ const CollisionFunc ftManifoldComputer::collisionFunctions[SHAPE_TYPE_NUMBER_ITE
         ftManifoldComputer::PolygonToPolgonCollision
 };
 
-void ftManifoldComputer::Collide(const ftTransformShape &shapeA,
-                    const ftTransformShape &shapeB,
+void ftManifoldComputer::Collide(const ftCollisionShape &shapeA,
+                    const ftCollisionShape &shapeB,
                     ftManifold& manifold) {
     collisionFunctions[shapeA.shape->shapeType][shapeB.shape->shapeType](shapeA,shapeB,manifold);
 }
 
-void ftManifoldComputer::PolygonToPolgonCollision(const ftTransformShape& shapeA,
-                                     const ftTransformShape& shapeB,
+void ftManifoldComputer::PolygonToPolgonCollision(const ftCollisionShape& shapeA,
+                                     const ftCollisionShape& shapeB,
                                      ftManifold& manifold) {
 
     ftPolygon* polygonA = (ftPolygon *) shapeA.shape;
@@ -125,8 +126,8 @@ void ftManifoldComputer::PolygonToPolgonCollision(const ftTransformShape& shapeA
     }
 }
 
-void ftManifoldComputer::CircleToCircleCollission(const ftTransformShape& shapeA,
-                                     const ftTransformShape& shapeB,
+void ftManifoldComputer::CircleToCircleCollission(const ftCollisionShape& shapeA,
+                                     const ftCollisionShape& shapeB,
                                      ftManifold& manifold) {
 
 
