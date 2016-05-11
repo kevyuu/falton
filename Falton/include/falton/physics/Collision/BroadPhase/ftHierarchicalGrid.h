@@ -46,19 +46,19 @@ private:
         ftElem* next;
     };
 
-    uint32* nObjectAtLevel;
+    uint32* m_nObject;
 
-    uint32 nLevel;
-    real baseSize;
-    real sizeMul;
+    uint32 m_nLevel;
+    real m_baseSize;
+    real m_sizeMul;
 
-    real* cellSizeTable;
+    real* m_cellSizeTable;
 
-    ftChunkArray<ftElem>* elemList;
+    ftChunkArray<ftElem> m_elemList;
     ftIntQueue freeHandles;
 
-    ftElem** elemBucket;
-    uint32 bucketCapacity;
+    ftElem** m_elemBucket;
+    uint32 m_bucketCapacity;
 
     uint32 computeHashIndex(int32 x, int32 y, uint32 level);
     void insertElemToBucket(ftElem* elem, uint32 bucketIndex);

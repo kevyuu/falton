@@ -31,15 +31,15 @@ public:
     void warmStart();
     void solve(real dt);
 
-    void createConstraints(const ftIsland* island);
+    void createConstraints(const ftIsland& island);
     void clearConstraints();
 
 private:
     void createContactConstraint(ftCollider *colliderA, ftCollider *colliderB,
                                  ftContact *contact, ftContactConstraint *constraint);
 
-    ftContactConstraintGroup constraintGroup;
-    ftContactSolverOption option;
+    ftContactConstraintGroup m_constraintGroup;
+    ftContactSolverOption m_option;
 
 };
 

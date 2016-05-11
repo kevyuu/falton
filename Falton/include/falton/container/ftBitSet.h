@@ -6,18 +6,21 @@
 #define FALTON_FTBITSET_H
 
 
+#include <falton/math/math.h>
+
 class ftBitSet {
 private:
-    char* bitTable;
-    int capacity;
-    int nChar;
+    char* bitTable = nullptr;
+    uint32 capacity = 0;
+    uint32 nChar = 0;
 
-    int table_index(int index);
-    int table_offset(int index);
+    uint32 table_index(int index);
+    uint32 table_offset(int index);
 
 public:
-    ftBitSet(int size);
-    ~ftBitSet();
+
+    void init(uint32 size);
+    void cleanup();
 
     void clear();
     void resize(int size);
@@ -25,7 +28,7 @@ public:
     void on(int index);
     void off(int index);
 
-    int getCapacity();
+    uint32 getCapacity();
 
 };
 

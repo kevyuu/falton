@@ -16,49 +16,39 @@ void ftPhysicsSystem::init(ftVector2 gravity) {
     option.allowedPenetration = 0.01;
     option.baumgarteCoef = 0.2;
     option.numIteration = 10;
-    contactSolver = new ftContactSolver;
-    contactSolver->init(option);
+    m_contactSolver.init(option);
 
-    broadphase = new ftHierarchicalGrid;
-    collisionSystem = new ftCollisionSystem;
-    collisionSystem->init(broadphase);
+    m_broadphase = new ftHierarchicalGrid;
+    m_collisionSystem.init(m_broadphase);
 
     ftBodyBuffers buffers;
-    buffers.dynamicBuffer = &dynamicBodies;
-    buffers.kinematicBuffer = &kinematicBodies;
-    buffers.staticBuffer = &staticBodies;
-    islandSystem = new ftIslandSystem;
-    islandSystem->init(buffers);
+    buffers.dynamicBuffer = &m_dynamicBodies;
+    buffers.kinematicBuffer = &m_kinematicBodies;
+    buffers.staticBuffer = &m_staticBodies;
+    m_islandSystem.init(buffers);
 
-    joints = new ftChunkArray<ftPinJoint*>(64);
+    m_joints.init(64);
 
-    this->gravity = gravity;
+    this->m_gravity = gravity;
 }
 
 void ftPhysicsSystem::shutdown() {
-    delete contactSolver;
+    m_contactSolver.shutdown();
+    m_collisionSystem.shutdown();
+    m_islandSystem.shutdown();
 
-    collisionSystem->shutdown();
-    delete collisionSystem;
+    m_joints.cleanup();
 
-    islandSystem->shutdown();
-    delete islandSystem;
-
-    delete joints;
-
-    delete broadphase;
-    if (contactConstraint) {
-        delete[] contactConstraint;
-    }
+    delete m_broadphase;
 }
 
 ftBody* ftPhysicsSystem::createBody(const ftBodyDef &bodyDef) {
 
     ftBodyBuffer *bodyBuffer;
 
-    if (bodyDef.bodyType == STATIC) bodyBuffer = &(staticBodies);
-    else if (bodyDef.bodyType == KINEMATIC) bodyBuffer = &(kinematicBodies);
-    else bodyBuffer = &(dynamicBodies);
+    if (bodyDef.bodyType == STATIC) bodyBuffer = &(m_staticBodies);
+    else if (bodyDef.bodyType == KINEMATIC) bodyBuffer = &(m_kinematicBodies);
+    else bodyBuffer = &(m_dynamicBodies);
 
     ftBody* body = bodyBuffer->create();
 
@@ -94,9 +84,9 @@ void ftPhysicsSystem::destroyBody(ftBody *body) {
 
     ftBodyBuffer *bodyBuffer;
 
-    if (body->bodyType == STATIC) bodyBuffer = &(staticBodies);
-    else if (body->bodyType == KINEMATIC) bodyBuffer = &(kinematicBodies);
-    else bodyBuffer = &(dynamicBodies);
+    if (body->bodyType == STATIC) bodyBuffer = &(m_staticBodies);
+    else if (body->bodyType == KINEMATIC) bodyBuffer = &(m_kinematicBodies);
+    else bodyBuffer = &(m_dynamicBodies);
 
     bodyBuffer->destroy(body);
 
@@ -116,7 +106,7 @@ ftCollider* ftPhysicsSystem::createCollider(const ftColliderDef &colliderDef) {
     collider->shape = colliderDef.shape;
 
     ftBody* body = collider->body;
-    collider->collisionHandle = collisionSystem->addShape(body->transform * collider->transform, collider->shape, collider);
+    collider->collisionHandle = m_collisionSystem.addShape(body->transform * collider->transform, collider->shape, collider);
 
     collider->next = body->colliders;
     body->colliders = collider;
@@ -128,7 +118,7 @@ ftCollider* ftPhysicsSystem::createCollider(const ftColliderDef &colliderDef) {
 ftPinJoint* ftPhysicsSystem::createJoint(ftBody *bodyA, ftBody *bodyB, ftVector2 anchorPoint) {
     ftPinJoint* joint = ftPinJoint::create(bodyA, bodyB, anchorPoint);
 
-    joints->push(joint);
+    m_joints.push(joint);
 
     return joint;
 }
@@ -141,21 +131,21 @@ void ftPhysicsSystem::step(real dt) {
     callback.beginContact = &beginContactListener;
     callback.updateContact = &updateContactListener;
     callback.endContact = &endContactListener;
-    callback.data = islandSystem;
-    collisionSystem->updateContacts(&contactBuffer, &collisionFilter, callback);
+    callback.data = &m_islandSystem;
+    m_collisionSystem.updateContacts(&m_contactBuffer, &collisionFilter, callback);
 
-    ftIslandSystem::ftIter islandIter = islandSystem->iterate();
-    for (ftIsland* island = islandSystem->start(&islandIter); island!=nullptr; island = islandSystem->next(&islandIter)) {
-        contactSolver->createConstraints(island);
-        contactSolver->warmStart();
-        contactSolver->solve(dt);
-        contactSolver->clearConstraints();
+    ftIslandSystem::ftIter islandIter = m_islandSystem.iterate();
+    for (ftIsland* island = m_islandSystem.start(&islandIter); island!=nullptr; island = m_islandSystem.next(&islandIter)) {
+        m_contactSolver.createConstraints(*island);
+        m_contactSolver.warmStart();
+        m_contactSolver.solve(dt);
+        m_contactSolver.clearConstraints();
     }
 
     for (uint32 iter = 5 ; iter >0 ; --iter) {
-        for (uint32 i = 0; i < joints->getSize(); ++i) {
-            (*joints)[i]->preSolve(dt);
-            (*joints)[i]->solve();
+        for (uint32 i = 0; i < m_joints.getSize(); ++i) {
+            m_joints[i]->preSolve(dt);
+            m_joints[i]->solve();
         }
     }
 
@@ -163,17 +153,17 @@ void ftPhysicsSystem::step(real dt) {
 
     //update collision system
     {
-        ftBodyBuffer::ftIter iter = dynamicBodies.iterate();
-        for (ftBody* body = dynamicBodies.start(&iter); body != nullptr; body = dynamicBodies.next(&iter)) {
+        ftBodyBuffer::ftIter iter = m_dynamicBodies.iterate();
+        for (ftBody* body = m_dynamicBodies.start(&iter); body != nullptr; body = m_dynamicBodies.next(&iter)) {
             for (ftCollider* collider = body->colliders; collider != nullptr; collider = collider->next) {
-                collisionSystem->moveShape(collider->collisionHandle, body->transform * collider->transform);
+                m_collisionSystem.moveShape(collider->collisionHandle, body->transform * collider->transform);
             }
         }
 
-        iter = kinematicBodies.iterate();
-        for (ftBody* body = kinematicBodies.start(&iter); body != nullptr; body = kinematicBodies.next(&iter)) {
+        iter = m_kinematicBodies.iterate();
+        for (ftBody* body = m_kinematicBodies.start(&iter); body != nullptr; body = m_kinematicBodies.next(&iter)) {
             for (ftCollider* collider = body->colliders; collider != nullptr; collider = collider->next) {
-                collisionSystem->moveShape(collider->collisionHandle, body->transform * collider->transform);
+                m_collisionSystem.moveShape(collider->collisionHandle, body->transform * collider->transform);
             }
         }
     }
@@ -183,9 +173,9 @@ void ftPhysicsSystem::step(real dt) {
 
 void ftPhysicsSystem::integrateVelocity(real dt) {
 
-    ftBodyBuffer::ftIter iter = dynamicBodies.iterate();
-    for (ftBody* body = dynamicBodies.start(&iter); body!=nullptr; body = dynamicBodies.next(&iter)) {
-        body->velocity += gravity *dt;
+    ftBodyBuffer::ftIter iter = m_dynamicBodies.iterate();
+    for (ftBody* body = m_dynamicBodies.start(&iter); body!=nullptr; body = m_dynamicBodies.next(&iter)) {
+        body->velocity += m_gravity *dt;
     }
 
 }
@@ -193,8 +183,8 @@ void ftPhysicsSystem::integrateVelocity(real dt) {
 void ftPhysicsSystem::integratePosition(real dt) {
     // integrate dyanmic body position
     {
-        ftBodyBuffer::ftIter iter = dynamicBodies.iterate();
-        for (ftBody* body = dynamicBodies.start(&iter); body != nullptr; body = dynamicBodies.next(&iter)) {
+        ftBodyBuffer::ftIter iter = m_dynamicBodies.iterate();
+        for (ftBody* body = m_dynamicBodies.start(&iter); body != nullptr; body = m_dynamicBodies.next(&iter)) {
             body->transform.center += body->velocity * dt;
             body->transform.rotation += (body->angularVelocity * dt);
         }
@@ -202,8 +192,8 @@ void ftPhysicsSystem::integratePosition(real dt) {
 
     // integrate kinematic body position
     {
-        ftBodyBuffer::ftIter iter = kinematicBodies.iterate();
-        for (ftBody* body = kinematicBodies.start(&iter); body != nullptr; body = kinematicBodies.next(&iter)) {
+        ftBodyBuffer::ftIter iter = m_kinematicBodies.iterate();
+        for (ftBody* body = m_kinematicBodies.start(&iter); body != nullptr; body = m_kinematicBodies.next(&iter)) {
             body->transform.center += body->velocity * dt;
             body->transform.rotation += body->angularVelocity * dt;
         }

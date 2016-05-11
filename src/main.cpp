@@ -28,7 +28,7 @@ ALLEGRO_DISPLAY* display;
 ALLEGRO_COLOR electricBlue;
 
 ftPhysicsSystem* physicsSystem;
-ftChunkArray<ftCollider*> colliders(64);
+ftChunkArray<ftCollider*> colliders;
 
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 800;
@@ -96,6 +96,31 @@ ftBody* createDynamicBox(ftVector2 position, ftVector2 halfWidth, real mass, rea
     return box;
 }
 
+
+ftBody* createBall(ftVector2 position, real mass, real radius, real friction, real restitution) {
+    ftCircle *ballShape = new ftCircle(radius);
+    ftMassProperty ballmp = ftMassComputer::computeForCircle(*ballShape,mass, ftVector2(0,0));
+    ftBodyDef ballDef;
+    ballDef.bodyType = DYNAMIC;
+    ballDef.position = position;
+    ballDef.mass = ballmp.mass;
+    ballDef.moment = ballmp.moment;
+    ballDef.orientation = M_PI/8;
+    ballDef.centerOfMass = ballmp.centerOfMass;
+    ftBody* ball = physicsSystem->createBody(ballDef);
+
+    ftColliderDef colliderDef;
+    colliderDef.body = ball;
+    colliderDef.friction = friction;
+    colliderDef.restitution = restitution;
+    colliderDef.position = ftVector2(0,0);
+    colliderDef.shape = ballShape;
+    ftCollider* ballCollider = physicsSystem->createCollider(colliderDef);
+    colliders.push(ballCollider);
+
+    return ball;
+}
+
 ftBody*  createStaticBox(ftVector2 position, real orientation, ftVector2 halfWidth, real friction) {
     ftPolygon *groundShape = ftPolygon::createBox(-1 * halfWidth, halfWidth);
     ftBodyDef groundDef;
@@ -114,6 +139,7 @@ ftBody*  createStaticBox(ftVector2 position, real orientation, ftVector2 halfWid
 
     return ground;
 }
+
 
 void Demo1_init() {
     physicsSystem = new ftPhysicsSystem;
@@ -197,10 +223,22 @@ void Demo5_init() {
     physicsSystem->createJoint(body1, body2, ftVector2(0,1));
 }
 
+void Demo6_init() {
+    physicsSystem = new ftPhysicsSystem;
+    physicsSystem->init(ftVector2(0, -10));
+
+    createStaticBox(ftVector2(0, -10), 0, ftVector2(50, 10), 0.2);
+    real restitution[8] = {0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9};
+    for (uint32 i = 0; i < 8; ++i) {
+        createBall(ftVector2(-7.5 + (2 * i), 15), 50, 0.5, 0.2, restitution[i]);
+    }
+}
+
 
 void init() {
     allegro_init();
-    Demo5_init();
+    colliders.init(64);
+    Demo2_init();
 }
 
 void shutdown(void)
@@ -240,9 +278,25 @@ void draw_polygon(const ftTransform& transform, ftPolygon* polygon, ALLEGRO_COLO
     }
 }
 
+void draw_circle(const ftTransform& transform, ftCircle* circle, ALLEGRO_COLOR * color) {
+
+    ftVector2 spaceCenter = spaceToView(transform.center);
+
+    al_draw_circle(spaceCenter.x,spaceCenter.y,circle->radius * 40, *color,1.0);
+    ftVector2 one(1,0);
+    ftVector2 boundary = transform.center + (transform.rotation * one) * circle->radius;
+    boundary = spaceToView(boundary);
+    al_draw_line(spaceCenter.x, spaceCenter.y,
+                boundary.x, boundary.y, *color, 1.0);
+}
+
 
 void draw_collider(ftCollider* collider) {
-    draw_polygon(collider->body->transform, (ftPolygon*)collider->shape, &electricBlue);
+    if (collider->shape->shapeType == SHAPE_CIRCLE) {
+        draw_circle(collider->body->transform, (ftCircle*)collider->shape, &electricBlue);
+    } else {
+        draw_polygon(collider->body->transform, (ftPolygon *) collider->shape, &electricBlue);
+    }
 }
 
 void update_logic() {
@@ -286,7 +340,8 @@ void game_loop(void)
 
 int main(int argc __attribute__((unused)), char* argv[] __attribute((unused)))
 {
-    Demo4_init();
-    update_logic();
+    init();
+    game_loop();
+    shutdown();
     return 0;
 }

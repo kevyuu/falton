@@ -5,25 +5,23 @@
 #include "falton/container/ftBitSet.h"
 #include "string.h"
 
-int ftBitSet::table_index(int index) {
+uint32 ftBitSet::table_index(int index) {
     return index/8;
 }
 
-int ftBitSet::table_offset(int index) {
+uint32 ftBitSet::table_offset(int index) {
     return index%8;
 }
 
-ftBitSet::ftBitSet(int size) {
-
+void ftBitSet::init(uint32 size) {
     nChar = (size/8) + 1;
 
     bitTable = new char [nChar];
     capacity = nChar * 8;
-    memset(bitTable,0,nChar);
-
+    memset(bitTable, 0, nChar);
 }
 
-ftBitSet::~ftBitSet() {
+void ftBitSet::cleanup() {
     delete[] bitTable;
 }
 
@@ -44,9 +42,9 @@ void ftBitSet::off(int index) {
 }
 
 void ftBitSet::resize(int size) {
-    int nChar = (size/8) + 1;
+    uint32 nChar = (size/8) + 1;
 
-    int nBytesToCopy = nChar;
+    uint32 nBytesToCopy = nChar;
     if (nChar > capacity/8) nBytesToCopy = capacity/8;
 
     char *oldBitTable = bitTable;
@@ -54,11 +52,11 @@ void ftBitSet::resize(int size) {
 
     memcpy(bitTable, oldBitTable, nBytesToCopy);
 
-    delete oldBitTable;
+    delete[] oldBitTable;
 
     capacity = nChar * 8;
 }
 
-int ftBitSet::getCapacity() {
+uint32 ftBitSet::getCapacity() {
     return capacity;
 }

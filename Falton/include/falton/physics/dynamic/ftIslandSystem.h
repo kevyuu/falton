@@ -50,7 +50,8 @@ public:
     ftIsland* next(ftIter *iter);
 
 private:
-    ftBodyBuffers buffers;
+    ftBodyBuffers m_buffers;
+    ftChunkArray<ftIslandContact> m_islandContacts;
 
     void resetContactFlag();
 
@@ -58,7 +59,6 @@ private:
     static void destroyContactEdge(ftContactEdge *contactEdge);
     static void resetIslandID(ftBodyBuffer* buffer);
 
-    ftChunkArray<ftIslandContact> *islandContacts;
 };
 
 

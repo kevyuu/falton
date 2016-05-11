@@ -10,13 +10,12 @@
 #include <falton/physics/ftContactSolver.h>
 #include <falton/physics/collision/ftContact.h>
 #include <falton/physics/dynamic/ftContactConstraint.h>
+#include <falton/physics/dynamic/ftIslandSystem.h>
 
 struct ftBodyDef;
 struct ftColliderDef;
 struct ftCollider;
 class ftPinJoint;
-
-class ftIslandSystem;
 
 class ftPhysicsSystem {
 
@@ -35,21 +34,21 @@ public:
     void step(real dt);
 
 private:
-    ftBodyBuffer staticBodies;
-    ftBodyBuffer kinematicBodies;
-    ftBodyBuffer dynamicBodies;
+    ftBodyBuffer m_staticBodies;
+    ftBodyBuffer m_kinematicBodies;
+    ftBodyBuffer m_dynamicBodies;
 
-    ftContactConstraint *contactConstraint;
-    ftContactBuffer contactBuffer;
+    ftContactBuffer m_contactBuffer;
 
-    ftContactSolver *contactSolver;
-    ftCollisionSystem *collisionSystem;
-    ftIslandSystem *islandSystem;
-    ftBroadphaseSystem *broadphase;
+    ftContactSolver m_contactSolver;
+    ftCollisionSystem m_collisionSystem;
+    ftIslandSystem m_islandSystem;
 
-    ftChunkArray<ftPinJoint*> *joints;
+    ftBroadphaseSystem *m_broadphase;
 
-    ftVector2 gravity;
+    ftChunkArray<ftPinJoint*> m_joints;
+
+    ftVector2 m_gravity;
 
     void integrateVelocity(real dt);
     void integratePosition(real dt);

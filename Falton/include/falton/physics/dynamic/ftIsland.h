@@ -13,8 +13,6 @@ struct ftContact;
 class ftBodyBuffer;
 
 struct ftIsland {
-
-    ftIsland() : bodies(64), contacts(64){}
     ftChunkArray<ftBody*> bodies;
     ftChunkArray<ftContact*> contacts;
 };

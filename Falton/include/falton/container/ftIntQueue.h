@@ -17,8 +17,9 @@ private:
     uint32 end;
 
 public:
-    ftIntQueue();
-    ~ftIntQueue();
+
+    void init();
+    void cleanup();
 
     void push(uint32 handle);
 

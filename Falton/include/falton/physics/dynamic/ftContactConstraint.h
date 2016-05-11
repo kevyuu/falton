@@ -17,6 +17,7 @@ struct ftContactPointConstraint {
     real tangentMass;
 
     real positionBias;
+    real restitutionBias;
 
     real nIAcc = 0; //impulse normal accumulation for penetration solver
     real tIAcc = 0; //impulse tangent accumulation for friction solver
@@ -36,7 +37,6 @@ struct ftContactConstraint {
     ftContact *contact = nullptr;
 
     real frictionCoef;
-    real restitution;
     uint8 numContactPoint;
 
     real invMassA;

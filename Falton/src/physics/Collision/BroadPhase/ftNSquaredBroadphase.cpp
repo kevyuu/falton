@@ -7,57 +7,60 @@
 #include "falton/physics/Collision/BroadPhase/ftNSquaredBroadphase.h"
 
 void ftNSquaredBroadphase::init() {
-    elements = new ftChunkArray<ftElem>(64);
-    nShape = 0;
+    m_elements.init(64);
+    m_freeHandleList.init();
+
+    m_nShape = 0;
 }
 
 void ftNSquaredBroadphase::shutdown() {
-    delete elements;
+    m_elements.cleanup();
+    m_freeHandleList.cleanup();
 }
 
 ftBroadphaseHandle ftNSquaredBroadphase::addShape(const ftCollisionShape* colShape, const void* userData) {
-    ftBroadphaseHandle freeHandle = this->nShape;
-    if (freeHandleList.getSize() > 0) {
-        freeHandle = freeHandleList.pop();
+    ftBroadphaseHandle freeHandle = this->m_nShape;
+    if (m_freeHandleList.getSize() > 0) {
+        freeHandle = m_freeHandleList.pop();
     } else {
-        freeHandle = elements->add();
+        freeHandle = m_elements.add();
     }
 
-    ftElem* elem = &(*this->elements)[freeHandle];
+    ftElem* elem = &m_elements[freeHandle];
 
     elem->aabb = colShape->shape->constructAABB(colShape->transform);
     elem->collisionShape = colShape;
     elem->userdata = userData;
 
-    this->nShape++;
+    this->m_nShape++;
 
     return freeHandle;
 
 }
 
 void ftNSquaredBroadphase::removeShape(ftBroadphaseHandle handle) {
-    ftElem* elem = &(*this->elements)[handle];
+    ftElem* elem = &m_elements[handle];
     elem->collisionShape = nullptr;
-    freeHandleList.push(handle);
+    m_freeHandleList.push(handle);
 }
 
 void ftNSquaredBroadphase::moveShape(ftBroadphaseHandle handle) {
-    ftElem* elem = &(*this->elements)[handle];
+    ftElem* elem = &m_elements[handle];
     elem->aabb = elem->collisionShape->shape->constructAABB(elem->collisionShape->transform);
 }
 
 void ftNSquaredBroadphase::findPairs(ftChunkArray<ftBroadPhasePair> *pairs) {
 
     ftBroadPhasePair pair;
-    for (uint32 i=0;i< nShape;i++) {
-        for (uint32 j = i+1; j < nShape; j++) {
-            ftElem* elem1 = &(*this->elements)[i];
-            ftElem* elem2 = &(*this->elements)[j];
+    for (uint32 i=0;i< m_nShape;i++) {
+        for (uint32 j = i+1; j < m_nShape; j++) {
+            ftElem* elem1 = &m_elements[i];
+            ftElem* elem2 = &m_elements[j];
             if (elem1->collisionShape != nullptr && elem2->collisionShape != nullptr &&
                     elem1->aabb.overlap(elem2->aabb)) {
                 pair.userdataA = elem1->userdata;
                 pair.userdataB = elem2->userdata;
-                pairs.push(pair);
+                pairs->push(pair);
             }
         }
     }

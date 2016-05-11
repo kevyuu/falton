@@ -3,119 +3,135 @@
 //
 
 
-#include "falton/physics/Collision/ftCollisionSystem.h"
-#include "falton/physics/Collision/BroadPhase/ftBroadPhase.h"
+#include "falton/physics/collision/ftCollisionSystem.h"
+#include <falton/physics/collision/ftContact.h>
 
+#include <iostream>
+#include <falton/physics/collision/ftManifoldComputer.h>
 
-void ftCollisionSystem::init(ftBroadPhase *broadphase) {
+using namespace std;
 
-    this->broadphase = broadphase;
-    capacity = 64;
-    shapes = new ftTransformShape[capacity];
-    nShape = 0;
-    nMinQueueSize = 0;
+void ftCollisionSystem::init(ftBroadphaseSystem *broadphase) {
 
-    this->broadphase->init(shapes);
+    this->m_broadphase = broadphase;
+    m_curTimeStamp = 0;
+    m_nShape = 0;
+    m_minQueueSize = 0;
 
-    userData = new void*[capacity];
-    curTimestamp = 0;
+    m_shapes.init(64);
+    broadphase->init();
+    m_handleQueue.init();
+
 }
 
 void ftCollisionSystem::shutdown() {
 
-    broadphase->shutdown();
-    delete[] shapes;
-    delete[] userData;
+    m_broadphase->shutdown();
+    m_shapes.cleanup();
+    m_handleQueue.cleanup();
 
 }
 
-ColHandle ftCollisionSystem::addShape(ftTransform transform, ftShape *shape, void *userData) {
-
-    ColHandle freeHandle = nShape;
-    if (handleQueue.getSize() > nMinQueueSize) {
-        freeHandle = handleQueue.pop();
+ftColHandle ftCollisionSystem::addShape(ftTransform transform, ftShape* shape, void* userData) {
+    ftColHandle freeHandle = this->m_nShape;
+    if (m_handleQueue.getSize() > m_minQueueSize) {
+        freeHandle = m_handleQueue.pop();
+    } else {
+        freeHandle = m_shapes.add();
     }
 
-    if (nShape == capacity) {
-        ftTransformShape *oldShape = this->shapes;
-        this->shapes = new ftTransformShape[capacity * 2];
-        memcpy(this->shapes,oldShape,sizeof(capacity * sizeof(ftTransformShape)));
-        capacity *= 2;
-        delete oldShape;
-    }
+    ftCollisionShape* colShape = &(m_shapes[freeHandle]);
+    colShape->transform = transform;
+    colShape->shape = shape;
+    colShape->userdata = userData;
 
-    this->shapes[freeHandle].transform = transform;
-    this->shapes[freeHandle].shape = shape;
-    this->userData[freeHandle] = userData;
+    this->m_nShape++;
 
-    this->nShape++;
-
-    broadphase->newShape(freeHandle);
+    void* broadphaseProxy = (void*) freeHandle;
+    m_shapes[freeHandle].broadHandle = m_broadphase->addShape(colShape, broadphaseProxy);
 
     return freeHandle;
 
 }
 
-void ftCollisionSystem::removeShape(ColHandle handle) {
+void ftCollisionSystem::removeShape(ftColHandle handle) {
 
-    broadphase->removeShape(handle);
+    ftBroadphaseHandle broadHandle = m_shapes[handle].broadHandle;
+    m_broadphase->removeShape(broadHandle);
 
-    this->shapes[handle].shape = nullptr;
+    m_shapes[handle].shape = nullptr;
 
-    handleQueue.push(handle);
-
-    nMinQueueSize++;
+    m_handleQueue.push(handle);
+    m_minQueueSize++;
+    this->m_nShape--;
 
 }
 
-void ftCollisionSystem::moveShape(ColHandle handle, ftTransform transform) {
-    this->shapes[handle].transform = transform;
-    broadphase->moveShape(handle);
+void ftCollisionSystem::moveShape(ftColHandle handle, ftTransform transform) {
+    m_shapes[handle].transform = transform;
+
+    ftBroadphaseHandle broadHandle = m_shapes[handle].broadHandle;
+
+    m_broadphase->moveShape(broadHandle);
 }
 
-void ftCollisionSystem::updateContacts(ftContactBuffer* contactBuffer, CollisionCallback callback) {
-    ftChunkArray<ftBroadPhasePair> pairs(64);
-    broadphase->findPairs(pairs);
+void ftCollisionSystem::updateContacts(ftContactBuffer* contactBuffer, CollisionFilterFunc filter, ftCollisionCallback callback) {
+    ftChunkArray<ftBroadPhasePair> pairs;
+    pairs.init(64);
 
-    curTimestamp++;
+    m_broadphase->findPairs(&pairs);
+
+    m_curTimeStamp++;
 
     for (uint32 i=0;i<pairs.getSize();i++) {
-        ftContact *contact = contactBuffer->find(pairs[i].handleA, pairs[i].handleB);
-        if (contact == nullptr) {
+        const ftColHandle handleA = (ftColHandle) pairs[i].userdataA;
+        const ftColHandle handleB = (ftColHandle) pairs[i].userdataB;
+        const ftCollisionShape* colShapeA = &m_shapes[handleA];
+        const ftCollisionShape* colShapeB = &m_shapes[handleB];
 
-            ftManifold manifold;
-            ftManifoldComputer::Collide(shapes[pairs[i].handleA], shapes[pairs[i].handleB], manifold);
-            if (manifold.numContact > 0) {
-                contact = contactBuffer->create(pairs[i].handleA, pairs[i].handleB);
-                contact->collisionState = BEGIN_COLLISION;
-                contact->manifold = manifold;
-                contact->userdataA = userData[contact->handleA];
-                contact->userdataB = userData[contact->handleB];
-                callback.beginContact(contact,callback.data);
-                contact->timestamp = curTimestamp;
-            }
+        ftContact *contact = contactBuffer->find(handleA, handleB);
 
-        } else {
-            contact->collisionState = IN_COLLISION;
-            ftManifoldComputer::Collide(shapes[contact->handleA], shapes[contact->handleB], contact->manifold);
-            if (contact->manifold.numContact > 0) {
-                callback.updateContact(contact, callback.data);
-                contact->timestamp = curTimestamp;
+        if (filter(colShapeA->userdata, colShapeB->userdata)) {
+            if (contact == nullptr) {
+
+                ftManifold manifold;
+                ftManifoldComputer::Collide(*colShapeA, *colShapeB, &manifold);
+                if (manifold.numContact > 0) {
+                    contact = contactBuffer->create(handleA, handleB);
+                    contact->collisionState = BEGIN_COLLISION;
+                    contact->manifold = manifold;
+                    contact->userdataA = colShapeA->userdata;
+                    contact->userdataB = colShapeB->userdata;
+                    callback.beginContact(contact, callback.data);
+                    contact->timestamp = m_curTimeStamp;
+                }
+
+            } else {
+                contact->collisionState = IN_COLLISION;
+                ftManifoldComputer::Collide(*colShapeA, *colShapeB, &(contact->manifold));
+                if (contact->manifold.numContact > 0) {
+                    callback.updateContact(contact, callback.data);
+                    contact->timestamp = m_curTimeStamp;
+                }
             }
         }
+
     }
+
+    pairs.cleanup();
 
     //destroy ending contact
     {
-        ftChunkArray<ftContact*> endingContact(64);
+        ftChunkArray<ftContact*> endingContact;
+        endingContact.init(64);
 
         ftContactBuffer::ftIter iter = contactBuffer->iterate();
 
         for (ftContact* contact = contactBuffer->start(&iter); contact != nullptr;
              contact = contactBuffer->next(&iter)) {
-            if (contact->timestamp != curTimestamp ||
-                    this->shapes[contact->handleA].shape == nullptr ||
-                    this->shapes[contact->handleB].shape == nullptr) {
+            if (contact->timestamp != m_curTimeStamp ||
+                        m_shapes[contact->handleA].shape == nullptr ||
+                        m_shapes[contact->handleB].shape == nullptr) {
                 callback.endContact(contact, callback.data);
                 endingContact.push(contact);
             }
@@ -127,5 +143,5 @@ void ftCollisionSystem::updateContacts(ftContactBuffer* contactBuffer, Collision
 
     }
 
-    nMinQueueSize = 0;
+    m_minQueueSize = 0;
 }

@@ -5,13 +5,17 @@
 #include "falton/container/ftIntQueue.h"
 #include <string.h>
 
-ftIntQueue::ftIntQueue(){
+void ftIntQueue::init(){
     this->front = 0;
     this->end = -1;
     this->size = 0;
 
     this->capacity = 64;
     this->handle = new uint32[this->capacity];
+}
+
+void ftIntQueue::cleanup() {
+    delete this->handle;
 }
 
 void ftIntQueue::push(uint32 handle) {
@@ -38,8 +42,4 @@ uint32 ftIntQueue::pop() {
 
 uint32 ftIntQueue::getSize() {
     return size;
-}
-
-ftIntQueue::~ftIntQueue() {
-    delete this->handle;
 }

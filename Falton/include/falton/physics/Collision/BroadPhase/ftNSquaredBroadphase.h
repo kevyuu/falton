@@ -37,9 +37,9 @@ private:
 
     };
 
-    uint32 nShape;
-    ftChunkArray<ftElem> *elements;
-    ftIntQueue freeHandleList;
+    uint32 m_nShape;
+    ftChunkArray<ftElem> m_elements;
+    ftIntQueue m_freeHandleList;
 
 };
 

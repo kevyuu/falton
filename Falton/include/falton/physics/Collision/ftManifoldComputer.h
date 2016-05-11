@@ -11,7 +11,7 @@
 struct ftManifold;
 struct ftCollisionShape;
 
-typedef void (* CollisionFunc)(const ftCollisionShape&, const ftCollisionShape&, ftManifold&);
+typedef void (* ftCollisionFunc)(const ftCollisionShape&, const ftCollisionShape&, ftManifold*);
 
 class ftManifoldComputer {
 
@@ -19,7 +19,7 @@ public :
 
     static void Collide(const ftCollisionShape &shapeA,
                         const ftCollisionShape &shapeB,
-                        ftManifold& manifold);
+                        ftManifold *manifold);
 private:
 
     struct MTVInput {
@@ -50,15 +50,23 @@ private:
         int numPoint;
     };
 
-    static const CollisionFunc collisionFunctions[SHAPE_TYPE_NUMBER_ITEM][SHAPE_TYPE_NUMBER_ITEM];
+    static const ftCollisionFunc collisionFunctions[SHAPE_TYPE_NUMBER_ITEM][SHAPE_TYPE_NUMBER_ITEM];
 
-    static void PolygonToPolgonCollision(const ftCollisionShape& shapeA,
-                                         const ftCollisionShape& shapeB,
-                                         ftManifold& manifold);
+    static void PolygonToPolgonCollision(const ftCollisionShape &shapeA,
+                                         const ftCollisionShape &shapeB,
+                                         ftManifold *manifold);
+
+    static void PolygonToCircleCollision(const ftCollisionShape &shapeA,
+                                         const ftCollisionShape &shapeB,
+                                         ftManifold *manifold);
+
+    static void CircleToPolygonCollision(const ftCollisionShape &shapeA,
+                                         const ftCollisionShape &shapeB,
+                                         ftManifold *manifold);
 
     static void CircleToCircleCollission(const ftCollisionShape& shapeA,
                                          const ftCollisionShape& shapeB,
-                                         ftManifold& manifold);
+                                         ftManifold *manifold);
 
     static MTVOutput FindPolygonToPolygonMTV(const MTVInput& mtvInput);
 

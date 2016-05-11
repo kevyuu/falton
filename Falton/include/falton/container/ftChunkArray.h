@@ -13,10 +13,9 @@ class ftChunkArray {
 public:
 
     ftChunkArray();
-    ftChunkArray(int chunkSize);
-    ~ftChunkArray();
 
-    void initialize(int chunkSize);
+    void init(int chunkSize);
+    void cleanup();
 
     T& operator[](const uint32 idx) const;
 
@@ -47,22 +46,8 @@ ftChunkArray<T>::ftChunkArray() {
     nObject = 0;
 }
 
-
 template <typename T>
-ftChunkArray<T>::ftChunkArray(int chunkSize) {
-    this->chunkSize = chunkSize;
-    this->nChunk = 1;
-    this->capacity = chunkSize;
-
-    memset(objects,0,sizeof(T*) * 100);
-
-    objects[0] = new T[chunkSize];
-    nObject = 0;
-
-}
-
-template <typename T>
-void ftChunkArray<T>::initialize(int chunkSize) {
+void ftChunkArray<T>::init(int chunkSize) {
     this->chunkSize = chunkSize;
     this->nChunk = 1;
     this->capacity = chunkSize;
@@ -74,7 +59,7 @@ void ftChunkArray<T>::initialize(int chunkSize) {
 }
 
 template <typename T>
-ftChunkArray<T>::~ftChunkArray() {
+void ftChunkArray<T>::cleanup() {
     for (uint32 i=0;i<nChunk;i++) {
         delete[] objects[i];
     }

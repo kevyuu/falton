@@ -10,12 +10,12 @@
 
 
 void ftIslandSystem::init(ftBodyBuffers bodyBuffers) {
-    this->buffers = bodyBuffers;
-    islandContacts = new ftChunkArray<ftIslandContact>(64);
+    this->m_buffers = bodyBuffers;
+    m_islandContacts.init(64);
 }
 
 void ftIslandSystem::shutdown() {
-    delete islandContacts;
+    m_islandContacts.cleanup();
 }
 
 void ftIslandSystem::addContact(ftContact *contact) {
@@ -29,26 +29,26 @@ void ftIslandSystem::addContact(ftContact *contact) {
     ftContactEdge* contactEdgeA = createContactEdge(bodyA, bodyB, contact);
     ftContactEdge* contactEdgeB = createContactEdge(bodyB, bodyA, contact);
 
-    int index = islandContacts->add();
+    int index = m_islandContacts.add();
     contact->islandIndex = index;
-    (*islandContacts)[index].contact = contact;
-    (*islandContacts)[index].contactEdgeA = contactEdgeA;
-    (*islandContacts)[index].contactEdgeB = contactEdgeB;
+    m_islandContacts[index].contact = contact;
+    m_islandContacts[index].contactEdgeA = contactEdgeA;
+    m_islandContacts[index].contactEdgeB = contactEdgeB;
 
 
 }
 
 void ftIslandSystem::removeContact(ftContact *contact) {
 
-    ftIslandContact islandContact = ((*islandContacts)[contact->islandIndex]);
+    ftIslandContact islandContact = m_islandContacts[contact->islandIndex];
     destroyContactEdge(islandContact.contactEdgeA);
     destroyContactEdge(islandContact.contactEdgeB);
 
-    uint32 lastIndex = islandContacts->getSize() - 1;
-    ftContact* lastContact = (*islandContacts)[lastIndex].contact;
+    uint32 lastIndex = m_islandContacts.getSize() - 1;
+    ftContact* lastContact = m_islandContacts[lastIndex].contact;
     lastContact->islandIndex = contact->islandIndex;
-    (*islandContacts)[contact->islandIndex] = (*islandContacts)[lastIndex];
-    islandContacts->remove();
+    m_islandContacts[contact->islandIndex] = m_islandContacts[lastIndex];
+    m_islandContacts.remove();
 
 }
 
@@ -92,28 +92,30 @@ void ftIslandSystem::destroyContactEdge(ftContactEdge *contactEdge) {
 }
 
 ftIslandSystem::ftIter ftIslandSystem::iterate() {
-    resetIslandID(buffers.dynamicBuffer);
+    resetIslandID(m_buffers.dynamicBuffer);
     resetContactFlag();
     ftIter iter;
-    iter.iter = buffers.dynamicBuffer->iterate();
+    iter.iter = m_buffers.dynamicBuffer->iterate();
     return iter;
 }
 
 ftIsland* ftIslandSystem::start(ftIter *iter) {
 
-    int nBody  = buffers.dynamicBuffer->getSize() + buffers.staticBuffer->getSize() + buffers.kinematicBuffer->getSize();
+    int nBody  = m_buffers.dynamicBuffer->getSize() + m_buffers.staticBuffer->getSize() + m_buffers.kinematicBuffer->getSize();
 
     //build island with dfs
-    ftBodyBuffer *bodyBuffer = buffers.dynamicBuffer;
+    ftBodyBuffer *bodyBuffer = m_buffers.dynamicBuffer;
     for (ftBody *body = bodyBuffer->start(&(iter->iter)); body != nullptr; body = bodyBuffer->next(&(iter->iter))) {
         if (body->islandId == -1) {
 
-            resetIslandID(buffers.staticBuffer);
+            resetIslandID(m_buffers.staticBuffer);
 
             ftBody **dfsStack = new ftBody *[nBody];
             int stackSize = 0;
 
             ftIsland *island = new ftIsland;
+            island->bodies.init(64);
+            island->contacts.init(64);
 
             dfsStack[0] = body;
             ++stackSize;
@@ -133,7 +135,7 @@ ftIsland* ftIslandSystem::start(ftIter *iter) {
 
                     ftContact* contact = contactEdge->contact;
 
-                    ftIslandContact* islandContact = &((*islandContacts)[contact->islandIndex]);
+                    ftIslandContact* islandContact = &(m_islandContacts[contact->islandIndex]);
                     if (islandContact->dfsFlag) {
                         continue;
                     }
@@ -159,15 +161,17 @@ ftIsland* ftIslandSystem::start(ftIter *iter) {
 
 ftIsland* ftIslandSystem::next(ftIter *iter) {
 
+    iter->prevIsland->bodies.cleanup();
+    iter->prevIsland->contacts.cleanup();
     delete iter->prevIsland;
 
-    int nBody  = buffers.dynamicBuffer->getSize() + buffers.staticBuffer->getSize() + buffers.kinematicBuffer->getSize();
-    ftBodyBuffer *bodyBuffer = buffers.dynamicBuffer;
+    int nBody  = m_buffers.dynamicBuffer->getSize() + m_buffers.staticBuffer->getSize() + m_buffers.kinematicBuffer->getSize();
+    ftBodyBuffer *bodyBuffer = m_buffers.dynamicBuffer;
     for (ftBody *body = bodyBuffer->next(&(iter->iter)); body != nullptr; body = bodyBuffer->next(&(iter->iter))) {
         if (body->islandId == -1) {
 
-            resetIslandID(buffers.staticBuffer);
-            resetIslandID(buffers.kinematicBuffer);
+            resetIslandID(m_buffers.staticBuffer);
+            resetIslandID(m_buffers.kinematicBuffer);
 
             ftBody **dfsStack = new ftBody *[nBody];
             int stackSize = 0;
@@ -191,7 +195,7 @@ ftIsland* ftIslandSystem::next(ftIter *iter) {
                      contactEdge != nullptr; contactEdge = contactEdge->next) {
 
                     ftContact* contact = contactEdge->contact;
-                    ftIslandContact* islandContact = &((*islandContacts)[contact->islandIndex]);
+                    ftIslandContact* islandContact = &(m_islandContacts[contact->islandIndex]);
                     if (islandContact->dfsFlag) {
                         continue;
                     }
@@ -223,7 +227,7 @@ void ftIslandSystem::resetIslandID(ftBodyBuffer* buffer) {
 }
 
 void ftIslandSystem::resetContactFlag() {
-    for (uint32 i = 0;i < islandContacts->getSize(); ++i) {
-        (*islandContacts)[i].dfsFlag = false;
+    for (uint32 i = 0;i < m_islandContacts.getSize(); ++i) {
+        m_islandContacts[i].dfsFlag = false;
     }
 }
