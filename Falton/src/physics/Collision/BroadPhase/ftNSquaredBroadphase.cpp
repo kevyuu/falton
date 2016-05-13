@@ -44,7 +44,7 @@ void ftNSquaredBroadphase::removeShape(ftBroadphaseHandle handle) {
     m_freeHandleList.push(handle);
 }
 
-void ftNSquaredBroadphase::moveShape(ftBroadphaseHandle handle) {
+void ftNSquaredBroadphase::moveShape(ftBroadphaseHandle handle, const ftCollisionShape& colShape) {
     ftElem* elem = &m_elements[handle];
     elem->aabb = elem->collisionShape->shape->constructAABB(elem->collisionShape->transform);
 }

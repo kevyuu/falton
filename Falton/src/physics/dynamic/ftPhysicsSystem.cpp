@@ -103,6 +103,10 @@ ftCollider* ftPhysicsSystem::createCollider(const ftColliderDef &colliderDef) {
     collider->friction = colliderDef.friction;
     collider->restitution = colliderDef.restitution;
 
+    collider->group = colliderDef.group;
+    collider->category = colliderDef.category;
+    collider->mask = colliderDef.mask;
+
     collider->shape = colliderDef.shape;
 
     ftBody* body = collider->body;
@@ -123,6 +127,33 @@ ftPinJoint* ftPhysicsSystem::createJoint(ftBody *bodyA, ftBody *bodyB, ftVector2
     return joint;
 }
 
+void ftPhysicsSystem::iterateBody(ftBodyIterFunc iterFunc, void* data) {
+    iterateStaticBody(iterFunc, data);
+    iterateKinematicBody(iterFunc, data);
+    iterateDynamicBody(iterFunc, data);
+}
+
+void ftPhysicsSystem::iterateStaticBody(ftBodyIterFunc iterFunc, void *data) {
+    ftBodyBuffer::ftIter iter = m_staticBodies.iterate();
+    for (ftBody *body = m_staticBodies.start(&iter); body != nullptr; body = m_staticBodies.next(&iter)) {
+        iterFunc(body, data);
+    }
+}
+
+void ftPhysicsSystem::iterateKinematicBody(ftBodyIterFunc iterFunc, void *data) {
+    ftBodyBuffer::ftIter iter = m_kinematicBodies.iterate();
+    for (ftBody *body = m_staticBodies.start(&iter); body != nullptr; body = m_kinematicBodies.next(&iter)) {
+        iterFunc(body, data);
+    }
+}
+
+void ftPhysicsSystem::iterateDynamicBody(ftBodyIterFunc iterFunc, void *data) {
+    ftBodyBuffer::ftIter iter = m_dynamicBodies.iterate();
+    for (ftBody *body = m_dynamicBodies.start(&iter); body != nullptr; body = m_dynamicBodies.next(&iter)) {
+        iterFunc(body, data);
+    }
+}
+
 void ftPhysicsSystem::step(real dt) {
 
     integrateVelocity(dt);
@@ -132,7 +163,31 @@ void ftPhysicsSystem::step(real dt) {
     callback.updateContact = &updateContactListener;
     callback.endContact = &endContactListener;
     callback.data = &m_islandSystem;
-    m_collisionSystem.updateContacts(&m_contactBuffer, &collisionFilter, callback);
+
+    auto colFilter = [] (void* userdataA, void* userdataB) -> bool {
+        ftCollider* colliderA = (ftCollider*) userdataA;
+        ftCollider* colliderB = (ftCollider*) userdataB;
+
+        ftBody* bodyA = colliderA->body;
+        ftBody* bodyB = colliderB->body;
+
+        if (bodyA == bodyB) return false;
+        if (colliderA->group != 0 && colliderA->group == colliderB->group) return false;
+
+        int maskA = colliderA->mask;
+        int maskB = colliderB->mask;
+        int categoryA = colliderA->category;
+        int categoryB = colliderB->category;
+
+        if (!(maskA & categoryB)) return false;
+        if (!(maskB & categoryA)) return false;
+
+        return true;
+
+    };
+
+    m_collisionSystem.updateContacts(&m_contactBuffer, colFilter, callback);
+
 
     ftIslandSystem::ftIter islandIter = m_islandSystem.iterate();
     for (ftIsland* island = m_islandSystem.start(&islandIter); island!=nullptr; island = m_islandSystem.next(&islandIter)) {

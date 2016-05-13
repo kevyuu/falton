@@ -72,10 +72,10 @@ void ftCollisionSystem::moveShape(ftColHandle handle, ftTransform transform) {
 
     ftBroadphaseHandle broadHandle = m_shapes[handle].broadHandle;
 
-    m_broadphase->moveShape(broadHandle);
+    m_broadphase->moveShape(broadHandle, m_shapes[handle]);
 }
 
-void ftCollisionSystem::updateContacts(ftContactBuffer* contactBuffer, CollisionFilterFunc filter, ftCollisionCallback callback) {
+void ftCollisionSystem::updateContacts(ftContactBuffer* contactBuffer, ftCollisionFilterFunc filter, ftCollisionCallback callback) {
     ftChunkArray<ftBroadPhasePair> pairs;
     pairs.init(64);
 

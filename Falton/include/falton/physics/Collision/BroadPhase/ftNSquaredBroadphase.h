@@ -25,7 +25,7 @@ public:
 
     ftBroadphaseHandle addShape(const ftCollisionShape* const colShape, const void* const userData);
     void removeShape(ftBroadphaseHandle handle);
-    void moveShape(ftBroadphaseHandle handle);
+    void moveShape(ftBroadphaseHandle handle, const ftCollisionShape& colShape);
     void findPairs(ftChunkArray<ftBroadPhasePair> *pairs);
 
 private:

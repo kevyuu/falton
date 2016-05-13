@@ -20,6 +20,10 @@ struct ftColliderDef {
     real restitution = 0;
     real friction = 0.2;
 
+    uint32 group = 0;
+    uint32 category = 0xFFFF;
+    uint32 mask = 0xFFFF;
+
     ftShape *shape = nullptr;
 };
 
@@ -34,6 +38,11 @@ public:
 
     real friction;
     real restitution;
+
+    uint32 group;
+    uint32 category;
+    uint32 mask;
+
     ftColHandle collisionHandle;
 
     ftShape* shape = nullptr;

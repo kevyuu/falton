@@ -17,6 +17,8 @@ struct ftColliderDef;
 struct ftCollider;
 class ftPinJoint;
 
+typedef void (*ftBodyIterFunc) (ftBody* body, void* data);
+
 class ftPhysicsSystem {
 
 public:
@@ -30,6 +32,11 @@ public:
 
     void destroyBody(ftBody* body);
     void destroyCollider(ftCollider* collider);
+
+    void iterateBody(ftBodyIterFunc iterFunc, void* data);
+    void iterateStaticBody(ftBodyIterFunc iterFunc, void* data);
+    void iterateKinematicBody(ftBodyIterFunc iterFunc, void* data);
+    void iterateDynamicBody(ftBodyIterFunc iterFunc, void* data);
 
     void step(real dt);
 

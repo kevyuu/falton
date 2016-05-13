@@ -26,7 +26,7 @@ public:
     virtual void shutdown() = 0;
     virtual ftBroadphaseHandle addShape(const ftCollisionShape* const colShape, const void* const userData) = 0;
     virtual void removeShape(ftBroadphaseHandle handle) = 0;
-    virtual void moveShape(ftBroadphaseHandle handle) = 0;
+    virtual void moveShape(ftBroadphaseHandle handle, const ftCollisionShape& collisionShape) = 0;
 
     virtual void findPairs(ftChunkArray<ftBroadPhasePair> *pairs) = 0;
 

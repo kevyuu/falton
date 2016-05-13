@@ -13,8 +13,8 @@
 
 struct ftContact;
 
-typedef void (*ContactCallbackFunc) (ftContact* contact, void *data);
-typedef bool (*CollisionFilterFunc) (void* userdataA, void* userdataB);
+typedef void (*ftContactCallbackFunc) (ftContact* contact, void *data);
+typedef bool (*ftCollisionFilterFunc) (void* userdataA, void* userdataB);
 
 typedef uint32 ftColHandle;
 
@@ -33,7 +33,7 @@ public:
 };
 
 struct ftCollisionCallback {
-    ContactCallbackFunc beginContact, updateContact, endContact;
+    ftContactCallbackFunc beginContact, updateContact, endContact;
     void *data;
 };
 
@@ -48,7 +48,7 @@ public:
     void removeShape(ftColHandle handle);
     void moveShape(ftColHandle handle, ftTransform transform);
 
-    void updateContacts(ftContactBuffer *contactBuffer, CollisionFilterFunc filter, ftCollisionCallback callback);
+    void updateContacts(ftContactBuffer *contactBuffer, ftCollisionFilterFunc filter, ftCollisionCallback callback);
 
 private:
 

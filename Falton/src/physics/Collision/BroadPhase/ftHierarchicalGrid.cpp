@@ -98,12 +98,11 @@ ftBroadphaseHandle  ftHierarchicalGrid::addShape(const ftCollisionShape *const c
     return handle;
 }
 
-void ftHierarchicalGrid::moveShape(ftBroadphaseHandle handle) {
+void ftHierarchicalGrid::moveShape(ftBroadphaseHandle handle, const ftCollisionShape& colShape) {
 
     ftElem* elem = &m_elemList[handle];
-    const ftCollisionShape* colShape = m_elemList[handle].collisionShape;
 
-    elem->aabb = colShape->shape->constructAABB(colShape->transform);
+    elem->aabb = colShape.shape->constructAABB(colShape.transform);
 
     uint32 level = elem->level;
     real size = m_cellSizeTable[level];

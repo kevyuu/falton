@@ -29,7 +29,7 @@ public:
 
     void removeShape(ftBroadphaseHandle handle) override;
 
-    void moveShape(ftBroadphaseHandle handle) override;
+    void moveShape(ftBroadphaseHandle handle, const ftCollisionShape& colShape) override;
 
     void findPairs(ftChunkArray<ftBroadPhasePair> *pairs) override;
 
