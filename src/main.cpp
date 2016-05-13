@@ -238,7 +238,7 @@ void Demo6_init() {
 void init() {
     allegro_init();
     colliders.init(64);
-    Demo2_init();
+    Demo6_init();
 }
 
 void shutdown(void)

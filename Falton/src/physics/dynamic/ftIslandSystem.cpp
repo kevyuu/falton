@@ -177,6 +177,8 @@ ftIsland* ftIslandSystem::next(ftIter *iter) {
             int stackSize = 0;
 
             ftIsland *island = new ftIsland;
+            island->bodies.init(64);
+            island->contacts.init(64);
 
             dfsStack[0] = body;
             ++stackSize;
