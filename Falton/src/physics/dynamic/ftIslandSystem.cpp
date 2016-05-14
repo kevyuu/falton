@@ -130,6 +130,8 @@ ftIsland* ftIslandSystem::start(ftIter *iter) {
                 island->bodies[index] = topBody;
                 topBody->islandId = index;
 
+                if (topBody->bodyType == STATIC) continue;
+
                 for (ftContactEdge *contactEdge = topBody->contactList;
                      contactEdge != nullptr; contactEdge = contactEdge->next) {
 
@@ -192,6 +194,8 @@ ftIsland* ftIslandSystem::next(ftIter *iter) {
                 int index = island->bodies.add();
                 island->bodies[index] = topBody;
                 topBody->islandId = index;
+
+                if (topBody->bodyType == STATIC) continue;
 
                 for (ftContactEdge *contactEdge = topBody->contactList;
                      contactEdge != nullptr; contactEdge = contactEdge->next) {

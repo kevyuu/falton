@@ -10,6 +10,9 @@
 #include "falton/physics/dynamic/ftIsland.h"
 #include "falton/physics/dynamic/ftIslandSystem.h"
 
+#include <iostream>
+using namespace std;
+
 void ftPhysicsSystem::init(ftVector2 gravity) {
 
     ftContactSolverOption option;
@@ -62,6 +65,9 @@ ftBody* ftPhysicsSystem::createBody(const ftBodyDef &bodyDef) {
     body->angularVelocity = bodyDef.angularVelocity;
 
     body->bodyType = bodyDef.bodyType;
+    body->activationState = ACTIVE;
+
+    body->sleepTimer = 0.0;
 
     if (body->bodyType == DYNAMIC) {
         body->mass = bodyDef.mass;
@@ -191,11 +197,45 @@ void ftPhysicsSystem::step(real dt) {
 
     ftIslandSystem::ftIter islandIter = m_islandSystem.iterate();
     for (ftIsland* island = m_islandSystem.start(&islandIter); island!=nullptr; island = m_islandSystem.next(&islandIter)) {
-        m_contactSolver.createConstraints(*island);
-        m_contactSolver.warmStart();
-        m_contactSolver.solve(dt);
-        m_contactSolver.clearConstraints();
+
+        bool allSleeping = true;
+        ftChunkArray<ftBody *> *bodies = &(island->bodies);
+        for (uint32 i = 0; i < island->bodies.getSize(); ++i) {
+            ftBody* body = (*bodies)[i];
+            bool isStatic = body->bodyType == STATIC;
+            bool isKinematic = body->bodyType == KINEMATIC;
+            bool wantSleep = body->sleepTimer > SLEEP_TIME_THRESHOLD;
+            if (isKinematic || (!isStatic && !wantSleep)) {
+                allSleeping = false;
+                break;
+            }
+        }
+
+        if (allSleeping) {
+            for (uint32 i = 0; i < island->bodies.getSize(); ++i) {
+                if ((*bodies)[i]->bodyType == DYNAMIC) {
+                    (*bodies)[i]->activationState = SLEEP;
+                    (*bodies)[i]->velocity.setZero();
+                    (*bodies)[i]->angularVelocity = 0;
+                }
+            }
+        } else {
+            for (uint32 i = 0; i < island->bodies.getSize(); ++i) {
+                if ((*bodies)[i]->activationState == SLEEP) {
+                    (*bodies)[i]->activationState = ACTIVE;
+                    (*bodies)[i]->sleepTimer = 0;
+                }
+            }
+
+            m_contactSolver.createConstraints(*island);
+            m_contactSolver.warmStart();
+            m_contactSolver.solve(dt);
+            m_contactSolver.clearConstraints();
+        }
     }
+
+
+    updateBodiesActivation(dt);
 
     for (uint32 iter = 5 ; iter >0 ; --iter) {
         for (uint32 i = 0; i < m_joints.getSize(); ++i) {
@@ -210,6 +250,9 @@ void ftPhysicsSystem::step(real dt) {
     {
         ftBodyBuffer::ftIter iter = m_dynamicBodies.iterate();
         for (ftBody* body = m_dynamicBodies.start(&iter); body != nullptr; body = m_dynamicBodies.next(&iter)) {
+
+            if (body->activationState == SLEEP) continue;
+
             for (ftCollider* collider = body->colliders; collider != nullptr; collider = collider->next) {
                 m_collisionSystem.moveShape(collider->collisionHandle, body->transform * collider->transform);
             }
@@ -217,6 +260,9 @@ void ftPhysicsSystem::step(real dt) {
 
         iter = m_kinematicBodies.iterate();
         for (ftBody* body = m_kinematicBodies.start(&iter); body != nullptr; body = m_kinematicBodies.next(&iter)) {
+
+            if (body->activationState == SLEEP) continue;
+
             for (ftCollider* collider = body->colliders; collider != nullptr; collider = collider->next) {
                 m_collisionSystem.moveShape(collider->collisionHandle, body->transform * collider->transform);
             }
@@ -230,6 +276,7 @@ void ftPhysicsSystem::integrateVelocity(real dt) {
 
     ftBodyBuffer::ftIter iter = m_dynamicBodies.iterate();
     for (ftBody* body = m_dynamicBodies.start(&iter); body!=nullptr; body = m_dynamicBodies.next(&iter)) {
+        if (body->activationState == SLEEP) continue;
         body->velocity += m_gravity *dt;
     }
 
@@ -240,6 +287,7 @@ void ftPhysicsSystem::integratePosition(real dt) {
     {
         ftBodyBuffer::ftIter iter = m_dynamicBodies.iterate();
         for (ftBody* body = m_dynamicBodies.start(&iter); body != nullptr; body = m_dynamicBodies.next(&iter)) {
+            if (body->activationState == SLEEP) continue;
             body->transform.center += body->velocity * dt;
             body->transform.rotation += (body->angularVelocity * dt);
         }
@@ -252,6 +300,21 @@ void ftPhysicsSystem::integratePosition(real dt) {
             body->transform.center += body->velocity * dt;
             body->transform.rotation += body->angularVelocity * dt;
         }
+    }
+}
+
+void ftPhysicsSystem::updateBodiesActivation(real dt) {
+    auto iter = m_dynamicBodies.iterate();
+    for (ftBody* body = m_dynamicBodies.start(&iter);
+         body != nullptr; body = m_dynamicBodies.next(&iter)) {
+        updateBodyActivation(body, dt);
+    }
+}
+
+void ftPhysicsSystem::updateBodyActivation(ftBody* body, real dt) {
+    if ((body->velocity.magnitude() < SLEEP_LIN_SPEED_THRESHOLD) &&
+        ftAbs(body->angularVelocity) < SLEEP_ANG_SPEED_THRESHOLD) {
+        body->sleepTimer += dt;
     }
 }
 
@@ -268,19 +331,3 @@ void ftPhysicsSystem::endContactListener(ftContact *contact, void *data) {
     ftIslandSystem* islandSystem = (ftIslandSystem*) data;
     islandSystem->removeContact(contact);
 }
-
-bool ftPhysicsSystem::collisionFilter(void *userdataA, void *userdataB) {
-
-    ftCollider* colliderA = (ftCollider*) userdataA;
-    ftCollider* colliderB = (ftCollider*) userdataB;
-
-    ftBody* bodyA = colliderA->body;
-    ftBody* bodyB = colliderB->body;
-
-    if (bodyA == bodyB) return false;
-
-    return true;
-
-}
-
-

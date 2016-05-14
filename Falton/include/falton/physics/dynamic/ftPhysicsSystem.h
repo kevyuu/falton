@@ -57,13 +57,19 @@ private:
 
     ftVector2 m_gravity;
 
+    static constexpr float SLEEP_TIME_THRESHOLD = 0.5f;
+    static constexpr float SLEEP_LIN_SPEED_THRESHOLD = 0.08f;
+    static constexpr float SLEEP_ANG_SPEED_THRESHOLD = (2.0f / 180.0f * PI);
+
     void integrateVelocity(real dt);
     void integratePosition(real dt);
+
+    void updateBodiesActivation(real dt);
+    void updateBodyActivation(ftBody* body, real dt);
 
     static void beginContactListener(ftContact* contact, void* data);
     static void updateContactListener(ftContact* contact, void* data);
     static void endContactListener(ftContact* contact, void* data);
-    static bool collisionFilter(void* userdataA, void* userdataB);
 
 };
 

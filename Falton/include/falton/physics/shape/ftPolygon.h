@@ -15,7 +15,7 @@ public:
     ftVector2* vertices; // stored in counter clockwise order
     ftVector2* normals; // stored in counter clockwise order
 
-    int numVertex;
+    uint32 numVertex;
 
     real area;
 

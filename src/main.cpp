@@ -17,6 +17,19 @@
 #include <iostream>
 #include <falton/physics/dynamic/ftBody.h>
 #include <falton/physics/dynamic/ftPhysicsSystem.h>
+#include "ftDebugDrawer.h"
+
+
+
+#include <sys/time.h>
+
+long getMicro() {
+    timeval time;
+    gettimeofday(&time, NULL);
+    long micro = (time.tv_sec * 1000000) + (time.tv_usec);
+    return micro;
+}
+
 
 using namespace std;
 
@@ -29,6 +42,7 @@ ALLEGRO_COLOR electricBlue;
 
 ftPhysicsSystem* physicsSystem;
 ftChunkArray<ftCollider*> colliders;
+ftDebugDrawer drawer;
 
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 800;
@@ -216,9 +230,9 @@ void Demo5_init() {
 
     ftBody* body1 = createStaticBox(ftVector2(0,-10),0, ftVector2(50,10), 0.2);
     ftBody* body2 = createDynamicBox(ftVector2(0,1),ftVector2(6,0.125), 100, 0.2);
-    ftBody* body3 = createDynamicBox(ftVector2(-5,2), ftVector2(0.125,0.125), 25, 0.2);
-    ftBody* body4 = createDynamicBox(ftVector2(-5.5,2), ftVector2(0.125,0.125), 25, 0.2);
-    ftBody* body5 = createDynamicBox(ftVector2(5.5,15), ftVector2(0.5,0.5), 100, 0.2);
+    createDynamicBox(ftVector2(-5,2), ftVector2(0.125,0.125), 25, 0.2);
+    createDynamicBox(ftVector2(-5.5,2), ftVector2(0.125,0.125), 25, 0.2);
+    createDynamicBox(ftVector2(5.5,15), ftVector2(0.5,0.5), 100, 0.2);
 
     physicsSystem->createJoint(body1, body2, ftVector2(0,1));
 }
@@ -237,6 +251,7 @@ void Demo6_init() {
 
 void init() {
     allegro_init();
+    drawer.init();
     colliders.init(64);
     Demo4_init();
 }
@@ -265,7 +280,7 @@ ftVector2 spaceToView(ftVector2 spaceVector) {
 
 void draw_polygon(const ftTransform& transform, ftPolygon* polygon, ALLEGRO_COLOR *color) {
 
-    for (int i=0;i<polygon->numVertex;++i) {
+    for (uint32 i=0;i<polygon->numVertex;++i) {
         int i1 = i;
         int i2 = (i + 1) % polygon->numVertex;
 
@@ -300,13 +315,15 @@ void draw_collider(ftCollider* collider) {
 }
 
 void update_logic() {
+    long start = getMicro();
     physicsSystem->step(1.0/60);
+    long end = getMicro();
+    cout<<end - start<<endl;
+
 }
 
 void update_graphics() {
-    for (uint32 i=0;i<colliders.getSize();i++) {
-        draw_collider(colliders[i]);
-    }
+    drawer.draw(physicsSystem);
 }
 
 void game_loop(void)

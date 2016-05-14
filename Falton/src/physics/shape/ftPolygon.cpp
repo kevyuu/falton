@@ -21,11 +21,11 @@ ftPolygon* ftPolygon::create(int numVertex, const ftVector2 *vertices){
     polygon->vertices = new ftVector2[numConvexVertex];
     polygon->normals = new ftVector2[numConvexVertex];
 
-    for (int i=0;i<polygon->numVertex;i++) {
+    for (uint32 i=0;i<polygon->numVertex;i++) {
         polygon->vertices[i] = convexHull[i];
     }
 
-    for (int i=0;i<polygon->numVertex-1;i++) {
+    for (uint32 i=0;i<polygon->numVertex-1;i++) {
         polygon->normals[i] = (polygon->vertices[i + 1] - polygon->vertices[i]).perpendicular();
         polygon->normals[i].normalise();
     }
@@ -33,7 +33,7 @@ ftPolygon* ftPolygon::create(int numVertex, const ftVector2 *vertices){
     polygon->normals[numVertex-1].normalise();
 
     polygon->area = 0;
-    for (int i=0;i<polygon->numVertex-1;i++) {
+    for (uint32 i=0;i<polygon->numVertex-1;i++) {
 
         ftVector2 a = polygon->vertices[i];
         ftVector2 b = polygon->vertices[i+1];
@@ -110,7 +110,7 @@ ftAABB ftPolygon::constructAABB(ftTransform transform) {
     aabb.min = transform * vertices[0];
     aabb.max = aabb.min;
 
-    for (int i=1;i<numVertex;i++) {
+    for (uint32 i=1;i<numVertex;i++) {
         ftVector2 transformVertex = transform * vertices[i];
         if (aabb.min.x > transformVertex.x) aabb.min.x = transformVertex.x;
         if (aabb.min.y > transformVertex.y) aabb.min.y = transformVertex.y;

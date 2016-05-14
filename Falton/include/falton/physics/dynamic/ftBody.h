@@ -17,6 +17,12 @@ enum ftBodyType {
     DYNAMIC
 };
 
+enum ftActivationState {
+    DISABLE_SLEEP,
+    ACTIVE,
+    SLEEP
+};
+
 struct ftBodyDef {
     ftVector2 position;
     ftVector2 velocity;
@@ -49,6 +55,7 @@ public:
     ftVector2 centerOfMass;
 
     ftBodyType bodyType;
+    ftActivationState activationState;
 
     real torqueAccum = 0;
 
@@ -58,6 +65,8 @@ public:
     real inverseMass;
     real moment;
     real inverseMoment;
+
+    real sleepTimer;
 
     ftCollider* colliders = nullptr;
 
@@ -100,6 +109,26 @@ public:
     ftBody* start(ftIter* iter);
     ftBody* next(ftIter* iter);
 
+};
+
+class ftBodyBuffer2 {
+public:
+    ftBody* createStatic();
+    ftBody* createKinematic();
+    ftBody* createDynamic();
+
+private:
+    struct ftBodyElem {
+        ftBody body;
+        ftBodyElem* next;
+        ftBodyElem* prev;
+    };
+
+    ftBodyElem* staticBodies;
+    ftBodyElem* kinematicBodies;
+    ftBodyElem* dynamicBodies;
+
+    ftBodyElem* sleepingBodies;
 };
 
 #endif //FALTON_RIGIDBODY_H
