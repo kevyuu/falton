@@ -44,6 +44,7 @@ private:
     ftBodyBuffer m_staticBodies;
     ftBodyBuffer m_kinematicBodies;
     ftBodyBuffer m_dynamicBodies;
+    ftBodyBuffer m_sleepingBodies;
 
     ftContactBuffer m_contactBuffer;
 

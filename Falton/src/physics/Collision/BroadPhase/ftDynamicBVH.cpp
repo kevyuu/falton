@@ -48,7 +48,7 @@ void ftDynamicBVH::removeShape(ftBroadphaseHandle handle) {
     removeLeaf(handle);
 }
 
-void ftDynamicBVH::findPairs(ftChunkArray<ftBroadPhasePair> *pairs) {
+void ftDynamicBVH::findPairs(ftChunkArray<ftBroadPhasePair> *pairs __attribute__((unused))) {
 
 }
 
@@ -77,7 +77,7 @@ void ftDynamicBVH::insertLeaf(int32 newIndex) {
     m_nodes[newIndex].rightChild = NULL_NODE;
     m_nodes[newIndex].parent = NULL_NODE;
 
-    if (m_root = NULL_NODE) {
+    if (m_root == NULL_NODE) {
         m_root = newIndex;
         return;
     }
@@ -153,7 +153,7 @@ void ftDynamicBVH::removeLeaf(int32 leafIdx) {
 
     if (parentIdx != NULL_NODE) {
         ftNode *parentNode = &m_nodes[parentIdx];
-        if (parentNode->leftChild = leafIdx) {
+        if (parentNode->leftChild == leafIdx) {
             parentNode->leftChild = NULL_NODE;
         } else {
             parentNode->rightChild = NULL_NODE;
@@ -203,6 +203,7 @@ int32 ftDynamicBVH::balanceFromIndex(int32 index) {
         index = parentIdx;
 
     }
+    return 0;
 }
 
 int32 ftDynamicBVH::rotateLeft(int32 index) {
@@ -215,7 +216,7 @@ int32 ftDynamicBVH::rotateLeft(int32 index) {
     int32 grandLeftIdx = m_nodes[rightIdx].leftChild;
     int32 grandRightIdx = m_nodes[rightIdx].rightChild;
     int32 grandLeftHeight = m_nodes[grandLeftIdx].height;
-    int32 grandRightHeight = m_nodes[grandRightHeight].height;
+    int32 grandRightHeight = m_nodes[grandRightIdx].height;
 
     rightNode->leftChild = index;
     rightNode->parent = node->parent;
@@ -247,7 +248,7 @@ int32 ftDynamicBVH::rotateRight(int32 index) {
     int32 grandLeftIdx = m_nodes[leftIdx].leftChild;
     int32 grandRightIdx = m_nodes[leftIdx].rightChild;
     int32 grandLeftHeight = m_nodes[grandLeftIdx].height;
-    int32 grandRightHeight = m_nodes[grandRightHeight].height;
+    int32 grandRightHeight = m_nodes[grandRightIdx].height;
     ftNode* grandLeftNode = &m_nodes[grandLeftIdx];
     ftNode* grandRightNode = &m_nodes[grandRightIdx];
 

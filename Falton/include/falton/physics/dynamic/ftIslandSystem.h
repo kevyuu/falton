@@ -19,6 +19,7 @@ struct ftBodyBuffers {
     ftBodyBuffer* staticBuffer;
     ftBodyBuffer* kinematicBuffer;
     ftBodyBuffer* dynamicBuffer;
+    ftBodyBuffer* sleepingBuffer;
 };
 
 struct ftIslandContact {
@@ -36,6 +37,7 @@ public:
     private:
         ftBodyBuffer::ftIter iter;
         ftIsland* prevIsland;
+        bool dynamic;
         friend class ftIslandSystem;
     };
 

@@ -34,12 +34,12 @@ void ftManifoldComputer::PolygonToPolgonCollision(const ftCollisionShape &shapeA
     ftVector2* worldVertexesA = new ftVector2[polygonA->numVertex];
     ftVector2* worldVertexesB = new ftVector2[polygonB->numVertex];
 
-    for (int i=0;i<polygonA->numVertex;i++) {
+    for (uint32 i=0;i<polygonA->numVertex;i++) {
         worldNormalsA[i] = shapeA.transform.rotation * polygonA->normals[i];
         worldVertexesA[i] = shapeA.transform * polygonA->vertices[i];
     }
 
-    for (int i=0;i<polygonB->numVertex;i++) {
+    for (uint32 i=0;i<polygonB->numVertex;i++) {
         worldNormalsB[i] = shapeB.transform.rotation * polygonB->normals[i];
         worldVertexesB[i] = shapeB.transform * polygonB->vertices[i];
     }
@@ -70,7 +70,7 @@ void ftManifoldComputer::PolygonToPolgonCollision(const ftCollisionShape &shapeA
     ftVector2 *refNormals;
     ftVector2 *incVertexes;
     ftVector2 *incNormals;
-    int incNumVertex;
+    uint32 incNumVertex;
 
     if (mtvOutput.polygon == MTVOutput::polygon_A) {
         refPolygon = polygonA;
@@ -92,13 +92,13 @@ void ftManifoldComputer::PolygonToPolgonCollision(const ftCollisionShape &shapeA
         incNumVertex = polygonA->numVertex;
     }
 
-    int incidentEdgeIndex = FindIncidentEdge(separatingAxis, incNormals, incNumVertex);
+    uint32 incidentEdgeIndex = FindIncidentEdge(separatingAxis, incNormals, incNumVertex);
 
-    int refVertex1 = mtvOutput.normalIndex;
-    int refVertex2 = mtvOutput.normalIndex + 1 == refPolygon->numVertex ? 0 : mtvOutput.normalIndex + 1;
+    uint32 refVertex1 = mtvOutput.normalIndex;
+    uint32 refVertex2 = mtvOutput.normalIndex + 1 == refPolygon->numVertex ? 0 : mtvOutput.normalIndex + 1;
 
-    int incVertex1 = incidentEdgeIndex;
-    int incVertex2 = incidentEdgeIndex + 1 == incPolygon->numVertex ? 0 : incidentEdgeIndex + 1;
+    uint32 incVertex1 = incidentEdgeIndex;
+    uint32 incVertex2 = incidentEdgeIndex + 1 == incPolygon->numVertex ? 0 : incidentEdgeIndex + 1;
 
     ClipPoint clipPoint1 = ClipIncidentToReferenceLine(refVertexes[refVertex2] - refVertexes[refVertex1],
                                                        refVertexes[refVertex1], incVertexes[incVertex1],
@@ -110,7 +110,7 @@ void ftManifoldComputer::PolygonToPolgonCollision(const ftCollisionShape &shapeA
 
     manifold->normal = refNormals[mtvOutput.normalIndex];
     uint8 contactPointCount = 0;
-    for (int i=0;i<clipPoint2.numPoint;i++) {
+    for (uint32 i=0;i<clipPoint2.numPoint;i++) {
         real separation = separatingAxis.dot(clipPoint2.point[i] - refVertexes[refVertex1]);
         if (separation < 0) {
             manifold->penetrationDepth[contactPointCount] = -1 * separation;
@@ -261,10 +261,10 @@ ftManifoldComputer::MTVOutput ftManifoldComputer::FindPolygonToPolygonMTV(const 
     //test normals of polygonA.
     real maxSeparationA = real_minInfinity;
     real maxNormalA = 0;
-    for (int i=0;i<mtvInput.numVertexA;i++) {
+    for (uint32 i=0;i<mtvInput.numVertexA;i++) {
 
         real minSeparation = real_Infinity; // minimum separation for normal i
-        for (int j=0;j<mtvInput.numVertexB;j++) {
+        for (uint32 j=0;j<mtvInput.numVertexB;j++) {
 
             real separation = (mtvInput.vertexesB[j] - mtvInput.vertexesA[i]).dot(mtvInput.normalsA[i]);
 
@@ -282,10 +282,10 @@ ftManifoldComputer::MTVOutput ftManifoldComputer::FindPolygonToPolygonMTV(const 
     //test normals of polygonB
     real maxSeparationB = real_minInfinity;
     real maxNormalB = 0;
-    for (int i=0;i<mtvInput.numVertexB;i++) {
+    for (uint32 i=0;i<mtvInput.numVertexB;i++) {
 
         real minSeparation = real_Infinity;
-        for (int j=0;j<mtvInput.numVertexA;j++) {
+        for (uint32 j=0;j<mtvInput.numVertexA;j++) {
             real separation = (mtvInput.vertexesA[j] - mtvInput.vertexesB[i]).dot(mtvInput.normalsB[i]);
 
             if (minSeparation > separation) {
@@ -355,9 +355,9 @@ ftManifoldComputer::ClipPoint ftManifoldComputer::ClipIncidentToReferenceLine(co
 
 }
 
-int ftManifoldComputer::FindIncidentEdge(const ftVector2& separatingAxis, const ftVector2* incidentNormals, int normalsCount) {
+uint32 ftManifoldComputer::FindIncidentEdge(const ftVector2& separatingAxis, const ftVector2* incidentNormals, int normalsCount) {
     real minPerpendicularDegree = real_Infinity
-    real incidentIndex = 0;
+    uint32 incidentIndex = 0;
     for (int i=0;i<normalsCount;i++) {
         real perpendicularDegree = separatingAxis.dot(incidentNormals[i]);
         if (perpendicularDegree < minPerpendicularDegree) {

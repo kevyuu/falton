@@ -28,6 +28,7 @@ void ftPhysicsSystem::init(ftVector2 gravity) {
     buffers.dynamicBuffer = &m_dynamicBodies;
     buffers.kinematicBuffer = &m_kinematicBodies;
     buffers.staticBuffer = &m_staticBodies;
+    buffers.sleepingBuffer = &m_sleepingBodies;
     m_islandSystem.init(buffers);
 
     m_joints.init(64);
@@ -144,6 +145,8 @@ void ftPhysicsSystem::iterateStaticBody(ftBodyIterFunc iterFunc, void *data) {
     for (ftBody *body = m_staticBodies.start(&iter); body != nullptr; body = m_staticBodies.next(&iter)) {
         iterFunc(body, data);
     }
+
+
 }
 
 void ftPhysicsSystem::iterateKinematicBody(ftBodyIterFunc iterFunc, void *data) {
@@ -154,9 +157,18 @@ void ftPhysicsSystem::iterateKinematicBody(ftBodyIterFunc iterFunc, void *data) 
 }
 
 void ftPhysicsSystem::iterateDynamicBody(ftBodyIterFunc iterFunc, void *data) {
-    ftBodyBuffer::ftIter iter = m_dynamicBodies.iterate();
-    for (ftBody *body = m_dynamicBodies.start(&iter); body != nullptr; body = m_dynamicBodies.next(&iter)) {
-        iterFunc(body, data);
+    {
+        ftBodyBuffer::ftIter iter = m_dynamicBodies.iterate();
+        for (ftBody *body = m_dynamicBodies.start(&iter); body != nullptr; body = m_dynamicBodies.next(&iter)) {
+            iterFunc(body, data);
+        }
+    }
+
+    {
+        ftBodyBuffer::ftIter iter = m_sleepingBodies.iterate();
+        for (ftBody *body = m_sleepingBodies.start(&iter); body != nullptr; body = m_sleepingBodies.next(&iter)) {
+            iterFunc(body, data);
+        }
     }
 }
 
@@ -213,17 +225,23 @@ void ftPhysicsSystem::step(real dt) {
 
         if (allSleeping) {
             for (uint32 i = 0; i < island->bodies.getSize(); ++i) {
-                if ((*bodies)[i]->bodyType == DYNAMIC) {
-                    (*bodies)[i]->activationState = SLEEP;
-                    (*bodies)[i]->velocity.setZero();
-                    (*bodies)[i]->angularVelocity = 0;
+                ftBody* body = (*bodies)[i];
+                if (body->bodyType == DYNAMIC && body->activationState != SLEEP) {
+                    body->activationState = SLEEP;
+                    body->velocity.setZero();
+                    body->angularVelocity = 0;
+                    m_dynamicBodies.unlink(body);
+                    m_sleepingBodies.insert(body);
                 }
             }
         } else {
             for (uint32 i = 0; i < island->bodies.getSize(); ++i) {
-                if ((*bodies)[i]->activationState == SLEEP) {
-                    (*bodies)[i]->activationState = ACTIVE;
-                    (*bodies)[i]->sleepTimer = 0;
+                ftBody* body = (*bodies)[i];
+                if (body->activationState == SLEEP) {
+                    body->activationState = ACTIVE;
+                    body->sleepTimer = 0;
+                    m_sleepingBodies.unlink(body);
+                    m_dynamicBodies.insert(body);
                 }
             }
 
@@ -250,9 +268,6 @@ void ftPhysicsSystem::step(real dt) {
     {
         ftBodyBuffer::ftIter iter = m_dynamicBodies.iterate();
         for (ftBody* body = m_dynamicBodies.start(&iter); body != nullptr; body = m_dynamicBodies.next(&iter)) {
-
-            if (body->activationState == SLEEP) continue;
-
             for (ftCollider* collider = body->colliders; collider != nullptr; collider = collider->next) {
                 m_collisionSystem.moveShape(collider->collisionHandle, body->transform * collider->transform);
             }
@@ -276,7 +291,6 @@ void ftPhysicsSystem::integrateVelocity(real dt) {
 
     ftBodyBuffer::ftIter iter = m_dynamicBodies.iterate();
     for (ftBody* body = m_dynamicBodies.start(&iter); body!=nullptr; body = m_dynamicBodies.next(&iter)) {
-        if (body->activationState == SLEEP) continue;
         body->velocity += m_gravity *dt;
     }
 
@@ -287,7 +301,6 @@ void ftPhysicsSystem::integratePosition(real dt) {
     {
         ftBodyBuffer::ftIter iter = m_dynamicBodies.iterate();
         for (ftBody* body = m_dynamicBodies.start(&iter); body != nullptr; body = m_dynamicBodies.next(&iter)) {
-            if (body->activationState == SLEEP) continue;
             body->transform.center += body->velocity * dt;
             body->transform.rotation += (body->angularVelocity * dt);
         }
@@ -315,6 +328,8 @@ void ftPhysicsSystem::updateBodyActivation(ftBody* body, real dt) {
     if ((body->velocity.magnitude() < SLEEP_LIN_SPEED_THRESHOLD) &&
         ftAbs(body->angularVelocity) < SLEEP_ANG_SPEED_THRESHOLD) {
         body->sleepTimer += dt;
+    } else {
+        body->sleepTimer = 0;
     }
 }
 

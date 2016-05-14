@@ -16,7 +16,7 @@ ftPinJoint* ftPinJoint::create(ftBody *bodyA, ftBody *bodyB, ftVector2 anchorPoi
 
 }
 
-void ftPinJoint::preSolve(real dt) {
+void ftPinJoint::preSolve(real dt __attribute__((unused))) {
     r1 = anchorPoint - bodyA->transform.center;
     r2 = anchorPoint - bodyB->transform.center;
 

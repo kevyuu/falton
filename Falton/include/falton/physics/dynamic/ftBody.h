@@ -97,6 +97,9 @@ public:
     ftBody* create();
     void destroy(ftBody *body);
 
+    void insert(ftBody* body);
+    void unlink(ftBody* body);
+
     uint32 getSize();
 
     class ftIter {
@@ -117,6 +120,10 @@ public:
     ftBody* createKinematic();
     ftBody* createDynamic();
 
+    void moveToSleep(ftBody* body);
+
+    void destroy(ftBody* body);
+
 private:
     struct ftBodyElem {
         ftBody body;
@@ -127,8 +134,10 @@ private:
     ftBodyElem* staticBodies;
     ftBodyElem* kinematicBodies;
     ftBodyElem* dynamicBodies;
-
     ftBodyElem* sleepingBodies;
+
+    uint32 nBody;
+
 };
 
 #endif //FALTON_RIGIDBODY_H

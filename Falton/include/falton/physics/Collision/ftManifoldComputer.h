@@ -23,11 +23,11 @@ public :
 private:
 
     struct MTVInput {
-        int numVertexA;
+        uint32 numVertexA;
         ftVector2* normalsA;
         ftVector2* vertexesA;
 
-        int numVertexB;
+        uint32 numVertexB;
         ftVector2* normalsB;
         ftVector2* vertexesB;
     };
@@ -41,13 +41,13 @@ private:
         };
 
         PolygonID polygon;
-        int normalIndex;
+        uint32 normalIndex;
         real separation;
     };
 
     struct ClipPoint {
         ftVector2 point[2];
-        int numPoint;
+        uint32 numPoint;
     };
 
     static const ftCollisionFunc collisionFunctions[SHAPE_TYPE_NUMBER_ITEM][SHAPE_TYPE_NUMBER_ITEM];
@@ -73,7 +73,7 @@ private:
     static ClipPoint ClipIncidentToReferenceLine(const ftVector2& refAxis, ftVector2 clipBoundary ,
                           const ftVector2& incVertex1, const ftVector2& incVertex2);
 
-    static int FindIncidentEdge(const ftVector2& separatingAxis,
+    static uint32 FindIncidentEdge(const ftVector2& separatingAxis,
                                 const ftVector2* incidentNormals,
                                 int normalsCount);
 

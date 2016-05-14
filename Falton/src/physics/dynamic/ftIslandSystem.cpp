@@ -93,18 +93,26 @@ void ftIslandSystem::destroyContactEdge(ftContactEdge *contactEdge) {
 
 ftIslandSystem::ftIter ftIslandSystem::iterate() {
     resetIslandID(m_buffers.dynamicBuffer);
+    resetIslandID(m_buffers.sleepingBuffer);
     resetContactFlag();
     ftIter iter;
     iter.iter = m_buffers.dynamicBuffer->iterate();
+    iter.dynamic = false;
     return iter;
 }
 
 ftIsland* ftIslandSystem::start(ftIter *iter) {
 
-    int nBody  = m_buffers.dynamicBuffer->getSize() + m_buffers.staticBuffer->getSize() + m_buffers.kinematicBuffer->getSize();
+    int nBody  = m_buffers.dynamicBuffer->getSize() + m_buffers.staticBuffer->getSize() +
+            m_buffers.kinematicBuffer->getSize() + m_buffers.sleepingBuffer->getSize();
 
-    //build island with dfs
-    ftBodyBuffer *bodyBuffer = m_buffers.dynamicBuffer;
+    ftBodyBuffer* bodyBuffer;
+    if (iter->dynamic == false) {
+        //build island with dfs
+        bodyBuffer = m_buffers.dynamicBuffer;
+    }else {
+        bodyBuffer = m_buffers.sleepingBuffer;
+    }
     for (ftBody *body = bodyBuffer->start(&(iter->iter)); body != nullptr; body = bodyBuffer->next(&(iter->iter))) {
         if (body->islandId == -1) {
 
@@ -157,6 +165,12 @@ ftIsland* ftIslandSystem::start(ftIter *iter) {
 
     }
 
+    if (iter->dynamic == false) {
+        iter->dynamic = true;
+        iter->iter = m_buffers.sleepingBuffer->iterate();
+        start(iter);
+    }
+
     return nullptr;
 
 }
@@ -167,8 +181,16 @@ ftIsland* ftIslandSystem::next(ftIter *iter) {
     iter->prevIsland->contacts.cleanup();
     delete iter->prevIsland;
 
-    int nBody  = m_buffers.dynamicBuffer->getSize() + m_buffers.staticBuffer->getSize() + m_buffers.kinematicBuffer->getSize();
-    ftBodyBuffer *bodyBuffer = m_buffers.dynamicBuffer;
+    int nBody  = m_buffers.dynamicBuffer->getSize() + m_buffers.staticBuffer->getSize() +
+            m_buffers.kinematicBuffer->getSize() + m_buffers.sleepingBuffer->getSize();
+    ftBodyBuffer *bodyBuffer;
+    if (iter->dynamic == false) {
+        //build island with dfs
+        bodyBuffer = m_buffers.dynamicBuffer;
+    }else {
+        bodyBuffer = m_buffers.sleepingBuffer;
+    }
+
     for (ftBody *body = bodyBuffer->next(&(iter->iter)); body != nullptr; body = bodyBuffer->next(&(iter->iter))) {
         if (body->islandId == -1) {
 
@@ -220,6 +242,13 @@ ftIsland* ftIslandSystem::next(ftIter *iter) {
         }
 
     }
+
+    if (iter->dynamic == false) {
+        iter->dynamic = true;
+        iter->iter = m_buffers.sleepingBuffer->iterate();
+        start(iter);
+    }
+
 
     return nullptr;
 }

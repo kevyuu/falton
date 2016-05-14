@@ -213,9 +213,9 @@ void Demo4_init() {
     ftVector2 x(-6, 0.75);
     ftVector2 y;
 
-    for (int i = 0; i < 12 ; ++i) {
+    for (int i = 0; i < 20 ; ++i) {
         y = x;
-        for (int j = i; j < 12; ++j) {
+        for (int j = i; j < 20; ++j) {
             createDynamicBox(y, ftVector2(0.5, 0.5), 10, 0.2);
             y += ftVector2(1.125f, 0.0f);
         }

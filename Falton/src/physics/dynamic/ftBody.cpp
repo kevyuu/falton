@@ -59,3 +59,35 @@ ftBody* ftBodyBuffer::next(ftIter *iter) {
 uint32 ftBodyBuffer::getSize() {
     return size;
 }
+
+void ftBodyBuffer::insert(ftBody *body) {
+
+    ftBodyElem* element = (ftBodyElem*) body;
+    element->next = bodies;
+    element->prev = nullptr;
+    if (bodies!=nullptr) bodies->prev = element;
+    bodies = element;
+
+    ++size;
+
+}
+
+void ftBodyBuffer::unlink(ftBody *body) {
+    ftBodyElem* element = (ftBodyElem*) body;
+
+    ftBodyElem *next = element->next;
+    ftBodyElem *prev = element->prev;
+
+    if (prev!=nullptr) {
+        prev->next = next;
+    } else {
+        bodies = next;
+    }
+
+    if (next!=nullptr) next->prev = prev;
+
+    element->next = nullptr;
+    element->prev = nullptr;
+
+    --size;
+}
