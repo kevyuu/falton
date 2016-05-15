@@ -6,6 +6,7 @@
 #define FALTON_FTISLANDSYSTEM_H
 
 #include <falton/container/ftChunkArray.h>
+#include <functional>
 #include "ftBody.h"
 
 struct ftBody;
@@ -37,7 +38,6 @@ public:
     private:
         ftBodyBuffer::ftIter iter;
         ftIsland* prevIsland;
-        bool dynamic;
         friend class ftIslandSystem;
     };
 
@@ -47,9 +47,7 @@ public:
     void addContact(ftContact* contact);
     void removeContact(ftContact* contact);
 
-    ftIter iterate();
-    ftIsland* start(ftIter *iter);
-    ftIsland* next(ftIter *iter);
+    void buildAndProcessIsland(std::function<void(const ftIsland &)> func);
 
 private:
     ftBodyBuffers m_buffers;

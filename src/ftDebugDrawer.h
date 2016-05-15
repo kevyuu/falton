@@ -64,7 +64,7 @@ public:
     static ftVector2 spaceToView(ftVector2 spaceVector) {
 
         ftVector2 viewVector;
-        real scale = 40;
+        real scale = 20;
         viewVector.x = 800 / 2 + (spaceVector.x * scale);
         viewVector.y = 800 / 2 - ((spaceVector.y - 7) * scale);
 
@@ -91,7 +91,7 @@ public:
 
         ftVector2 spaceCenter = spaceToView(transform.center);
 
-        al_draw_circle(spaceCenter.x,spaceCenter.y,circle->radius * 40, *color,1.0);
+        al_draw_circle(spaceCenter.x,spaceCenter.y,circle->radius * 20, *color,1.0);
         ftVector2 one(1,0);
         ftVector2 boundary = transform.center + (transform.rotation * one) * circle->radius;
         boundary = spaceToView(boundary);

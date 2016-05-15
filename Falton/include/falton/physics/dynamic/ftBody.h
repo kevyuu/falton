@@ -112,32 +112,18 @@ public:
     ftBody* start(ftIter* iter);
     ftBody* next(ftIter* iter);
 
-};
-
-class ftBodyBuffer2 {
-public:
-    ftBody* createStatic();
-    ftBody* createKinematic();
-    ftBody* createDynamic();
-
-    void moveToSleep(ftBody* body);
-
-    void destroy(ftBody* body);
-
-private:
-    struct ftBodyElem {
-        ftBody body;
-        ftBodyElem* next;
-        ftBodyElem* prev;
-    };
-
-    ftBodyElem* staticBodies;
-    ftBodyElem* kinematicBodies;
-    ftBodyElem* dynamicBodies;
-    ftBodyElem* sleepingBodies;
-
-    uint32 nBody;
+    template <typename T> void forEach(const T& f); // T will be a lambda type that takes ftBody* as argument */
 
 };
+
+/* T will be a lambda type that takes ftBody* as argument */
+template <typename T>
+void ftBodyBuffer::forEach(const T& f) {
+    ftBodyElem* elem = bodies;
+    while (elem != nullptr) {
+        f((ftBody*)elem);
+        elem = elem->next;
+    }
+}
 
 #endif //FALTON_RIGIDBODY_H

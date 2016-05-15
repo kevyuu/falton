@@ -66,11 +66,12 @@ private:
     void integratePosition(real dt);
 
     void updateBodiesActivation(real dt);
-    void updateBodyActivation(ftBody* body, real dt);
 
     static void beginContactListener(ftContact* contact, void* data);
     static void updateContactListener(ftContact* contact, void* data);
     static void endContactListener(ftContact* contact, void* data);
+
+    static void processIsland(ftIsland* island, void* data);
 
 };
 

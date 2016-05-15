@@ -19,18 +19,6 @@
 #include <falton/physics/dynamic/ftPhysicsSystem.h>
 #include "ftDebugDrawer.h"
 
-
-
-#include <sys/time.h>
-
-long getMicro() {
-    timeval time;
-    gettimeofday(&time, NULL);
-    long micro = (time.tv_sec * 1000000) + (time.tv_usec);
-    return micro;
-}
-
-
 using namespace std;
 
 bool done;
@@ -46,6 +34,15 @@ ftDebugDrawer drawer;
 
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 800;
+
+
+
+long getMicroSecond() {
+    timeval time;
+    gettimeofday(&time, NULL);
+    long micro = (time.tv_sec * 1000000) + (time.tv_usec);
+    return micro;
+}
 
 void abort_game(const char* message)
 {
@@ -213,9 +210,9 @@ void Demo4_init() {
     ftVector2 x(-6, 0.75);
     ftVector2 y;
 
-    for (int i = 0; i < 20 ; ++i) {
+    for (int i = 0; i < 16 ; ++i) {
         y = x;
-        for (int j = i; j < 20; ++j) {
+        for (int j = i; j < 17; ++j) {
             createDynamicBox(y, ftVector2(0.5, 0.5), 10, 0.2);
             y += ftVector2(1.125f, 0.0f);
         }
@@ -278,47 +275,8 @@ ftVector2 spaceToView(ftVector2 spaceVector) {
     return viewVector;
 }
 
-void draw_polygon(const ftTransform& transform, ftPolygon* polygon, ALLEGRO_COLOR *color) {
-
-    for (uint32 i=0;i<polygon->numVertex;++i) {
-        int i1 = i;
-        int i2 = (i + 1) % polygon->numVertex;
-
-        ftVector2 vert1 = spaceToView(transform * polygon->vertices[i1]);
-        ftVector2 vert2 = spaceToView(transform * polygon->vertices[i2]);
-
-        al_draw_line(vert1.x, vert1.y,
-                     vert2.x, vert2.y,
-                     *color, 1.0);
-    }
-}
-
-void draw_circle(const ftTransform& transform, ftCircle* circle, ALLEGRO_COLOR * color) {
-
-    ftVector2 spaceCenter = spaceToView(transform.center);
-
-    al_draw_circle(spaceCenter.x,spaceCenter.y,circle->radius * 40, *color,1.0);
-    ftVector2 one(1,0);
-    ftVector2 boundary = transform.center + (transform.rotation * one) * circle->radius;
-    boundary = spaceToView(boundary);
-    al_draw_line(spaceCenter.x, spaceCenter.y,
-                boundary.x, boundary.y, *color, 1.0);
-}
-
-
-void draw_collider(ftCollider* collider) {
-    if (collider->shape->shapeType == SHAPE_CIRCLE) {
-        draw_circle(collider->body->transform, (ftCircle*)collider->shape, &electricBlue);
-    } else {
-        draw_polygon(collider->body->transform, (ftPolygon *) collider->shape, &electricBlue);
-    }
-}
-
 void update_logic() {
-    long start = getMicro();
     physicsSystem->step(1.0/60);
-    long end = getMicro();
-    cout<<end - start<<endl;
 
 }
 

@@ -2,7 +2,6 @@
 // Created by Kevin Yu on 3/22/16.
 //
 
-#include <iostream>
 #include <falton/physics/dynamic/ftIsland.h>
 #include <falton/physics/collision/ftContact.h>
 #include <falton/physics/ftContactSolver.h>
@@ -10,7 +9,6 @@
 #include <falton/physics/dynamic/ftBody.h>
 #include <falton/physics/dynamic/ftCollider.h>
 
-using namespace std;
 
 void ftContactSolver::createContactConstraint(ftCollider* colliderA, ftCollider* colliderB,
                                               ftContact* contact, ftContactConstraint* constraint) {

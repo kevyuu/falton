@@ -91,113 +91,25 @@ void ftIslandSystem::destroyContactEdge(ftContactEdge *contactEdge) {
     delete contactEdge;
 }
 
-ftIslandSystem::ftIter ftIslandSystem::iterate() {
+void ftIslandSystem::buildAndProcessIsland(std::function<void(const ftIsland &)> func) {
+
     resetIslandID(m_buffers.dynamicBuffer);
     resetIslandID(m_buffers.sleepingBuffer);
     resetContactFlag();
-    ftIter iter;
-    iter.iter = m_buffers.dynamicBuffer->iterate();
-    iter.dynamic = false;
-    return iter;
-}
-
-ftIsland* ftIslandSystem::start(ftIter *iter) {
 
     int nBody  = m_buffers.dynamicBuffer->getSize() + m_buffers.staticBuffer->getSize() +
-            m_buffers.kinematicBuffer->getSize() + m_buffers.sleepingBuffer->getSize();
+                 m_buffers.kinematicBuffer->getSize() + m_buffers.sleepingBuffer->getSize();
+    ftBodyBuffer *bodyBuffer = m_buffers.dynamicBuffer;
+    ftBodyBuffer::ftIter iter = m_buffers.dynamicBuffer->iterate();
 
-    ftBodyBuffer* bodyBuffer;
-    if (iter->dynamic == false) {
-        //build island with dfs
-        bodyBuffer = m_buffers.dynamicBuffer;
-    }else {
-        bodyBuffer = m_buffers.sleepingBuffer;
-    }
-    for (ftBody *body = bodyBuffer->start(&(iter->iter)); body != nullptr; body = bodyBuffer->next(&(iter->iter))) {
-        if (body->islandId == -1) {
+    ftBody **dfsStack = new ftBody *[nBody];
 
-            resetIslandID(m_buffers.staticBuffer);
-
-            ftBody **dfsStack = new ftBody *[nBody];
-            int stackSize = 0;
-
-            ftIsland *island = new ftIsland;
-            island->bodies.init(64);
-            island->contacts.init(64);
-
-            dfsStack[0] = body;
-            ++stackSize;
-
-            while (stackSize > 0) {
-                ftBody *topBody = dfsStack[stackSize - 1];
-                --stackSize;
-
-                if (topBody->islandId != -1) continue;
-
-                int index = island->bodies.add();
-                island->bodies[index] = topBody;
-                topBody->islandId = index;
-
-                if (topBody->bodyType == STATIC) continue;
-
-                for (ftContactEdge *contactEdge = topBody->contactList;
-                     contactEdge != nullptr; contactEdge = contactEdge->next) {
-
-                    ftContact* contact = contactEdge->contact;
-
-                    ftIslandContact* islandContact = &(m_islandContacts[contact->islandIndex]);
-                    if (islandContact->dfsFlag) {
-                        continue;
-                    }
-
-                    island->contacts.push(contactEdge->contact);
-                    islandContact->dfsFlag = true;
-
-                    dfsStack[stackSize] = contactEdge->other;
-                    ++stackSize;
-                }
-            }
-
-            delete[] dfsStack;
-            iter->prevIsland = island;
-            return island;
-        }
-
-    }
-
-    if (iter->dynamic == false) {
-        iter->dynamic = true;
-        iter->iter = m_buffers.sleepingBuffer->iterate();
-        start(iter);
-    }
-
-    return nullptr;
-
-}
-
-ftIsland* ftIslandSystem::next(ftIter *iter) {
-
-    iter->prevIsland->bodies.cleanup();
-    iter->prevIsland->contacts.cleanup();
-    delete iter->prevIsland;
-
-    int nBody  = m_buffers.dynamicBuffer->getSize() + m_buffers.staticBuffer->getSize() +
-            m_buffers.kinematicBuffer->getSize() + m_buffers.sleepingBuffer->getSize();
-    ftBodyBuffer *bodyBuffer;
-    if (iter->dynamic == false) {
-        //build island with dfs
-        bodyBuffer = m_buffers.dynamicBuffer;
-    }else {
-        bodyBuffer = m_buffers.sleepingBuffer;
-    }
-
-    for (ftBody *body = bodyBuffer->next(&(iter->iter)); body != nullptr; body = bodyBuffer->next(&(iter->iter))) {
+    for (ftBody *body = bodyBuffer->start(&iter); body != nullptr; body = bodyBuffer->next(&iter)) {
         if (body->islandId == -1) {
 
             resetIslandID(m_buffers.staticBuffer);
             resetIslandID(m_buffers.kinematicBuffer);
 
-            ftBody **dfsStack = new ftBody *[nBody];
             int stackSize = 0;
 
             ftIsland *island = new ftIsland;
@@ -236,21 +148,16 @@ ftIsland* ftIslandSystem::next(ftIter *iter) {
                 }
             }
 
-            delete[] dfsStack;
-            iter->prevIsland = island;
-            return island;
+            func(*island);
+
+            island->bodies.cleanup();
+            island->contacts.cleanup();
+            delete island;
         }
 
     }
 
-    if (iter->dynamic == false) {
-        iter->dynamic = true;
-        iter->iter = m_buffers.sleepingBuffer->iterate();
-        start(iter);
-    }
-
-
-    return nullptr;
+    delete[] dfsStack;
 }
 
 void ftIslandSystem::resetIslandID(ftBodyBuffer* buffer) {
