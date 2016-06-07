@@ -7,12 +7,19 @@
 
 #include "ftVector2.h"
 #include "precision.h"
-#include "type.h"
 #include "ftTransform.h"
 #include "ftMat2x2.h"
 #include <cstdlib>
+#include <cmath>
+#include <falton/setting/general.h>
 
 #define ftAbs abs
+#define ftCeil ceil
+#define ftFloor floor
+
+inline int32 ftPositiveMod(int32 a, int32 b) {
+    return (a % b + b) % b;
+}
 
 inline real ftMin(real x, real y) {
     return x < y ? x : y;

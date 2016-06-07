@@ -60,7 +60,7 @@ m4_define([lt_append],
 
 # lt_combine(SEP, PREFIX-LIST, INFIX, SUFFIX1, [SUFFIX2...])
 # ----------------------------------------------------------
-# Produce a SEP delimited list of all paired combinations of elements of
+# Produce a SEP delimited list of all paired combinations of m_elements of
 # PREFIX-LIST with SUFFIX1 through SUFFIXn.  Each element of the list
 # has the form PREFIXmINFIXSUFFIXn.
 # Needed until we can rely on m4_combine added in Autoconf 2.62.

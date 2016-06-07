@@ -453,7 +453,7 @@ if test "`cd $srcdir && pwd`" != "`pwd`"; then
   # is not polluted with repeated "-I."
   AC_SUBST([am__isrc], [' -I$(srcdir)'])_AM_SUBST_NOTMAKE([am__isrc])dnl
   # test to see if srcdir already configured
-  if test -f $srcdir/config.status; then
+  if test -f $srcdir/m_config.status; then
     AC_MSG_ERROR([source directory already configured; run "make distclean" there first])
   fi
 fi
@@ -534,12 +534,12 @@ m4_define([_AC_COMPILER_EXEEXT],
 m4_defn([_AC_COMPILER_EXEEXT])[m4_provide([_AM_COMPILER_EXEEXT])])
 
 
-# When config.status generates a header, we must update the stamp-h file.
-# This file resides in the same directory as the config header
+# When m_config.status generates a header, we must update the stamp-h file.
+# This file resides in the same directory as the m_config header
 # that is generated.  The stamp files are numbered to have different names.
 
 # Autoconf calls _AC_AM_CONFIG_HEADER_HOOK (when defined) in the
-# loop where config.status creates the headers, so we can generate
+# loop where m_config.status creates the headers, so we can generate
 # our stamp files there.
 AC_DEFUN([_AC_AM_CONFIG_HEADER_HOOK],
 [# Compute $1's index in $config_headers.

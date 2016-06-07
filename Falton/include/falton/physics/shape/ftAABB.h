@@ -32,6 +32,10 @@ struct ftAABB {
         return (min.x < b.min.x && min.y < b.min.y && max.x > b.max.x && max.y > b.max.y);
     }
 
+    uint32 getArea() {
+        return (max.x - min.x) * (max.y - min.y);
+    }
+
     static ftAABB combine(const ftAABB&a, const ftAABB&b) {
         ftAABB aabb;
         aabb.min.x = ftMin(a.min.x, b.min.x);

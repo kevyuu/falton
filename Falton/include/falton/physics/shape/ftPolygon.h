@@ -23,13 +23,14 @@ public:
     static ftPolygon* createBox(const ftVector2& corner1, const ftVector2& corner2);
 
     real getArea();
-
+    void copy(const ftShape* shape);
     ftAABB constructAABB(ftTransform transform);
 
+    ftPolygon();
     ~ftPolygon();
 
 private:
-    ftPolygon();
+
 };
 
 int GiftWrappingConvexHull(const ftVector2* vertices, int numVertex, ftVector2 *convexHull);

@@ -9,6 +9,9 @@
 #include "falton/math/math.h"
 #include "ftAABB.h"
 
+class ftPolygon;
+class ftCircle;
+
 enum ShapeType {
     SHAPE_CIRCLE,
     SHAPE_POLYGON,
@@ -23,11 +26,10 @@ public:
 
     virtual real getArea() = 0;
     virtual ftAABB constructAABB(ftTransform transform) = 0;
+    virtual void copy(const ftShape* shape) = 0;
 
     virtual ~ftShape() {};
 
 };
-
-
 
 #endif //FALTON_SHAPE_H

@@ -5,7 +5,7 @@
 #ifndef FALTON_HANDLEQUEUE_H
 #define FALTON_HANDLEQUEUE_H
 
-#include <falton/math/type.h>
+#include <falton/setting/general.h>
 
 class ftIntQueue {
 

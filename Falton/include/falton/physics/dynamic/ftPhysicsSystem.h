@@ -6,37 +6,65 @@
 #define FALTON_FTPHYSICSSYSTEM_H
 
 #include <falton/math/precision.h>
-#include <falton/physics/dynamic/ftBody.h>
-#include <falton/physics/ftContactSolver.h>
-#include <falton/physics/collision/ftContact.h>
-#include <falton/physics/dynamic/ftContactConstraint.h>
+#include <falton/physics/ftConstraintSolver.h>
+#include <falton/physics/shape/ftShapeBuffer.h>
 #include <falton/physics/dynamic/ftIslandSystem.h>
 
-struct ftBodyDef;
-struct ftColliderDef;
+struct ftBody;
 struct ftCollider;
-class ftPinJoint;
+class ftShape;
+class ftPivotJoint;
+class ftDistanceJoint;
+
 
 typedef void (*ftBodyIterFunc) (ftBody* body, void* data);
 
-class ftPhysicsSystem {
+class  ftPhysicsSystem {
 
 public:
 
-    void init(ftVector2 gravity);
+    struct ftConfig {
+
+        real sleepTimeLimit = 0.05f;
+        real sleepLinearLimit = 0.08f;
+        real sleepAngularLimit = (2.0f / 180.0f * PI);;
+        ftVector2 gravity = {0,-10};
+
+        ftConstraintSolver::ftConfig solverConfig;
+    };
+
+    void setConfiguration(const ftConfig& config);
+
+    void init();
     void shutdown();
 
-    ftBody* createBody(const ftBodyDef& bodyDef);
-    ftCollider* createCollider(const ftColliderDef& colliderDef);
-    ftPinJoint* createJoint(ftBody* bodyA, ftBody* bodyB, ftVector2 anchorPoint);
+    void installBroadphase(ftBroadphaseSystem* broadphase);
 
+    ftBody* createStaticBody(const ftVector2& position, real orientation);
+    ftBody* createKinematicBody(const ftVector2& position, real orientation);
+    ftBody* createDynamicBody(const ftVector2& position, real orientation, real mass, real moment);
     void destroyBody(ftBody* body);
+    void updateBody(ftBody* body); //call this every time user change body member variable.
+
+    ftCollider* createCollider(ftBody* body, ftShape* shape, const ftVector2& position, real orientation);
     void destroyCollider(ftCollider* collider);
+
+    ftPivotJoint* createPivotJoint(ftBody *bodyA, ftBody *bodyB, ftVector2 anchorPoint);
+    ftDistanceJoint* createDistanceJoint(ftBody* bodyA, ftBody* bodyB, ftVector2 localAnchorA, ftVector2 localAnchorB);
 
     void iterateBody(ftBodyIterFunc iterFunc, void* data);
     void iterateStaticBody(ftBodyIterFunc iterFunc, void* data);
     void iterateKinematicBody(ftBodyIterFunc iterFunc, void* data);
     void iterateDynamicBody(ftBodyIterFunc iterFunc, void* data);
+
+    template <typename T>
+    void forEachBody(T func);
+    template <typename T>
+    void forEachStaticBody(T func);
+    template <typename T>
+    void forEachKinematicBody(T func);
+    template <typename T>
+    void forEachDynamicBody(T func);
 
     void step(real dt);
 
@@ -46,21 +74,24 @@ private:
     ftBodyBuffer m_dynamicBodies;
     ftBodyBuffer m_sleepingBodies;
 
-    ftContactBuffer m_contactBuffer;
+    ftShapeBuffer m_shapeBuffer;
 
-    ftContactSolver m_contactSolver;
+    ftConstraintSolver m_contactSolver;
     ftCollisionSystem m_collisionSystem;
     ftIslandSystem m_islandSystem;
 
     ftBroadphaseSystem *m_broadphase;
 
-    ftChunkArray<ftPinJoint*> m_joints;
+    ftChunkArray<ftJoint*> m_joints;
 
-    ftVector2 m_gravity;
+    //configuration
+    real m_sleepTimeLimit = 0.5f;
+    real m_sleepLinearLimit = 0.08f;
+    real m_sleepAngualrLimit = (2.0f / 180.0f * PI);
+    ftVector2 m_gravity = {0, -10};
 
-    static constexpr float SLEEP_TIME_THRESHOLD = 0.5f;
-    static constexpr float SLEEP_LIN_SPEED_THRESHOLD = 0.08f;
-    static constexpr float SLEEP_ANG_SPEED_THRESHOLD = (2.0f / 180.0f * PI);
+    ftShape* createShape(ftShape* shape);
+    void destroyShape(ftShape* shape);
 
     void integrateVelocity(real dt);
     void integratePosition(real dt);
@@ -71,9 +102,31 @@ private:
     static void updateContactListener(ftContact* contact, void* data);
     static void endContactListener(ftContact* contact, void* data);
 
-    static void processIsland(ftIsland* island, void* data);
-
 };
+
+template <typename T>
+inline void ftPhysicsSystem::forEachBody(T func) {
+    m_staticBodies.forEach(func);
+    m_kinematicBodies.forEach(func);
+    m_dynamicBodies.forEach(func);
+    m_sleepingBodies.forEach(func);
+}
+
+template <typename T>
+inline void ftPhysicsSystem::forEachStaticBody(T func) {
+    m_staticBodies.forEach(func);
+}
+
+template <typename T>
+inline void ftPhysicsSystem::forEachKinematicBody(T func) {
+    m_kinematicBodies.forEach(func);
+}
+
+template <typename T>
+inline void ftPhysicsSystem::forEachDynamicBody(T func) {
+    m_dynamicBodies.forEach(func);
+    m_sleepingBodies.forEach(func);
+}
 
 
 #endif //FALTON_FTPHYSICSSYSTEM_H

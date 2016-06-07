@@ -13,14 +13,15 @@
 class ftHierarchicalGrid : public ftBroadphaseSystem {
 public:
     struct ftConfig {
-        uint32 nLevel;
-        real baseSize;
-        real sizeMul;
+        uint32 nLevel = 32;
+        real baseSize = 5;
+        real sizeMul = 2;
+        uint32 nBucket = 1024;
     };
 
-    ftHierarchicalGrid();
+    ftHierarchicalGrid(){};
 
-    void setConfig(ftConfig config);
+    void setConfiguration(ftConfig config);
 
     void init() override;
     void shutdown() override;
@@ -48,9 +49,9 @@ private:
 
     uint32* m_nObject;
 
-    uint32 m_nLevel;
-    real m_baseSize;
-    real m_sizeMul;
+    uint32 m_nLevel = 32;
+    real m_baseSize = 5;
+    real m_sizeMul = 2;
 
     real* m_cellSizeTable;
 

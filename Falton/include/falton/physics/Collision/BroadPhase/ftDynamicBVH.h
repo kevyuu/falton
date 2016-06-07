@@ -9,16 +9,24 @@
 #include <falton/physics/shape/ftAABB.h>
 #include <falton/physics/collision/broadphase/ftBroadphaseSystem.h>
 
+
+
 class ftDynamicBVH : public ftBroadphaseSystem {
 
 public:
-    ftDynamicBVH();
 
-    ~ftDynamicBVH() override;
+    struct ftConfig {
+        real aabbExtension;
+    };
+
+    ftDynamicBVH() {};
+
+    ~ftDynamicBVH() override {};
 
     void init() override;
-
     void shutdown() override;
+
+    void setConfiguration(const ftConfig& config);
 
     ftBroadphaseHandle addShape(const ftCollisionShape *const colShape, const void *const userData) override;
 
@@ -27,6 +35,7 @@ public:
     void moveShape(ftBroadphaseHandle handle, const ftCollisionShape &collisionShape) override;
 
     void findPairs(ftChunkArray<ftBroadPhasePair> *pairs) override;
+
 
 private:
     struct ftNode {
@@ -49,6 +58,8 @@ private:
 
     ftChunkArray<ftNode> m_nodes;
 
+    ftChunkArray<int> m_moveBuffer;
+
     int32 m_root;
     int32 m_free;
 
@@ -65,6 +76,11 @@ private:
     int32 rotateRight(int32 index);
 
     void recomputeHeightAndAABB(int32 index);
+
+    void computePairs(uint32 root, ftChunkArray<ftBroadPhasePair> *pairs);
+
+    //configuration
+    real aabbExtension;
 };
 
 
@@ -74,6 +90,7 @@ inline void ftDynamicBVH::recomputeHeightAndAABB(int32 index) {
 
     int32 leftHeight = m_nodes[leftIdx].height;
     int32 rightHeight = m_nodes[rightIdx].height;
+
     m_nodes[index].height = ftMax(leftHeight, rightHeight) + 1;
 
     ftAABB* leftAABB = &(m_nodes[leftIdx].aabb);

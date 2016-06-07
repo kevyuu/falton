@@ -32,6 +32,7 @@ public:
     ftRotation operator*(const ftRotation& rhs) const;
     void operator*= (const ftRotation& rhs);
     ftVector2 operator* (const ftVector2& rhs) const;
+    ftVector2 invRotate(const ftVector2 &rhs) const;
 
 };
 
@@ -66,5 +67,15 @@ inline ftVector2 ftRotation::operator*(const ftVector2& rhs) const {
 
     return result;
 }
+
+inline ftVector2 ftRotation::invRotate(const ftVector2 &rhs) const {
+    ftVector2 result;
+
+    result.x = cosValue * rhs.x + sinValue * rhs.y;
+    result.y = -sinValue * rhs.x + cosValue * rhs.y;
+
+    return result;
+}
+
 
 #endif //FALTON_FTROTATION_H

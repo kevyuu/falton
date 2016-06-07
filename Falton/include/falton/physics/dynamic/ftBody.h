@@ -5,6 +5,7 @@
 #ifndef FALTON_RIGIDBODY_H
 #define FALTON_RIGIDBODY_H
 
+#include <falton/physics/joint/ftJoint.h>
 #include "falton/math/math.h"
 
 struct ftCollider;
@@ -23,20 +24,6 @@ enum ftActivationState {
     SLEEP
 };
 
-struct ftBodyDef {
-    ftVector2 position;
-    ftVector2 velocity;
-    ftVector2 centerOfMass;
-
-    ftBodyType bodyType = STATIC;
-
-    real mass = 0;
-    real moment = 0;
-
-    real orientation = 0;
-    real angularVelocity = 0;
-};
-
 struct ftContactEdge {
     ftBody* other = nullptr;
     ftContact* contact = nullptr;
@@ -47,36 +34,41 @@ struct ftContactEdge {
 struct ftBody {
 public:
     ftTransform transform;
-
-    ftVector2 velocity;
-
-    ftVector2 forceAccum;
-
     ftVector2 centerOfMass;
 
     ftBodyType bodyType;
-    ftActivationState activationState;
+    ftActivationState activationState = ACTIVE;
+
+    ftVector2 forceAccum;
+    ftVector2 velocity;
 
     real torqueAccum = 0;
-
-    real angularVelocity;
+    real angularVelocity = 0;
 
     real mass;
     real inverseMass;
     real moment;
     real inverseMoment;
 
-    real sleepTimer;
+    real sleepTimer = 0.0f;
 
     ftCollider* colliders = nullptr;
 
     ftContactEdge* contactList = nullptr;
+    ftJointEdge* jointList = nullptr;
 
-    int32 islandId;
+    int32 islandId = -1;
+
+    void applyForce(ftVector2 force, ftVector2 localPos);
+    void applyForceAtCenterOfMass(ftVector2 force);
+    void applyTorque(real torque);
+
+    void setMass(real mass);
+    void setMoment(real moment);
 
     friend class ftPhysicsSystem;
     friend class ftIslandSystem;
-    friend class ftContactSolver;
+    friend class ftConstraintSolver;
 
 };
 
@@ -89,8 +81,8 @@ private:
         ftBodyElem* prev = nullptr;
     };
 
-    ftBodyElem* bodies = nullptr;
-    uint32 size = 0;
+    ftBodyElem* bodies;
+    uint32 size;
 
 public:
 
@@ -111,6 +103,9 @@ public:
     ftIter iterate();
     ftBody* start(ftIter* iter);
     ftBody* next(ftIter* iter);
+
+    void init();
+    void cleanup();
 
     template <typename T> void forEach(const T& f); // T will be a lambda type that takes ftBody* as argument */
 

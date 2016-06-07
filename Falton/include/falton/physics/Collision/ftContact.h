@@ -7,11 +7,13 @@
 
 #include <cstdint>
 #include <falton/math/math.h>
-#include <falton/physics/collision/ftCollisionSystem.h>
+#include <falton/container/ftChunkArray.h>
 
 class ftShape;
 struct ftContactEdge;
 struct ftCollisionShape;
+
+typedef uint32 ftColHandle;
 
 struct ftManifoldPoint {
 
@@ -26,7 +28,7 @@ struct ftManifold {
     ftVector2 normal; //normal pointing from first shape to second shape
     ftManifoldPoint contactPoints[2];
     real penetrationDepth[2];
-    uint8 numContact = 0;
+    int8 numContact = 0;
 };
 
 typedef enum ftCollisionState {
@@ -35,8 +37,6 @@ typedef enum ftCollisionState {
 } ftCollisionState;
 
 struct ftContact {
-
-    ftColHandle handleA, handleB;
 
     void *userdataA, *userdataB;
 
@@ -57,6 +57,7 @@ private:
     struct ftContactElem {
         ftContact contact;
         uint32 hashValue;
+        ftColHandle handleA, handleB;
         ftContactElem *next;
         ftContactElem *prev;
     };
@@ -72,14 +73,16 @@ private:
 
 public:
 
-    ftContactBuffer();
-    ~ftContactBuffer();
+    void init();
+    void cleanup();
 
     class ftIter {
-        private:
-            uint32 index;
-            ftContactElem* nextContact;
-            friend class ftContactBuffer;
+    public:
+        ftColHandle handleA, handleB;
+        ftContact* contact;
+    private:
+        uint32 index;
+        friend class ftContactBuffer;
     };
 
     ftContact* find(ftColHandle  key1, ftColHandle key2);
@@ -89,8 +92,71 @@ public:
     uint32 getSize();
 
     ftIter iterate();
-    ftContact* start(ftIter* iter);
-    ftContact* next(ftIter* iter);
+    void next(ftIter* iter);
+
+    template <typename T>
+    void forEach(T func);
+
+};
+
+template <typename T>
+void ftContactBuffer::forEach(T func) {
+    for (uint32 i = 0; i < capacity; ++i) {
+        for (ftContactElem* contact = contacts[i]; contact != nullptr; contact = contact->next) {
+            func(contact);
+        }
+    }
+}
+
+class ftContactBuffer2 {
+private:
+
+    struct ftContactElem {
+        ftContact contact;
+        uint32 index;
+    };
+    struct ftContactIndex {
+        ftColHandle handleA, handleB;
+        uint32 hashVal;
+        ftContactElem* contactElem;
+    };
+
+    ftContactIndex* contactIndex;
+    ftChunkArray<ftContactElem*> contacts;
+
+    uint32 capacity;
+    uint32 nContact;
+
+    uint32 hash(ftColHandle keyA, ftColHandle keyB, uint32 capacity);
+    uint64 pairingFunction(ftColHandle keyA, ftColHandle keyB);
+    void rehash(uint32 newCapacity);
+    void add(ftContactElem* elem, uint32 hashVal, uint32 handleA, uint32 handleB);
+
+public:
+
+    void init();
+    void cleanup();
+
+    class ftIter {
+    public:
+        ftColHandle handleA, handleB;
+        ftContact* contact;
+    private:
+        uint32 index;
+        friend class ftContactBuffer2;
+    };
+
+    ftContact* find(ftColHandle  key1, ftColHandle key2);
+    ftContact* create(ftColHandle key1, ftColHandle key2);
+    void destroy(ftContact* contact);
+
+    uint32 getSize();
+
+    ftIter iterate();
+    void next(ftIter* iter);
+
+    template <typename T>
+    void forEach(T func);
 
 };
 

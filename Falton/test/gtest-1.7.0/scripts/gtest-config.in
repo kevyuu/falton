@@ -6,7 +6,7 @@ version="@PACKAGE_VERSION@"
 
 show_usage()
 {
-  echo "Usage: gtest-config [OPTIONS...]"
+  echo "Usage: gtest-m_config [OPTIONS...]"
 }
 
 show_help()
@@ -14,7 +14,7 @@ show_help()
   show_usage
   cat <<\EOF
 
-The `gtest-config' script provides access to the necessary compile and linking
+The `gtest-m_config' script provides access to the necessary compile and linking
 flags to connect with Google C++ Testing Framework, both in a build prior to
 installation, and on the system proper after installation. The installation
 overrides may be issued in combination with any other queries, but will only
@@ -28,17 +28,17 @@ versions must be specified as a sequence of numbers separated by periods.
 Compiler flag queries output the union of the sets of flags when combined.
 
  Examples:
-  gtest-config --min-version=1.0 || echo "Insufficient Google Test version."
+  gtest-m_config --min-version=1.0 || echo "Insufficient Google Test version."
 
-  g++ $(gtest-config --cppflags --cxxflags) -o foo.o -c foo.cpp
-  g++ $(gtest-config --ldflags --libs) -o foo foo.o
+  g++ $(gtest-m_config --cppflags --cxxflags) -o foo.o -c foo.cpp
+  g++ $(gtest-m_config --ldflags --libs) -o foo foo.o
 
   # When using a built but not installed Google Test:
-  g++ $(../../my_gtest_build/scripts/gtest-config ...) ...
+  g++ $(../../my_gtest_build/scripts/gtest-m_config ...) ...
 
   # When using an installed Google Test, but with installation overrides:
   export GTEST_PREFIX="/opt"
-  g++ $(gtest-config --libdir="/opt/lib64" ...) ...
+  g++ $(gtest-m_config --libdir="/opt/lib64" ...) ...
 
  Help:
   --usage                    brief usage information

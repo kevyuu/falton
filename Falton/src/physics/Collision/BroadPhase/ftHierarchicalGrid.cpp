@@ -10,20 +10,12 @@
 #include <iostream>
 using namespace std;
 
-ftHierarchicalGrid::ftHierarchicalGrid() {
-
-    m_nLevel = 32;
-    m_baseSize = 5;
-    m_sizeMul = 2;
-    m_bucketCapacity = 1024;
-
-}
-
-void ftHierarchicalGrid::setConfig(ftConfig config) {
+void ftHierarchicalGrid::setConfiguration(ftConfig config) {
 
     m_nLevel = config.nLevel;
     m_baseSize = config.baseSize;
     m_sizeMul = config.sizeMul;
+    m_bucketCapacity = config.nBucket;
 
 }
 

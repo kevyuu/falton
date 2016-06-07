@@ -26,15 +26,15 @@ timestamp='2012-02-10'
 
 
 # Originally written by Per Bothner.  Please send patches (context
-# diff format) to <config-patches@gnu.org> and include a ChangeLog
+# diff format) to <m_config-patches@gnu.org> and include a ChangeLog
 # entry.
 #
 # This script attempts to guess a canonical system name similar to
-# config.sub.  If it succeeds, it prints the system name on stdout, and
+# m_config.sub.  If it succeeds, it prints the system name on stdout, and
 # exits with 0.  Otherwise, it exits with 1.
 #
 # You can get the latest version of this script from:
-# http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess;hb=HEAD
+# http://git.savannah.gnu.org/gitweb/?p=m_config.git;a=blob_plain;f=m_config.guess;hb=HEAD
 
 me=`echo "$0" | sed -e 's,.*/,,'`
 
@@ -48,10 +48,10 @@ Operation modes:
   -t, --time-stamp   print date of last modification, then exit
   -v, --version      print version number, then exit
 
-Report bugs and patches to <config-patches@gnu.org>."
+Report bugs and patches to <m_config-patches@gnu.org>."
 
 version="\
-GNU config.guess ($timestamp)
+GNU m_config.guess ($timestamp)
 
 Originally written by Per Bothner.
 Copyright (C) 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
@@ -355,7 +355,7 @@ case "${UNAME_MACHINE}:${UNAME_SYSTEM}:${UNAME_RELEASE}:${UNAME_VERSION}" in
 	echo ${SUN_ARCH}-pc-solaris2`echo ${UNAME_RELEASE}|sed -e 's/[^.]*//'`
 	exit ;;
     sun4*:SunOS:6*:*)
-	# According to config.sub, this is the proper way to canonicalize
+	# According to m_config.sub, this is the proper way to canonicalize
 	# SunOS6.  Hard to guess exactly what SunOS6 will be like, but
 	# it's likely to be more like Solaris than SunOS4.
 	echo sparc-sun-solaris3`echo ${UNAME_RELEASE}|sed -e 's/[^.]*//'`
@@ -655,9 +655,9 @@ EOF
 	    # 32-bit code.  hppa64-hp-hpux* has the same kernel and a compiler
 	    # generating 64-bit code.  GNU and HP use different nomenclature:
 	    #
-	    # $ CC_FOR_BUILD=cc ./config.guess
+	    # $ CC_FOR_BUILD=cc ./m_config.guess
 	    # => hppa2.0w-hp-hpux11.23
-	    # $ CC_FOR_BUILD="cc +DA2.0w" ./config.guess
+	    # $ CC_FOR_BUILD="cc +DA2.0w" ./m_config.guess
 	    # => hppa64-hp-hpux11.23
 
 	    if echo __LP64__ | (CCOPTS= $CC_FOR_BUILD -E - 2>/dev/null) |
@@ -1072,7 +1072,7 @@ EOF
 	# Left here for compatibility:
 	# uname -m prints for DJGPP always 'pc', but it prints nothing about
 	# the processor, so we play safe by assuming i586.
-	# Note: whatever this is, it MUST be the same as what config.sub
+	# Note: whatever this is, it MUST be the same as what m_config.sub
 	# prints for the "djgpp" host, or else GDB configury will decide that
 	# this is a cross-build.
 	echo i586-pc-msdosdjgpp
@@ -1486,18 +1486,18 @@ $0: unable to guess system type
 
 This script, last modified $timestamp, has failed to recognize
 the operating system you are using. It is advised that you
-download the most up to date version of the config scripts from
+download the most up to date version of the m_config scripts from
 
-  http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess;hb=HEAD
+  http://git.savannah.gnu.org/gitweb/?p=m_config.git;a=blob_plain;f=m_config.guess;hb=HEAD
 and
-  http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub;hb=HEAD
+  http://git.savannah.gnu.org/gitweb/?p=m_config.git;a=blob_plain;f=m_config.sub;hb=HEAD
 
 If the version you run ($0) is already up to date, please
 send the following data and any information you think might be
-pertinent to <config-patches@gnu.org> in order to provide the needed
+pertinent to <m_config-patches@gnu.org> in order to provide the needed
 information to handle your system.
 
-config.guess timestamp = $timestamp
+m_config.guess timestamp = $timestamp
 
 uname -m = `(uname -m) 2>/dev/null || echo unknown`
 uname -r = `(uname -r) 2>/dev/null || echo unknown`

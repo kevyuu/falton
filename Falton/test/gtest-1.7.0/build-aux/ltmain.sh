@@ -32,7 +32,7 @@
 #
 # Provide generalized library-building support services.
 #
-#       --config             show all configuration variables
+#       --m_config             show all configuration variables
 #       --debug              enable verbose shell tracing
 #   -n, --dry-run            display commands without modifying any files
 #       --features           display basic configuration information and exit
@@ -1069,7 +1069,7 @@ opt_verbose=false
       --dry-run|--dryrun|-n)
 			opt_dry_run=:
 			;;
-      --config)
+      --m_config)
 			opt_config=:
 func_config
 			;;
@@ -8330,7 +8330,7 @@ EOF
 	  func_basename "$output"
 	  output_la=$func_basename_result
 
-	  # Clear the reloadable object creation command queue and
+	  # Clear the reloadable object creation command eventQueue and
 	  # initialize k to one.
 	  test_cmds=
 	  concat_cmds=
@@ -8390,7 +8390,7 @@ EOF
 		  func_append objlist " $obj"
 		else
 		  # The command $test_cmds is almost too long, add a
-		  # command to the queue.
+		  # command to the eventQueue.
 		  if test "$k" -eq 1 ; then
 		    # The first file doesn't have a previous command to add.
 		    reload_objs=$objlist

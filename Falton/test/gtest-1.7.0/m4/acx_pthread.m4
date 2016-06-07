@@ -96,10 +96,10 @@ fi
 
 # Create a list of thread flags to try.  Items starting with a "-" are
 # C compiler flags, and other items are library names, except for "none"
-# which indicates that we try without any flags at all, and "pthread-config"
+# which indicates that we try without any flags at all, and "pthread-m_config"
 # which is a program returning the flags for the Pth emulation library.
 
-acx_pthread_flags="pthreads none -Kthread -kthread lthread -pthread -pthreads -mthreads pthread --thread-safe -mt pthread-config"
+acx_pthread_flags="pthreads none -Kthread -kthread lthread -pthread -pthreads -mthreads pthread --thread-safe -mt pthread-m_config"
 
 # The ordering *is* (sometimes) important.  Some notes on the
 # individual items follow:
@@ -119,7 +119,7 @@ acx_pthread_flags="pthreads none -Kthread -kthread lthread -pthread -pthreads -m
 #      ... -mt is also the pthreads flag for HP/aCC
 # pthread: Linux, etcetera
 # --thread-safe: KAI C++
-# pthread-config: use pthread-config program (for GNU Pth library)
+# pthread-m_config: use pthread-m_config program (for GNU Pth library)
 
 case "${host_cpu}-${host_os}" in
         *solaris*)
@@ -149,11 +149,11 @@ for flag in $acx_pthread_flags; do
                 PTHREAD_CFLAGS="$flag"
                 ;;
 
-		pthread-config)
-		AC_CHECK_PROG(acx_pthread_config, pthread-config, yes, no)
+		pthread-m_config)
+		AC_CHECK_PROG(acx_pthread_config, pthread-m_config, yes, no)
 		if test x"$acx_pthread_config" = xno; then continue; fi
-		PTHREAD_CFLAGS="`pthread-config --cflags`"
-		PTHREAD_LIBS="`pthread-config --ldflags` `pthread-config --libs`"
+		PTHREAD_CFLAGS="`pthread-m_config --cflags`"
+		PTHREAD_LIBS="`pthread-m_config --ldflags` `pthread-m_config --libs`"
 		;;
 
                 *)

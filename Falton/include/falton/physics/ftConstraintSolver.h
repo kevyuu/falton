@@ -9,26 +9,28 @@
 #include <falton/physics/dynamic/ftContactConstraint.h>
 #include "falton/physics/dynamic/ftBody.h"
 #include "falton/physics/dynamic/ftCollider.h"
-#include "falton/math/type.h"
 
 struct ftContactConstraint;
- struct ftContactConstraintGroup;
+ struct ftConstraintGroup;
 struct ftContact;
 struct ftIsland;
 
-struct ftContactSolverOption {
-    uint8 numIteration;
-    real baumgarteCoef;
-    real allowedPenetration;
-};
 
-class ftContactSolver {
+class ftConstraintSolver {
 public:
 
-    void init(const ftContactSolverOption& option);
+    struct ftConfig {
+        uint8 numIteration = 10;
+        real baumgarteCoef = 0.2;
+        real allowedPenetration = 0.01;
+    };
+
+    void setConfiguration(const ftConfig& config);
+    void init();
     void shutdown();
 
     void warmStart();
+    void preSolve(real dt);
     void solve(real dt);
 
     void createConstraints(const ftIsland& island);
@@ -38,8 +40,8 @@ private:
     void createContactConstraint(ftCollider *colliderA, ftCollider *colliderB,
                                  ftContact *contact, ftContactConstraint *constraint);
 
-    ftContactConstraintGroup m_constraintGroup;
-    ftContactSolverOption m_option;
+    ftConstraintGroup m_constraintGroup;
+    ftConfig m_option;
 
 };
 

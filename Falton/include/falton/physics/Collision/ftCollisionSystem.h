@@ -10,6 +10,8 @@
 #include <falton/container/ftChunkArray.h>
 #include <falton/container/ftIntQueue.h>
 #include <falton/physics/collision/broadphase/ftBroadphaseSystem.h>
+#include <falton/physics/collision/ftContact.h>
+#include <falton/container/ftBitSet.h>
 
 struct ftContact;
 
@@ -48,7 +50,12 @@ public:
     void removeShape(ftColHandle handle);
     void moveShape(ftColHandle handle, ftTransform transform);
 
-    void updateContacts(ftContactBuffer *contactBuffer, ftCollisionFilterFunc filter, ftCollisionCallback callback);
+    void updateContacts(ftCollisionFilterFunc filter, ftCollisionCallback callback);
+
+    void destroyContact(ftContact* contact);
+
+    template <typename T>
+    void forEachContact(T func);
 
 private:
 
@@ -61,8 +68,20 @@ private:
     uint8 m_curTimeStamp;
 
     ftBroadphaseSystem *m_broadphase;
+    ftContactBuffer m_contactBuffer;
+
+    ftBitSet m_moveMasks;
 
 };
+
+inline void ftCollisionSystem::destroyContact(ftContact *contact) {
+    m_contactBuffer.destroy(contact);
+}
+
+template <typename T>
+inline void ftCollisionSystem::forEachContact(T func) {
+    m_contactBuffer.forEach(func);
+}
 
 
 #endif //FALTON_FTCOLLISIONSYSTEM_H

@@ -17,7 +17,7 @@ AC_ARG_ENABLE([gtest],
   [],
   [enable_gtest=])
 AC_ARG_VAR([GTEST_CONFIG],
-           [The exact path of Google Test's 'gtest-config' script.])
+           [The exact path of Google Test's 'gtest-m_config' script.])
 AC_ARG_VAR([GTEST_CPPFLAGS],
            [C-like preprocessor flags for Google Test.])
 AC_ARG_VAR([GTEST_CXXFLAGS],
@@ -30,19 +30,19 @@ AC_ARG_VAR([GTEST_VERSION],
            [The version of Google Test available.])
 HAVE_GTEST="no"
 AS_IF([test "x${enable_gtest}" != "xno"],
-  [AC_MSG_CHECKING([for 'gtest-config'])
+  [AC_MSG_CHECKING([for 'gtest-m_config'])
    AS_IF([test "x${enable_gtest}" != "xyes"],
-     [AS_IF([test -x "${enable_gtest}/scripts/gtest-config"],
-        [GTEST_CONFIG="${enable_gtest}/scripts/gtest-config"],
-        [GTEST_CONFIG="${enable_gtest}/bin/gtest-config"])
+     [AS_IF([test -x "${enable_gtest}/scripts/gtest-m_config"],
+        [GTEST_CONFIG="${enable_gtest}/scripts/gtest-m_config"],
+        [GTEST_CONFIG="${enable_gtest}/bin/gtest-m_config"])
       AS_IF([test -x "${GTEST_CONFIG}"], [],
         [AC_MSG_RESULT([no])
          AC_MSG_ERROR([dnl
 Unable to locate either a built or installed Google Test.
 The specific location '${enable_gtest}' was provided for a built or installed
-Google Test, but no 'gtest-config' script could be found at this location.])
+Google Test, but no 'gtest-m_config' script could be found at this location.])
          ])],
-     [AC_PATH_PROG([GTEST_CONFIG], [gtest-config])])
+     [AC_PATH_PROG([GTEST_CONFIG], [gtest-m_config])])
    AS_IF([test -x "${GTEST_CONFIG}"],
      [AC_MSG_RESULT([${GTEST_CONFIG}])
       m4_ifval([$1],

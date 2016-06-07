@@ -29,16 +29,16 @@ timestamp='2012-02-10'
 # the same distribution terms that you use for the rest of that program.
 
 
-# Please send patches to <config-patches@gnu.org>.  Submit a context
+# Please send patches to <m_config-patches@gnu.org>.  Submit a context
 # diff and a properly formatted GNU ChangeLog entry.
 #
 # Configuration subroutine to validate and canonicalize a configuration type.
 # Supply the specified configuration type as an argument.
 # If it is invalid, we print an error message on stderr and exit with code 1.
-# Otherwise, we print the canonical config type on stdout and succeed.
+# Otherwise, we print the canonical m_config type on stdout and succeed.
 
 # You can get the latest version of this script from:
-# http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub;hb=HEAD
+# http://git.savannah.gnu.org/gitweb/?p=m_config.git;a=blob_plain;f=m_config.sub;hb=HEAD
 
 # This file is supposed to be the same for all GNU packages
 # and recognize all the CPU types, system types and aliases
@@ -68,10 +68,10 @@ Operation modes:
   -t, --time-stamp   print date of last modification, then exit
   -v, --version      print version number, then exit
 
-Report bugs and patches to <config-patches@gnu.org>."
+Report bugs and patches to <m_config-patches@gnu.org>."
 
 version="\
-GNU config.sub ($timestamp)
+GNU m_config.sub ($timestamp)
 
 Copyright (C) 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012
@@ -143,7 +143,7 @@ case $maybe_os in
 esac
 
 ### Let's recognize common machines as not being operating systems so
-### that things like config.sub decstation-3100 work.  We also
+### that things like m_config.sub decstation-3100 work.  We also
 ### recognize some manufacturers as not being operating systems, so we
 ### can provide default operating systems below.
 case $os in

@@ -2,6 +2,7 @@
 // Created by Kevin Yu on 2/9/16.
 //
 
+#include <falton/setting/general.h>
 #include "falton/physics/shape/ftPolygon.h"
 
 ftPolygon::ftPolygon(): numVertex(0), vertices(nullptr), area(0),
@@ -102,6 +103,30 @@ ftPolygon::~ftPolygon(){
 
 real ftPolygon::getArea() {
     return this->area;
+}
+
+void ftPolygon::copy(const ftShape* shape) {
+    ftAssert(shape->shapeType == SHAPE_POLYGON);
+    ftPolygon* sourcePolygon = (ftPolygon*) shape;
+    numVertex = sourcePolygon->numVertex;
+    area = sourcePolygon->area;
+
+    if (vertices != nullptr) {
+        delete[] vertices;
+    }
+    if (normals != nullptr) {
+        delete[] normals;
+    }
+
+    vertices = new ftVector2[numVertex];
+    normals = new ftVector2[numVertex];
+
+    for (uint32 i = 0; i < numVertex; ++i) {
+        vertices[i] = sourcePolygon->vertices[i];
+    }
+    for (uint32 i = 0; i < numVertex; ++i) {
+        normals[i] = sourcePolygon->normals[i];
+    }
 }
 
 ftAABB ftPolygon::constructAABB(ftTransform transform) {

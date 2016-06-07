@@ -6,7 +6,7 @@
 #define FALTON_CHUNKARRAY_H
 
 #include <string>
-#include "falton/math/type.h"
+#include <falton/setting/general.h>
 
 template <typename T>
 class ftChunkArray {
@@ -24,6 +24,7 @@ public:
     uint32 add();
     void reserve(uint32 size);
     void remove();
+    void removeAll();
 
     uint32 getCapacity() const;
     uint32 getSize() const;
@@ -34,6 +35,8 @@ private:
     uint32 nChunk;
     uint32 nObject;
     uint32 capacity;
+
+    //make object size dynamic
     T* objects[100];
 
 };
@@ -61,8 +64,11 @@ void ftChunkArray<T>::init(int chunkSize) {
 template <typename T>
 void ftChunkArray<T>::cleanup() {
     for (uint32 i=0;i<nChunk;i++) {
-        delete[] objects[i];
+        if (objects[i] != nullptr) {
+            delete[] objects[i];
+        }
     }
+    nObject = 0;
 }
 
 template <typename T>
@@ -98,6 +104,11 @@ uint32 ftChunkArray<T>::add() {
 template <typename T>
 void ftChunkArray<T>::remove() {
     --nObject;
+}
+
+template <typename T>
+void ftChunkArray<T>::removeAll() {
+    nObject = 0;
 }
 
 template <typename T>

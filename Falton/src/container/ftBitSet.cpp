@@ -42,7 +42,7 @@ void ftBitSet::off(int index) {
 }
 
 void ftBitSet::resize(int size) {
-    uint32 nChar = (size/8) + 1;
+    nChar = (size/8) + 1;
 
     uint32 nBytesToCopy = nChar;
     if (nChar > capacity/8) nBytesToCopy = capacity/8;

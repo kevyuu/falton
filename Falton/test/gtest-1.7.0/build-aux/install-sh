@@ -4,7 +4,7 @@
 scriptversion=2011-01-19.21; # UTC
 
 # This originates from X11R5 (mit/util/scripts/install.sh), which was
-# later released in X11R6 (xc/config/util/install.sh) with the
+# later released in X11R6 (xc/m_config/util/install.sh) with the
 # following copyright and license.
 #
 # Copyright (C) 1994 X Consortium

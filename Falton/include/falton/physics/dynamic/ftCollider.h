@@ -11,22 +11,6 @@
 
 struct ftBody;
 
-struct ftColliderDef {
-    ftBody *body = nullptr;
-
-    ftVector2 position;
-    real orientation = 0;
-
-    real restitution = 0;
-    real friction = 0.2;
-
-    uint32 group = 0;
-    uint32 category = 0xFFFF;
-    uint32 mask = 0xFFFF;
-
-    ftShape *shape = nullptr;
-};
-
 struct ftCollider {
 
 public:
@@ -36,12 +20,12 @@ public:
     //position and orientation relative to body
     ftTransform transform;
 
-    real friction;
-    real restitution;
+    real friction = 0.2;
+    real restitution = 0;
 
-    uint32 group;
-    uint32 category;
-    uint32 mask;
+    uint32 group = 0;
+    uint32 category = 0xFFFF;
+    uint32 mask = 0xFFFF;
 
     ftColHandle collisionHandle;
 
@@ -49,7 +33,7 @@ public:
     ftCollider* next = nullptr;
 
     friend class ftPhysicsSystem;
-    friend class ftContactSolver;
+    friend class ftConstraintSolver;
 };
 
 

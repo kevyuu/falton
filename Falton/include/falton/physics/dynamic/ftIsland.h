@@ -6,6 +6,7 @@
 #define FALTON_FTISLANDCOMPUTER_H
 
 #include <falton/container/ftChunkArray.h>
+#include <falton/physics/joint/ftJoint.h>
 
 struct ftBody;
 struct ftContact;
@@ -15,6 +16,7 @@ class ftBodyBuffer;
 struct ftIsland {
     ftChunkArray<ftBody*> bodies;
     ftChunkArray<ftContact*> contacts;
+    ftChunkArray<ftJoint*> joints;
 };
 
 

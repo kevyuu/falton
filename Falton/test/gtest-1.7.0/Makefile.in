@@ -49,9 +49,9 @@ check_PROGRAMS = samples/sample1_unittest$(EXEEXT) \
 subdir = .
 DIST_COMMON = README $(am__configure_deps) $(pkginclude_HEADERS) \
 	$(pkginclude_internal_HEADERS) $(srcdir)/Makefile.am \
-	$(srcdir)/Makefile.in $(top_srcdir)/build-aux/config.h.in \
-	$(top_srcdir)/configure $(top_srcdir)/scripts/gtest-config.in \
-	build-aux/config.guess build-aux/config.sub build-aux/depcomp \
+	$(srcdir)/Makefile.in $(top_srcdir)/build-aux/m_config.h.in \
+	$(top_srcdir)/configure $(top_srcdir)/scripts/gtest-m_config.in \
+	build-aux/m_config.guess build-aux/m_config.sub build-aux/depcomp \
 	build-aux/install-sh build-aux/ltmain.sh build-aux/missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
@@ -60,11 +60,11 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
 	$(top_srcdir)/m4/acx_pthread.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
-am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
- configure.lineno config.status.lineno
+am__CONFIG_DISTCLEAN_FILES = m_config.status m_config.cache m_config.log \
+ configure.lineno m_config.status.lineno
 mkinstalldirs = $(install_sh) -d
-CONFIG_HEADER = $(top_builddir)/build-aux/config.h
-CONFIG_CLEAN_FILES = scripts/gtest-config
+CONFIG_HEADER = $(top_builddir)/build-aux/m_config.h
+CONFIG_CLEAN_FILES = scripts/gtest-m_config
 CONFIG_CLEAN_VPATH_FILES =
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
@@ -527,18 +527,18 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	$(am__cd) $(top_srcdir) && \
 	  $(AUTOMAKE) --foreign Makefile
 .PRECIOUS: Makefile
-Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
+Makefile: $(srcdir)/Makefile.in $(top_builddir)/m_config.status
 	@case '$?' in \
-	  *config.status*) \
-	    echo ' $(SHELL) ./config.status'; \
-	    $(SHELL) ./config.status;; \
+	  *m_config.status*) \
+	    echo ' $(SHELL) ./m_config.status'; \
+	    $(SHELL) ./m_config.status;; \
 	  *) \
-	    echo ' cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__depfiles_maybe)'; \
-	    cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__depfiles_maybe);; \
+	    echo ' cd $(top_builddir) && $(SHELL) ./m_config.status $@ $(am__depfiles_maybe)'; \
+	    cd $(top_builddir) && $(SHELL) ./m_config.status $@ $(am__depfiles_maybe);; \
 	esac;
 
-$(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
-	$(SHELL) ./config.status --recheck
+$(top_builddir)/m_config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
+	$(SHELL) ./m_config.status --recheck
 
 $(top_srcdir)/configure:  $(am__configure_deps)
 	$(am__cd) $(srcdir) && $(AUTOCONF)
@@ -546,22 +546,22 @@ $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	$(am__cd) $(srcdir) && $(ACLOCAL) $(ACLOCAL_AMFLAGS)
 $(am__aclocal_m4_deps):
 
-build-aux/config.h: build-aux/stamp-h1
+build-aux/m_config.h: build-aux/stamp-h1
 	@if test ! -f $@; then rm -f build-aux/stamp-h1; else :; fi
 	@if test ! -f $@; then $(MAKE) $(AM_MAKEFLAGS) build-aux/stamp-h1; else :; fi
 
-build-aux/stamp-h1: $(top_srcdir)/build-aux/config.h.in $(top_builddir)/config.status
+build-aux/stamp-h1: $(top_srcdir)/build-aux/m_config.h.in $(top_builddir)/m_config.status
 	@rm -f build-aux/stamp-h1
-	cd $(top_builddir) && $(SHELL) ./config.status build-aux/config.h
-$(top_srcdir)/build-aux/config.h.in:  $(am__configure_deps) 
+	cd $(top_builddir) && $(SHELL) ./m_config.status build-aux/m_config.h
+$(top_srcdir)/build-aux/m_config.h.in:  $(am__configure_deps)
 	($(am__cd) $(top_srcdir) && $(AUTOHEADER))
 	rm -f build-aux/stamp-h1
 	touch $@
 
 distclean-hdr:
-	-rm -f build-aux/config.h build-aux/stamp-h1
-scripts/gtest-config: $(top_builddir)/config.status $(top_srcdir)/scripts/gtest-config.in
-	cd $(top_builddir) && $(SHELL) ./config.status $@
+	-rm -f build-aux/m_config.h build-aux/stamp-h1
+scripts/gtest-m_config: $(top_builddir)/m_config.status $(top_srcdir)/scripts/gtest-m_config.in
+	cd $(top_builddir) && $(SHELL) ./m_config.status $@
 install-libLTLIBRARIES: $(lib_LTLIBRARIES)
 	@$(NORMAL_INSTALL)
 	test -z "$(libdir)" || $(MKDIR_P) "$(DESTDIR)$(libdir)"
@@ -808,7 +808,7 @@ clean-libtool:
 	-rm -rf test/.libs test/_libs
 
 distclean-libtool:
-	-rm -f libtool config.lt
+	-rm -f libtool m_config.lt
 install-m4dataDATA: $(m4data_DATA)
 	@$(NORMAL_INSTALL)
 	test -z "$(m4datadir)" || $(MKDIR_P) "$(DESTDIR)$(m4datadir)"

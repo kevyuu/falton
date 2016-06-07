@@ -12,10 +12,12 @@
 void ftIslandSystem::init(ftBodyBuffers bodyBuffers) {
     this->m_buffers = bodyBuffers;
     m_islandContacts.init(64);
+    m_islandJoints.init(64);
 }
 
 void ftIslandSystem::shutdown() {
     m_islandContacts.cleanup();
+    m_islandJoints.cleanup();
 }
 
 void ftIslandSystem::addContact(ftContact *contact) {
@@ -29,7 +31,7 @@ void ftIslandSystem::addContact(ftContact *contact) {
     ftContactEdge* contactEdgeA = createContactEdge(bodyA, bodyB, contact);
     ftContactEdge* contactEdgeB = createContactEdge(bodyB, bodyA, contact);
 
-    int index = m_islandContacts.add();
+    int32 index = m_islandContacts.add();
     contact->islandIndex = index;
     m_islandContacts[index].contact = contact;
     m_islandContacts[index].contactEdgeA = contactEdgeA;
@@ -91,11 +93,76 @@ void ftIslandSystem::destroyContactEdge(ftContactEdge *contactEdge) {
     delete contactEdge;
 }
 
+void ftIslandSystem::addJoint(ftJoint *joint) {
+    ftBody* bodyA = joint->bodyA;
+    ftBody* bodyB = joint->bodyB;
+
+    ftJointEdge* jointEdgeA = createJointEdge(bodyA, bodyB, joint);
+    ftJointEdge* jointEdgeB = createJointEdge(bodyB, bodyA, joint);
+
+
+    int32 index = m_islandJoints.add();
+    joint->islandIndex = index;
+    m_islandJoints[index].joint = joint;
+    m_islandJoints[index].jointEdgeA = jointEdgeA;
+    m_islandJoints[index].jointEdgeB = jointEdgeB;
+}
+
+void ftIslandSystem::removeJoint(ftJoint *joint) {
+
+    ftIslandJoint* islandJoint = &m_islandJoints[joint->islandIndex];
+    destroyJointEdge(islandJoint->jointEdgeA);
+    destroyJointEdge(islandJoint->jointEdgeB);
+
+    uint32 lastIndex = m_islandJoints.getSize() - 1;
+    ftJoint* lastJoint = m_islandJoints[lastIndex].joint;
+    lastJoint->islandIndex = joint->islandIndex;
+    m_islandJoints[joint->islandIndex] = m_islandJoints[lastIndex];
+    m_islandJoints.remove();
+
+}
+
+ftJointEdge* ftIslandSystem::createJointEdge(ftBody* body1, ftBody* body2, ftJoint* joint) {
+    ftJointEdge* jointEdge = new ftJointEdge;
+    jointEdge->other = body2;
+
+    jointEdge->next = body1->jointList;
+    if (body1->jointList != nullptr) body1->jointList->prev = jointEdge;
+    jointEdge->prev = nullptr;
+    jointEdge->joint = joint;
+
+    body1->jointList = jointEdge;
+
+    return jointEdge;
+}
+
+void ftIslandSystem::destroyJointEdge(ftJointEdge *jointEdge) {
+
+    ftJointEdge* prev = jointEdge->prev;
+    ftJointEdge* next = jointEdge->next;
+
+    ftJoint* joint = jointEdge->joint;
+    ftBody* bodyA = joint->bodyA;
+    ftBody* bodyB = joint->bodyB;
+
+    ftBody* body;
+    if (bodyA == jointEdge->other) body = bodyB;
+    else body = bodyA;
+
+    if (prev!=nullptr) prev->next = next;
+    else body->jointList = next;
+    if (next!=nullptr) next->prev = prev;
+
+    delete jointEdge;
+
+}
+
 void ftIslandSystem::buildAndProcessIsland(std::function<void(const ftIsland &)> func) {
 
     resetIslandID(m_buffers.dynamicBuffer);
     resetIslandID(m_buffers.sleepingBuffer);
     resetContactFlag();
+    resetJointFlag();
 
     int nBody  = m_buffers.dynamicBuffer->getSize() + m_buffers.staticBuffer->getSize() +
                  m_buffers.kinematicBuffer->getSize() + m_buffers.sleepingBuffer->getSize();
@@ -115,6 +182,7 @@ void ftIslandSystem::buildAndProcessIsland(std::function<void(const ftIsland &)>
             ftIsland *island = new ftIsland;
             island->bodies.init(64);
             island->contacts.init(64);
+            island->joints.init(64);
 
             dfsStack[0] = body;
             ++stackSize;
@@ -146,12 +214,28 @@ void ftIslandSystem::buildAndProcessIsland(std::function<void(const ftIsland &)>
                     dfsStack[stackSize] = contactEdge->other;
                     ++stackSize;
                 }
+
+                for (ftJointEdge* jointEdge = topBody->jointList;
+                        jointEdge != nullptr; jointEdge = jointEdge->next) {
+                    ftJoint* joint = jointEdge->joint;
+                    ftIslandJoint* islandJoint = &(m_islandJoints[joint->islandIndex]);
+                    if (islandJoint->dfsFlag) {
+                        continue;
+                    }
+
+                    island->joints.push(joint);
+                    islandJoint->dfsFlag = true;
+
+                    dfsStack[stackSize] = jointEdge->other;
+                    ++stackSize;
+                }
             }
 
             func(*island);
 
             island->bodies.cleanup();
             island->contacts.cleanup();
+            island->joints.cleanup();
             delete island;
         }
 
@@ -171,5 +255,11 @@ void ftIslandSystem::resetIslandID(ftBodyBuffer* buffer) {
 void ftIslandSystem::resetContactFlag() {
     for (uint32 i = 0;i < m_islandContacts.getSize(); ++i) {
         m_islandContacts[i].dfsFlag = false;
+    }
+}
+
+void ftIslandSystem::resetJointFlag() {
+    for (uint32 i = 0;i < m_islandJoints.getSize(); ++i) {
+        m_islandJoints[i].dfsFlag = false;
     }
 }

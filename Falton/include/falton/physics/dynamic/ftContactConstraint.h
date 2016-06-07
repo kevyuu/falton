@@ -5,6 +5,7 @@
 #ifndef FALTON_FTCONTACTCONSTRAINT_H
 #define FALTON_FTCONTACTCONSTRAINT_H
 
+#include <falton/physics/joint/ftJoint.h>
 #include "falton/math/math.h"
 
 struct ftBody;
@@ -25,7 +26,7 @@ struct ftContactPointConstraint {
     ftVector2 r1;
     ftVector2 r2;
 
-    friend class ftContactSolver;
+    friend class ftConstraintSolver;
 
 };
 
@@ -44,11 +45,9 @@ struct ftContactConstraint {
     real invMomentA;
     real invMomentB;
 
-    friend class ftContactSolver;
-
 };
 
-struct ftContactConstraintGroup {
+struct ftConstraintGroup {
 
     ftBody** bodies;
     ftVector2* positions = nullptr;
@@ -57,9 +56,11 @@ struct ftContactConstraintGroup {
     real* angularVelocities;
 
     ftContactConstraint* constraints;
-    uint32 numConstraint;
-    uint32 numBody;
-    friend class ftContactSolver;
+    ftJoint** joints;
+
+    uint32 nConstraint;
+    uint32 nBody;
+    uint32 nJoint;
 
 };
 

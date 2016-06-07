@@ -56,8 +56,8 @@ void ftNSquaredBroadphase::findPairs(ftChunkArray<ftBroadPhasePair> *pairs) {
         for (uint32 j = i+1; j < m_nShape; j++) {
             ftElem* elem1 = &m_elements[i];
             ftElem* elem2 = &m_elements[j];
-            if (elem1->collisionShape != nullptr && elem2->collisionShape != nullptr &&
-                    elem1->aabb.overlap(elem2->aabb)) {
+            if (elem1->collisionShape != nullptr && elem2->collisionShape != nullptr
+                    && elem1->aabb.overlap(elem2->aabb)) {
                 pair.userdataA = elem1->userdata;
                 pair.userdataB = elem2->userdata;
                 pairs->push(pair);

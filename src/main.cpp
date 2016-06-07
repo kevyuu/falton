@@ -1,43 +1,53 @@
-// Include standard headers
-#include <stdio.h>
-#include <stdlib.h>
-#include <iostream>
-#include <string>
-#include <fstream>
+// ImGui - standalone example application for Allegro 5
+// If you are new to ImGui, see examples/README.txt and documentation at the top of imgui.cpp.
 
-// Include falton
-#include <falton/math/math.h>
-
-#include <allegro5/allegro5.h>
+#include <stdint.h>
+#include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
-#include <falton/physics/shape/ftPolygon.h>
-#include <falton/physics/ftMassComputer.h>
-#include <stdlib.h>
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_a5.h"
+#include "imgui/imgui_internal.h"
+#include "Demo.h"
+#include "window/DemoWindow.h"
+#include "DrawPhysics.h"
+#include "window/ExecutionButton.h"
+#include "window/PhysicsConfigWindow.h"
+#include "window/PerformanceWindow.h"
+#include "window/DrawerConfigWindow.h"
 
 #include <iostream>
-#include <falton/physics/dynamic/ftBody.h>
-#include <falton/physics/dynamic/ftPhysicsSystem.h>
-#include "ftDebugDrawer.h"
+#include <falton/physics/collision/broadphase/ftNSquaredBroadphase.h>
+#include <falton/physics/collision/broadphase/ftDynamicBVH.h>
+#include <falton/physics/collision/broadphase/ftHierarchicalGrid.h>
+#include <falton/physics/collision/broadphase/ftToroidalGrid.h>
 
 using namespace std;
 
-bool done;
-ALLEGRO_EVENT_QUEUE* event_queue;
+
 ALLEGRO_TIMER* timer;
+ALLEGRO_EVENT_QUEUE* eventQueue;
 ALLEGRO_DISPLAY* display;
 
-ALLEGRO_COLOR electricBlue;
+int SCREEN_WIDTH = 1280;
+int SCREEN_HEIGHT = 720;
 
-ftPhysicsSystem* physicsSystem;
-ftChunkArray<ftCollider*> colliders;
-ftDebugDrawer drawer;
+ftPhysicsSystem physicsSystem;
+ftBroadphaseSystem* broadphaseSystem;
+PhysicsConfigWindow physicsConfigWindow;
+DemoWindow demoWindow;
+PerformanceWindow performanceWindow;
+DrawerConfigWindow drawConfigWindow;
 
-const int SCREEN_WIDTH = 800;
-const int SCREEN_HEIGHT = 800;
+Camera camera;
 
 
+void gameLoop();
+void updateLogic();
+void updateGraphics();
+void updateImGUI();
+void cleanUp();
 
-long getMicroSecond() {
+long getMicro() {
     timeval time;
     gettimeofday(&time, NULL);
     long micro = (time.tv_sec * 1000000) + (time.tv_usec);
@@ -50,273 +60,233 @@ void abort_game(const char* message)
     exit(1);
 }
 
-void allegro_init(void)
+ExecutionButton executionButton;
+
+int main(int argc, char *argv[])
 {
-    if (!al_init())
-        abort_game("Failed to initialize allegro");
-
-    if (!al_init_primitives_addon())
-        abort_game("Failed to initialize primitive addon");
-
-    if (!al_install_keyboard())
-        abort_game("Failed to install keyboard");
-
-    timer = al_create_timer(1.0 / 60);
-    if (!timer)
-        abort_game("Failed to create timer");
-
-    al_set_new_display_flags(ALLEGRO_WINDOWED);
+    // Setup Allegro
+    al_init();
+    al_install_keyboard();
+    al_install_mouse();
+    al_init_primitives_addon();
+    al_set_new_display_flags(ALLEGRO_RESIZABLE);
     display = al_create_display(SCREEN_WIDTH, SCREEN_HEIGHT);
-    if (!display)
-        abort_game("Failed to create display");
+    al_set_window_title(display, "ImGui Allegro 5 example");
 
-    event_queue = al_create_event_queue();
-    if (!event_queue)
-        abort_game("Failed to create event queue");
-
-    al_register_event_source(event_queue, al_get_keyboard_event_source());
-    al_register_event_source(event_queue, al_get_timer_event_source(timer));
-    al_register_event_source(event_queue, al_get_display_event_source(display));
-
-    electricBlue = al_map_rgb(44,177,255);
-
-    done = false;
-}
-
-ftBody* createDynamicBox(ftVector2 position, ftVector2 halfWidth, real mass, real friction) {
-    ftPolygon *boxShape = ftPolygon::createBox(-1 * halfWidth, halfWidth);
-    ftMassProperty boxmp = ftMassComputer::computeForPolygon(*boxShape,mass, ftVector2(0,0));
-    ftBodyDef boxDef;
-    boxDef.position = position;
-    boxDef.orientation = 0;
-    boxDef.centerOfMass = boxmp.centerOfMass;
-    boxDef.mass = boxmp.mass;
-    boxDef.moment = boxmp.moment;
-    boxDef.bodyType = DYNAMIC;
-    ftBody* box = physicsSystem->createBody(boxDef);
-
-    ftColliderDef boxColDef;
-    boxColDef.body = box;
-    boxColDef.shape = boxShape;
-    boxColDef.orientation = 0;
-    boxColDef.position = ftVector2(0,0);
-    boxColDef.friction = friction;
-    ftCollider* boxCollider = physicsSystem->createCollider(boxColDef);
-    colliders.push(boxCollider);
-
-    return box;
-}
-
-
-ftBody* createBall(ftVector2 position, real mass, real radius, real friction, real restitution) {
-    ftCircle *ballShape = new ftCircle(radius);
-    ftMassProperty ballmp = ftMassComputer::computeForCircle(*ballShape,mass, ftVector2(0,0));
-    ftBodyDef ballDef;
-    ballDef.bodyType = DYNAMIC;
-    ballDef.position = position;
-    ballDef.mass = ballmp.mass;
-    ballDef.moment = ballmp.moment;
-    ballDef.orientation = M_PI/8;
-    ballDef.centerOfMass = ballmp.centerOfMass;
-    ftBody* ball = physicsSystem->createBody(ballDef);
-
-    ftColliderDef colliderDef;
-    colliderDef.body = ball;
-    colliderDef.friction = friction;
-    colliderDef.restitution = restitution;
-    colliderDef.position = ftVector2(0,0);
-    colliderDef.shape = ballShape;
-    ftCollider* ballCollider = physicsSystem->createCollider(colliderDef);
-    colliders.push(ballCollider);
-
-    return ball;
-}
-
-ftBody*  createStaticBox(ftVector2 position, real orientation, ftVector2 halfWidth, real friction) {
-    ftPolygon *groundShape = ftPolygon::createBox(-1 * halfWidth, halfWidth);
-    ftBodyDef groundDef;
-    groundDef.bodyType = STATIC;
-    groundDef.position = position;
-    groundDef.orientation = orientation;
-    ftBody* ground = physicsSystem->createBody(groundDef);
-
-    ftColliderDef colliderDef;
-    colliderDef.body = ground;
-    colliderDef.friction = friction;
-    colliderDef.shape = groundShape;
-    colliderDef.position = ftVector2(0,0);
-    ftCollider* groundCollider = physicsSystem->createCollider(colliderDef);
-    colliders.push(groundCollider);
-
-    return ground;
-}
-
-
-void Demo1_init() {
-    physicsSystem = new ftPhysicsSystem;
-    physicsSystem->init(ftVector2(0,-10));
-
-    createStaticBox(ftVector2(0,-10), 0, ftVector2(50,10),1);
-
-    createDynamicBox(ftVector2(0,4), ftVector2(0.5,0.5), 200, 1);
-
-}
-
-void Demo2_init() {
-    physicsSystem = new ftPhysicsSystem;
-    physicsSystem->init(ftVector2(0,-10));
-
-    createStaticBox(ftVector2(0,-10),0,ftVector2(50,10), 0.2);
-    createStaticBox(ftVector2(-2,11), -0.25, ftVector2(6.5, 0.125), 0.2);
-    createStaticBox(ftVector2(5.25,9.5),0, ftVector2(0.125,0.5), 0.2);
-    createStaticBox(ftVector2(2,7),0.25, ftVector2(6.5,0.125), 0.2);
-    createStaticBox(ftVector2(-5.25, 5.5), 0, ftVector2(0.125,0.5),0.2);
-    createStaticBox(ftVector2(-2,3), -0.25, ftVector2(6.5,0.125), 0.2);
-
-    float friction[5] = {0.75f, 0.5f, 0.35f, 0.1f, 0.0f};
-    for (int i = 0; i < 5; ++i) {
-        createDynamicBox(ftVector2(-7.5 + 2 * i, 14), ftVector2(0.25,0.25), 25, friction[i]);
-    }
-}
-
-float Random(float lo, float hi)
-{
-    float r = (float)rand();
-    r /= RAND_MAX;
-    r = (hi - lo) * r + lo;
-    return r;
-}
-
-void Demo3_init() {
-    physicsSystem = new ftPhysicsSystem;
-    physicsSystem->init(ftVector2(0,-10));
-
-    createStaticBox(ftVector2(0,-10),0,ftVector2(50,10),0.2);
-
-    for (int i = 0; i < 10; ++i)
-    {
-        float x = Random(-0.1f, 0.1f);
-        createDynamicBox(ftVector2(x, 0.51f + 1.05f * i), ftVector2(0.5,0.5), 1, 0.2);
-    }
-}
-
-void Demo4_init() {
-
-    physicsSystem = new ftPhysicsSystem;
-    physicsSystem->init(ftVector2(0,-10));
-
-    createStaticBox(ftVector2(0,-10), 0,ftVector2(50,10), 0.2);
-
-    ftVector2 x(-6, 0.75);
-    ftVector2 y;
-
-    for (int i = 0; i < 16 ; ++i) {
-        y = x;
-        for (int j = i; j < 17; ++j) {
-            createDynamicBox(y, ftVector2(0.5, 0.5), 10, 0.2);
-            y += ftVector2(1.125f, 0.0f);
-        }
-        x += ftVector2(0.5625f, 2.0f);
+    timer = al_create_timer(1.0/60);
+    if (!timer) {
+        abort_game("Failed to create timer");
     }
 
-}
+    eventQueue = al_create_event_queue();
+    al_register_event_source(eventQueue, al_get_timer_event_source(timer));
+    al_register_event_source(eventQueue, al_get_display_event_source(display));
+    al_register_event_source(eventQueue, al_get_keyboard_event_source());
+    al_register_event_source(eventQueue, al_get_mouse_event_source());
 
-void Demo5_init() {
-    physicsSystem = new ftPhysicsSystem;
-    physicsSystem->init(ftVector2(0,-10));
+    // Setup ImGui binding
+    ImGui_ImplA5_Init(display);
 
-    ftBody* body1 = createStaticBox(ftVector2(0,-10),0, ftVector2(50,10), 0.2);
-    ftBody* body2 = createDynamicBox(ftVector2(0,1),ftVector2(6,0.125), 100, 0.2);
-    createDynamicBox(ftVector2(-5,2), ftVector2(0.125,0.125), 25, 0.2);
-    createDynamicBox(ftVector2(-5.5,2), ftVector2(0.125,0.125), 25, 0.2);
-    createDynamicBox(ftVector2(5.5,15), ftVector2(0.5,0.5), 100, 0.2);
+    camera.centerX = 0;
+    camera.centerY = 0;
+    camera.halfWidthX = SCREEN_WIDTH/24;
+    camera.halfWidthY = SCREEN_HEIGHT/24;
 
-    physicsSystem->createJoint(body1, body2, ftVector2(0,1));
-}
-
-void Demo6_init() {
-    physicsSystem = new ftPhysicsSystem;
-    physicsSystem->init(ftVector2(0, -10));
-
-    createStaticBox(ftVector2(0, -10), 0, ftVector2(50, 10), 0.2);
-    real restitution[8] = {0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9};
-    for (uint32 i = 0; i < 8; ++i) {
-        createBall(ftVector2(-7.5 + (2 * i), 15), 50, 0.5, 0.2, restitution[i]);
-    }
-}
+    // Load Fonts
+    // (there is a default font, this is only if you want to change it. see extra_fonts/README.txt for more details)
+    //ImGuiIO& io = ImGui::GetIO();
+    //io.Fonts->AddFontDefault();
+    //io.Fonts->AddFontFromFileTTF("../../extra_fonts/Cousine-Regular.ttf", 15.0f);
+    //io.Fonts->AddFontFromFileTTF("../../extra_fonts/DroidSans.ttf", 16.0f);
+    //io.Fonts->AddFontFromFileTTF("../../extra_fonts/ProggyClean.ttf", 13.0f);
+    //io.Fonts->AddFontFromFileTTF("../../extra_fonts/ProggyTiny.ttf", 10.0f);
+    //io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
 
 
-void init() {
-    allegro_init();
-    drawer.init();
-    colliders.init(64);
-    Demo4_init();
-}
+    gameLoop();
 
-void shutdown(void)
-{
-    if (timer)
-        al_destroy_timer(timer);
+    cleanUp();
 
-    if (display)
-        al_destroy_display(display);
-
-    if (event_queue)
-        al_destroy_event_queue(event_queue);
-}
-
-ftVector2 spaceToView(ftVector2 spaceVector) {
-
-    ftVector2 viewVector;
-    real scale = 40;
-    viewVector.x = SCREEN_WIDTH / 2 + (spaceVector.x * scale);
-    viewVector.y = SCREEN_HEIGHT / 2 - ((spaceVector.y - 7) * scale);
-
-    return viewVector;
-}
-
-void update_logic() {
-    physicsSystem->step(1.0/60);
-
-}
-
-void update_graphics() {
-    drawer.draw(physicsSystem);
-}
-
-void game_loop(void)
-{
-    bool redraw = true;
-    al_start_timer(timer);
-
-    while (!done) {
-        ALLEGRO_EVENT event;
-        al_wait_for_event(event_queue, &event);
-
-        if (event.type == ALLEGRO_EVENT_TIMER) {
-            redraw = true;
-            update_logic();
-        }
-        else if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
-            if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
-                done = true;
-            }
-            //get_user_input();
-        }
-
-        if (redraw && al_is_event_queue_empty(event_queue)) {
-            redraw = false;
-            al_clear_to_color(al_map_rgb(0, 0, 0));
-            update_graphics();
-            al_flip_display();
-        }
-    }
-}
-
-int main(int argc __attribute__((unused)), char* argv[] __attribute((unused)))
-{
-    init();
-    game_loop();
-    shutdown();
     return 0;
 }
+
+void gameLoop(void)
+{
+    bool redraw = true;
+    bool running = true;
+    al_start_timer(timer);
+
+    while (running) {
+        ALLEGRO_EVENT event;
+        al_wait_for_event(eventQueue, &event);
+        ImGui_ImplA5_ProcessEvent(&event);
+        if (event.type == ALLEGRO_EVENT_TIMER) {
+            redraw = true;
+            updateLogic();
+        } else if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
+            switch (event.keyboard.keycode) {
+                case ALLEGRO_KEY_J : {
+                    camera.zoom(2);
+                    break;
+                }
+                case ALLEGRO_KEY_L : {
+                    camera.zoom(0.5f);
+                    break;
+                }
+                case ALLEGRO_KEY_DOWN : {
+                    camera.centerY -= 5;
+                    break;
+                }
+                case ALLEGRO_KEY_UP : {
+                    camera.centerY += 5;
+                    break;
+                }
+                case ALLEGRO_KEY_LEFT : {
+                    camera.centerX -= 5;
+                    break;
+                }
+                case ALLEGRO_KEY_RIGHT : {
+                    camera.centerX += 5;
+                    break;
+                }
+            }
+
+        } else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+            running = false;
+        } else if (event.type == ALLEGRO_EVENT_DISPLAY_RESIZE)
+        {
+            ImGui_ImplA5_InvalidateDeviceObjects();
+            al_acknowledge_resize(display);
+            Imgui_ImplA5_CreateDeviceObjects();
+        }
+
+        if (redraw && al_is_event_queue_empty(eventQueue)) {
+            redraw = false;
+            updateImGUI();
+            al_clear_to_color(al_map_rgb(40, 40, 40));
+            updateGraphics();
+            al_flip_display();
+        }
+
+    }
+}
+
+void initDemo(int demoNum) {
+    switch(demoNum) {
+        case 0 :
+            Demo1_init();
+            break;
+        case 1 :
+            Demo2_init();
+            break;
+        case 2 :
+            Demo3_init();
+            break;
+        case 3 :
+            Demo4_init();
+            break;
+        case 4 :
+            Demo5_init();
+            break;
+        case 5 :
+            Demo6_init();
+            break;
+        case 6 :
+            Demo7_init();
+            break;
+        case 7 :
+            Demo8_init();
+            break;
+        case 8 :
+            Demo9_init();
+            break;
+    }
+}
+
+ftBroadphaseSystem* constructBroadphase() {
+    switch (physicsConfigWindow.broadphase) {
+        case PhysicsConfigWindow::NSquaredBroadphase : {
+            return new ftNSquaredBroadphase();
+        }
+        case PhysicsConfigWindow::DynamicBVH : {
+            ftDynamicBVH* bvh =  new ftDynamicBVH();
+            bvh->setConfiguration(physicsConfigWindow.bvhConfig);
+            return bvh;
+        }
+        case PhysicsConfigWindow::HierarchicalGrid : {
+            ftHierarchicalGrid* grid = new ftHierarchicalGrid();
+            grid->setConfiguration(physicsConfigWindow.hierarchicalConfig);
+            return grid;
+        }
+        case PhysicsConfigWindow::ToroidalGrid : {
+            ftToroidalGrid* grid = new ftToroidalGrid();
+            grid->setConfiguration(physicsConfigWindow.toroidalConfig);
+            return grid;
+        }
+        case PhysicsConfigWindow::QuadTree : {
+            ftQuadTree* quadTree = new ftQuadTree();
+            quadTree->setConfiguration(physicsConfigWindow.quadConfig);
+            return quadTree;
+        }
+    }
+    return nullptr;
+}
+
+void updateLogic() {
+    if (executionButton.starting) {
+        broadphaseSystem = constructBroadphase();
+        physicsSystem.installBroadphase(broadphaseSystem);
+        physicsSystem.init();
+        initDemo(demoWindow.demo);
+    }
+    else if (executionButton.restarting) {
+        physicsSystem.shutdown();
+        delete broadphaseSystem;
+        broadphaseSystem = constructBroadphase();
+        physicsSystem.installBroadphase(broadphaseSystem);
+        physicsSystem.setConfiguration(physicsConfigWindow.config);
+        physicsSystem.init();
+        initDemo(demoWindow.demo);
+        ftBenchmark::Clear();
+    }
+    if (executionButton.stopping) {
+        physicsSystem.shutdown();
+        delete broadphaseSystem;
+        ftBenchmark::Clear();
+    }
+    if (executionButton.playing) {
+        ftBenchmark::BeginFrame();
+        performanceWindow.updateStartFrame();
+        static int stepIdx = -1;
+        stepIdx = ftBenchmark::Begin("ftPhysicsSystem::step",stepIdx);
+        physicsSystem.step(1.0/60);
+        ftBenchmark::End();
+        ftBenchmark::EndFrame();
+    }
+}
+
+void updateGraphics() {
+    ImGui::Render();
+    drawPhysics(&physicsSystem, drawConfigWindow.config, camera);
+}
+
+void updateImGUI() {
+
+    ImGui_ImplA5_NewFrame();
+
+    static bool open = true;
+    ImGui::ShowTestWindow(&open);
+    executionButton.draw();
+    demoWindow.draw();
+    physicsConfigWindow.draw();
+    performanceWindow.draw();
+    drawConfigWindow.draw();
+}
+
+void cleanUp() {
+    ImGui_ImplA5_Shutdown();
+    al_destroy_event_queue(eventQueue);
+    al_destroy_display(display);
+}
+
+

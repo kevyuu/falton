@@ -19,13 +19,16 @@ set_property(TARGET gtest APPEND_STRING PROPERTY COMPILE_FLAGS " -w")
 include_directories(SYSTEM ${GTEST_DIR}/include)
 
 add_executable(PolygonTest ftPolygonTest.cpp)
-add_executable(CollisionTest ftCollisionTest.cpp ../include/Ball.cpp ../include/Ball.h)
+add_executable(CollisionTest ftCollisionTest.cpp)
+add_executable(DynamicBVHTest broadphase/ftDynamicBVHTest.cpp)
 
 target_link_libraries(PolygonTest falton gtest gtest_main)
 target_link_libraries(CollisionTest falton gtest gtest_main)
+target_link_libraries(DynamicBVHTest falton gtest gtest_main)
 
 add_test(PolygonTest PolygonTest)
 add_test(CollisionTest CollisionTest)
+add_test(DynamicBVHTest DynamicBVHTest)
 
 
 

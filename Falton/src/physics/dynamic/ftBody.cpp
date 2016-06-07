@@ -5,6 +5,40 @@
 #include <falton/physics/dynamic/ftCollider.h>
 #include <falton/physics/dynamic/ftBody.h>
 
+void ftBody::applyForce(ftVector2 force, ftVector2 localPos) {
+    forceAccum += force;
+    ftVector2 r = localPos - centerOfMass;
+    torqueAccum += (r.cross(force));
+}
+
+void ftBody::applyForceAtCenterOfMass(ftVector2 force) {
+    forceAccum += force;
+}
+
+void ftBody::applyTorque(real torque) {
+    torqueAccum += torque;
+}
+
+void ftBody::setMass(float mass) {
+    if (bodyType != DYNAMIC) return;
+    this->mass = mass;
+    if (mass == 0) {
+        inverseMass = real_Infinity;
+    } else {
+        inverseMass = 1/mass;
+    }
+}
+
+void ftBody::setMoment(real moment) {
+    if (bodyType != DYNAMIC) return;
+    this->moment = moment;
+    if (moment == 0) {
+        inverseMoment = real_Infinity;
+    } else {
+        inverseMoment = 1 / moment;
+    }
+}
+
 ftBody* ftBodyBuffer::create() {
 
     ftBodyElem *element = new ftBodyElem;
@@ -90,4 +124,18 @@ void ftBodyBuffer::unlink(ftBody *body) {
     element->prev = nullptr;
 
     --size;
+}
+
+void ftBodyBuffer::init() {
+    bodies = nullptr;
+    size = 0;
+}
+
+void ftBodyBuffer::cleanup() {
+    for (ftBodyElem* element = bodies; element != nullptr;) {
+        ftBodyElem* next = element->next;
+        delete element;
+        element = next;
+    }
+    bodies = nullptr;
 }

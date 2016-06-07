@@ -14,9 +14,12 @@ class ftCircle : public ftShape{
 public:
     real radius;
     real area;
-    ftCircle(real radius);
+    ftCircle();
     real getArea();
+    void copy(const ftShape* shape);
     ftAABB constructAABB(ftTransform transform);
+
+    static ftCircle* create(real radius);
 };
 
 

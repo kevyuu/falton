@@ -2,10 +2,12 @@
 // Created by Kevin Yu on 2/3/16.
 //
 
-#include "falton/physics/Collision/ftManifoldComputer.h"
-#include "falton/physics/shape/ftCircle.h"
-#include "falton/physics/shape/ftPolygon.h"
-#include "falton/physics/collision/ftContact.h"
+#include <falton/physics/Collision/ftManifoldComputer.h>
+#include <falton/physics/shape/ftCircle.h>
+#include <falton/physics/shape/ftPolygon.h>
+#include <falton/physics/collision/ftContact.h>
+#include <falton/physics/collision/ftCollisionSystem.h>
+#include <ftBenchmark.h>
 
 const ftCollisionFunc ftManifoldComputer::collisionFunctions[SHAPE_TYPE_NUMBER_ITEM][SHAPE_TYPE_NUMBER_ITEM] = {
 
@@ -18,7 +20,10 @@ const ftCollisionFunc ftManifoldComputer::collisionFunctions[SHAPE_TYPE_NUMBER_I
 void ftManifoldComputer::Collide(const ftCollisionShape &shapeA,
                                  const ftCollisionShape &shapeB,
                                  ftManifold *manifold) {
+    //static int collideIdx = -1;
+    //collideIdx = ftBenchmark::Begin("ftManifoldComputer::Collide", collideIdx);
     collisionFunctions[shapeA.shape->shapeType][shapeB.shape->shapeType](shapeA,shapeB,manifold);
+    //ftBenchmark::End();
 }
 
 void ftManifoldComputer::PolygonToPolgonCollision(const ftCollisionShape &shapeA,
@@ -56,6 +61,7 @@ void ftManifoldComputer::PolygonToPolgonCollision(const ftCollisionShape &shapeA
     MTVOutput mtvOutput = FindPolygonToPolygonMTV(mtvInput);
 
     if (mtvOutput.separation >= 0) {
+        manifold->numContact = 0;
         delete[] worldNormalsA;
         delete[] worldNormalsB;
         delete[] worldVertexesA;
@@ -233,14 +239,14 @@ void ftManifoldComputer::CircleToCircleCollission(const ftCollisionShape& shapeA
                                      const ftCollisionShape& shapeB,
                                      ftManifold* manifold) {
 
-
     ftCircle *circleA = (ftCircle *) shapeA.shape;
     ftCircle *circleB = (ftCircle *) shapeB.shape;
 
     real totalRadius = circleA->radius + circleB->radius;
     ftVector2 separatingAxis = shapeB.transform.center - shapeA.transform.center;
     real distance = separatingAxis.magnitude();
-    if (totalRadius > distance) {
+    if (totalRadius < distance) {
+        manifold->numContact = 0;
         return;
     }
 

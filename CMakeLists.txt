@@ -7,7 +7,7 @@ enable_testing()
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR
     "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    set(warnings "-Wall -Wextra -Wno-missing-braces -Wno-reorder -g -O3")
+    set(warnings "-Wall -Wextra -Wno-missing-braces -Wno-reorder -Wno-c++11-narrowing -g -O3")
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     set(warnings "/W4 /WX /Ehsc")
 endif()
