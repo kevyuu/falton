@@ -24,7 +24,7 @@ public:
 
     real getArea();
     void copy(const ftShape* shape);
-    ftAABB constructAABB(ftTransform transform);
+    ftAABB constructAABB(ftTransform transform) const override;
 
     ftPolygon();
     ~ftPolygon();

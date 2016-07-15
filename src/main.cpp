@@ -1,7 +1,10 @@
 // ImGui - standalone example application for Allegro 5
 // If you are new to ImGui, see examples/README.txt and documentation at the top of imgui.cpp.
 
-#include <stdint.h>
+#include <cstdint>
+#include <iostream>
+#include <fstream>
+
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
 #include "imgui/imgui.h"
@@ -15,11 +18,7 @@
 #include "window/PerformanceWindow.h"
 #include "window/DrawerConfigWindow.h"
 
-#include <iostream>
 #include <falton/physics/collision/broadphase/ftNSquaredBroadphase.h>
-#include <falton/physics/collision/broadphase/ftDynamicBVH.h>
-#include <falton/physics/collision/broadphase/ftHierarchicalGrid.h>
-#include <falton/physics/collision/broadphase/ftToroidalGrid.h>
 
 using namespace std;
 
@@ -62,7 +61,7 @@ void abort_game(const char* message)
 
 ExecutionButton executionButton;
 
-int main(int argc, char *argv[])
+int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
 {
     // Setup Allegro
     al_init();
@@ -91,17 +90,6 @@ int main(int argc, char *argv[])
     camera.centerY = 0;
     camera.halfWidthX = SCREEN_WIDTH/24;
     camera.halfWidthY = SCREEN_HEIGHT/24;
-
-    // Load Fonts
-    // (there is a default font, this is only if you want to change it. see extra_fonts/README.txt for more details)
-    //ImGuiIO& io = ImGui::GetIO();
-    //io.Fonts->AddFontDefault();
-    //io.Fonts->AddFontFromFileTTF("../../extra_fonts/Cousine-Regular.ttf", 15.0f);
-    //io.Fonts->AddFontFromFileTTF("../../extra_fonts/DroidSans.ttf", 16.0f);
-    //io.Fonts->AddFontFromFileTTF("../../extra_fonts/ProggyClean.ttf", 13.0f);
-    //io.Fonts->AddFontFromFileTTF("../../extra_fonts/ProggyTiny.ttf", 10.0f);
-    //io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
-
 
     gameLoop();
 
@@ -200,6 +188,21 @@ void initDemo(int demoNum) {
         case 8 :
             Demo9_init();
             break;
+        case 9:
+            Demo10_init();
+            break;
+        case 10:
+            Demo11_init();
+            break;
+        case 11:
+            Demo12_init();
+            break;
+        case 12:
+            Demo13_init();
+            break;
+        case 13:
+            Demo14_init();
+            break;
     }
 }
 
@@ -236,8 +239,10 @@ void updateLogic() {
     if (executionButton.starting) {
         broadphaseSystem = constructBroadphase();
         physicsSystem.installBroadphase(broadphaseSystem);
+        physicsSystem.setConfiguration(physicsConfigWindow.config);
         physicsSystem.init();
         initDemo(demoWindow.demo);
+        executionButton.starting = false;
     }
     else if (executionButton.restarting) {
         physicsSystem.shutdown();
@@ -248,11 +253,13 @@ void updateLogic() {
         physicsSystem.init();
         initDemo(demoWindow.demo);
         ftBenchmark::Clear();
+        executionButton.restarting = false;
     }
     if (executionButton.stopping) {
         physicsSystem.shutdown();
         delete broadphaseSystem;
         ftBenchmark::Clear();
+        executionButton.stopping = false;
     }
     if (executionButton.playing) {
         ftBenchmark::BeginFrame();

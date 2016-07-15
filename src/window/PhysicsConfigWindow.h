@@ -41,8 +41,10 @@ struct PhysicsConfigWindow {
         ImGui::InputFloat("Time to sleep", &config.sleepTimeLimit);
         ImGui::InputFloat("Linear sleep limit", &config.sleepLinearLimit);
         ImGui::InputFloat("Angular sleep limit", &config.sleepAngularLimit);
+        ImGui::SliderFloat("Sleep Ratio", &config.sleepRatio, 0.0f, 1.0f, "%.3f");
         ImGui::SliderFloat("Baumgarte Coefficient", &config.solverConfig.baumgarteCoef, 0.0f, 1.0f, "%.3f");
         ImGui::SliderFloat("Allowed Penetration", &config.solverConfig.allowedPenetration, 0.0f, 1.0f, "%.3f");
+        ImGui::InputInt("Solver Iteration",(int*)&config.solverConfig.numIteration);
         ImGui::InputFloat2("Gravity",(float*)&config.gravity);
         ImGui::NewLine();
         ImGui::Separator();
@@ -70,6 +72,7 @@ struct PhysicsConfigWindow {
             case QuadTree : {
                 ImGui::InputFloat2("min", (float*)&quadConfig.worldAABB.min);
                 ImGui::InputFloat2("max", (float*)&quadConfig.worldAABB.max);
+                ImGui::InputInt("Max Level", (int*)&quadConfig.maxLevel);
                 break;
             }
             default : {

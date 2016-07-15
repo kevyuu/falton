@@ -9,11 +9,13 @@
 #include <falton/physics/ftConstraintSolver.h>
 #include <falton/physics/shape/ftShapeBuffer.h>
 #include <falton/physics/dynamic/ftIslandSystem.h>
+#include <falton/physics/joint/ftSpringJoint.h>
+#include <falton/physics/joint/ftDynamoJoint.h>
 
 struct ftBody;
 struct ftCollider;
 class ftShape;
-class ftPivotJoint;
+class ftHingeJoint;
 class ftDistanceJoint;
 
 
@@ -27,7 +29,8 @@ public:
 
         real sleepTimeLimit = 0.05f;
         real sleepLinearLimit = 0.08f;
-        real sleepAngularLimit = (2.0f / 180.0f * PI);;
+        real sleepAngularLimit = (2.0f / 180.0f * PI);
+        real sleepRatio = 0.2f;
         ftVector2 gravity = {0,-10};
 
         ftConstraintSolver::ftConfig solverConfig;
@@ -49,8 +52,10 @@ public:
     ftCollider* createCollider(ftBody* body, ftShape* shape, const ftVector2& position, real orientation);
     void destroyCollider(ftCollider* collider);
 
-    ftPivotJoint* createPivotJoint(ftBody *bodyA, ftBody *bodyB, ftVector2 anchorPoint);
+    ftHingeJoint* createHingeJoint(ftBody *bodyA, ftBody *bodyB, ftVector2 anchorPoint);
     ftDistanceJoint* createDistanceJoint(ftBody* bodyA, ftBody* bodyB, ftVector2 localAnchorA, ftVector2 localAnchorB);
+    ftSpringJoint* createSpringJoint(ftBody* bodyA, ftBody* bodyB, ftVector2 localAnchorA, ftVector2 localAnchorB);
+    ftDynamoJoint* createDynamoJoint(ftBody* bodyA, ftBody* bodyB, real targetRate, real maxTorque);
 
     void iterateBody(ftBodyIterFunc iterFunc, void* data);
     void iterateStaticBody(ftBodyIterFunc iterFunc, void* data);
@@ -85,7 +90,7 @@ private:
     ftChunkArray<ftJoint*> m_joints;
 
     //configuration
-    real m_sleepTimeLimit = 0.5f;
+    real m_sleepTimeLimit = 0.05f;
     real m_sleepLinearLimit = 0.08f;
     real m_sleepAngualrLimit = (2.0f / 180.0f * PI);
     ftVector2 m_gravity = {0, -10};

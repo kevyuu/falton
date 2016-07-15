@@ -50,7 +50,11 @@ void ftBenchmark::End() {
 
 void ftBenchmark::EndFrame() {
     for (int i = 0 ; i < nTags; ++i) {
-        averages[i] = (averages[i] * (nFrame - 1) + benchTables[i].data[nFrame - 1]) / nFrame;
+        if (nFrame > 100) {
+            averages[i] = (averages[i] * 100 + benchTables[i].data[nFrame - 1] - benchTables[i].data[nFrame - 101]) / 100;
+        } else {
+            averages[i] = (averages[i] * (nFrame - 1) + benchTables[i].data[nFrame - 1]) / nFrame;
+        }
     }
 }
 

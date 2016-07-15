@@ -21,13 +21,13 @@ real ftCircle::getArea() {
 }
 
 void ftCircle::copy(const ftShape* shape) {
-    ftAssert(shape->shapeType == SHAPE_CIRCLE);
+    ftAssert(shape->shapeType == SHAPE_CIRCLE, "");
     ftCircle* sourceCircle = (ftCircle*) shape;
     radius = sourceCircle->radius;
     area = sourceCircle->radius;
 }
 
-ftAABB ftCircle::constructAABB(ftTransform transform) {
+ftAABB ftCircle::constructAABB(ftTransform transform) const {
     ftAABB aabb;
     ftVector2 halfWidthVector(radius,radius);
     aabb.min = transform.center - halfWidthVector;

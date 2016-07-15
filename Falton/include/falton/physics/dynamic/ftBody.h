@@ -52,6 +52,8 @@ public:
 
     real sleepTimer = 0.0f;
 
+    void* userdata;
+
     ftCollider* colliders = nullptr;
 
     ftContactEdge* contactList = nullptr;

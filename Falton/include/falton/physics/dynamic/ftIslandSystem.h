@@ -42,13 +42,6 @@ class ftIslandSystem {
 
 public:
 
-    class ftIter {
-    private:
-        ftBodyBuffer::ftIter iter;
-        ftIsland* prevIsland;
-        friend class ftIslandSystem;
-    };
-
     void init(ftBodyBuffers bodyBuffers);
     void shutdown();
 

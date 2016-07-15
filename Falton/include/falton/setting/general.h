@@ -6,18 +6,32 @@
 #define FALTON_SETTINGS_H
 
 #include <cassert>
-#define ftAssert(X) assert(X)
+#include <iostream>
 
 //precision setting
 #include <cmath>
 #include <limits>
 #include <cassert>
 
+#ifndef NDEBUG
+#   define ftAssert(condition, message) \
+    do { \
+        if (! (condition)) { \
+            std::cerr << "Assertion `" #condition "` failed in " << __FILE__ \
+                      << " line " << __LINE__ << ": " << message << std::endl; \
+            std::terminate(); \
+        } \
+    } while (false)
+#else
+#   define ASSERT(condition, message) do { } while (false)
+#endif
+
 #define real float
 #define real_sqrt sqrtf
 #define PI M_PI
 #define real_minInfinity -1 * std::numeric_limits<float>::infinity();
 #define real_Infinity std::numeric_limits<float>::max();
+#define nulluint 0xFFFFFFFFFFFFFFFF
 
 //integer primitive setting
 typedef char int8;

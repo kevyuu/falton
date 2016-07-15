@@ -52,7 +52,7 @@ ftPolygon* ftShapeBuffer::createPolygon() {
         m_polygonFree = m_polygons[m_polygonFree].next;
     }
 
-    if (m_polygonHead = NULL_SHAPE) {
+    if (m_polygonHead == NULL_SHAPE) {
         m_polygonHead = index;
         m_polygons[index].prev = NULL_SHAPE;
         m_polygons[index].next = NULL_SHAPE;

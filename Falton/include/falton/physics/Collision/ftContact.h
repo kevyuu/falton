@@ -8,6 +8,10 @@
 #include <cstdint>
 #include <falton/math/math.h>
 #include <falton/container/ftChunkArray.h>
+#include <falton/container/ftRHHashTable.h>
+
+#include <iostream>
+using namespace std;
 
 class ftShape;
 struct ftContactEdge;
@@ -28,7 +32,7 @@ struct ftManifold {
     ftVector2 normal; //normal pointing from first shape to second shape
     ftManifoldPoint contactPoints[2];
     real penetrationDepth[2];
-    int8 numContact = 0;
+    uint8 numContact = 0;
 };
 
 typedef enum ftCollisionState {
@@ -62,28 +66,24 @@ private:
         ftContactElem *prev;
     };
 
-    ftContactElem **contacts;
-    uint32 capacity;
-    uint32 nContact;
+    ftContactElem **m_hashTable;
+    uint32 m_capacity;
+    uint32 m_nContact;
+
+    ftChunkArray<ftContactElem> m_elements;
+    ftContactElem* m_freeElementHead;
 
     uint32 hash(ftColHandle keyA, ftColHandle keyB, uint32 capacity);
     uint64 pairingFunction(ftColHandle keyA, ftColHandle keyB);
     void rehash(uint32 newCapacity);
     void add(ftContactElem* elem, uint32 hashVal);
+    ftContactElem* allocateElement();
+    void freeElement(ftContactElem* elem);
 
 public:
 
     void init();
     void cleanup();
-
-    class ftIter {
-    public:
-        ftColHandle handleA, handleB;
-        ftContact* contact;
-    private:
-        uint32 index;
-        friend class ftContactBuffer;
-    };
 
     ftContact* find(ftColHandle  key1, ftColHandle key2);
     ftContact* create(ftColHandle key1, ftColHandle key2);
@@ -91,60 +91,69 @@ public:
 
     uint32 getSize();
 
-    ftIter iterate();
-    void next(ftIter* iter);
+    /* template IteratorT {
+     *      void operator()(int32 handleA, int32 handleB, ftContact* contact);
+     * } */
+    template <typename IteratorT>
+    void forEach(IteratorT func);
 
-    template <typename T>
-    void forEach(T func);
+    /* template IteratorT {
+     *      bool operator()(int32 handleA, int32 handleB, ftContact* contact);
+     * } */
+    template <typename IteratorT>
+    void removeIf(IteratorT func);
 
 };
 
-template <typename T>
-void ftContactBuffer::forEach(T func) {
-    for (uint32 i = 0; i < capacity; ++i) {
-        for (ftContactElem* contact = contacts[i]; contact != nullptr; contact = contact->next) {
-            func(contact);
+template <typename IteratorT>
+void ftContactBuffer::forEach(IteratorT func) {
+    for (uint32 i = 0; i < m_elements.getSize(); ++i) {
+        if (m_elements[i].hashValue != nulluint) {
+            ftColHandle &handleA = m_elements[i].handleA;
+            ftColHandle &handleB = m_elements[i].handleB;
+            ftContact* contact = &m_elements[i].contact;
+            func(handleA, handleB, contact);
         }
     }
 }
 
-class ftContactBuffer2 {
-private:
+template <typename IteratorT>
+void ftContactBuffer::removeIf(IteratorT func) {
+    for (uint32 i = 0; i < m_elements.getSize(); ++i) {
+        ftColHandle &handleA = m_elements[i].handleA;
+        ftColHandle &handleB = m_elements[i].handleB;
+        ftContact* contact = &m_elements[i].contact;
+        if (m_elements[i].hashValue != nulluint && func(handleA, handleB, contact)) {
+            destroy(contact);
+        }
+    }
+}
 
+class ftContactBuffer3 {
+private:
+    ftRHHashTable hashTable;
     struct ftContactElem {
         ftContact contact;
-        uint32 index;
+        union {
+            ftColHandle handleA;
+            uint32 isAllocated;
+        };
+        union {
+            ftColHandle handleB;
+            ftContactElem* next;
+        };
     };
-    struct ftContactIndex {
-        ftColHandle handleA, handleB;
-        uint32 hashVal;
-        ftContactElem* contactElem;
-    };
 
-    ftContactIndex* contactIndex;
-    ftChunkArray<ftContactElem*> contacts;
+    ftChunkArray<ftContactElem> m_elements;
+    ftContactElem* m_freeElementHead;
 
-    uint32 capacity;
-    uint32 nContact;
-
-    uint32 hash(ftColHandle keyA, ftColHandle keyB, uint32 capacity);
-    uint64 pairingFunction(ftColHandle keyA, ftColHandle keyB);
-    void rehash(uint32 newCapacity);
-    void add(ftContactElem* elem, uint32 hashVal, uint32 handleA, uint32 handleB);
+    ftContactElem* allocateElement();
+    void freeElement(ftContactElem* element);
 
 public:
 
     void init();
     void cleanup();
-
-    class ftIter {
-    public:
-        ftColHandle handleA, handleB;
-        ftContact* contact;
-    private:
-        uint32 index;
-        friend class ftContactBuffer2;
-    };
 
     ftContact* find(ftColHandle  key1, ftColHandle key2);
     ftContact* create(ftColHandle key1, ftColHandle key2);
@@ -152,13 +161,39 @@ public:
 
     uint32 getSize();
 
-    ftIter iterate();
-    void next(ftIter* iter);
+    /* template IteratorT {
+     *      void operator()(int32 handleA, int32 handleB, ftContact* contact);
+     * } */
+    template <typename IteratorT>
+    void forEach(IteratorT func);
 
-    template <typename T>
-    void forEach(T func);
+    /* template IteratorT {
+     *      bool operator()(int32 handleA, int32 handleB, ftContact* contact);
+     * } */
+    template <typename IteratorT>
+    void removeIf(IteratorT func);
 
 };
+
+template <typename IteratorT>
+void ftContactBuffer3::forEach(IteratorT func) {
+    for (uint32 i = 0 ; i < m_elements.getSize(); ++i) {
+        if (m_elements[i].isAllocated != nulluint) {
+            func(m_elements[i].handleA, m_elements[i].handleB, &m_elements[i].contact);
+        }
+    }
+}
+
+template <typename IteratorT>
+void ftContactBuffer3::removeIf(IteratorT func) {
+    for (uint32 i = 0 ; i < m_elements.getSize(); ++i) {
+        if (m_elements[i].isAllocated != -1 &&
+                func(m_elements[i].handleA, m_elements[i].handleB, &m_elements[i].contact)) {
+            destroy(&m_elements[i].contact);
+        }
+    }
+}
+
 
 
 #endif //FALTON_FTCONTACT_H

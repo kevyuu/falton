@@ -11,7 +11,7 @@ struct ftAABB {
     ftVector2 min;
     ftVector2 max;
 
-    bool overlap(const ftAABB& b) {
+    bool overlap(const ftAABB& b) const {
         if (this->max.x < b.min.x || b.max.x < this->min.x) return false;
         if (this->max.y< b.min.y || b.max.y < this->min.y) return false;
         return true;
@@ -32,7 +32,7 @@ struct ftAABB {
         return (min.x < b.min.x && min.y < b.min.y && max.x > b.max.x && max.y > b.max.y);
     }
 
-    uint32 getArea() {
+    real getArea() const {
         return (max.x - min.x) * (max.y - min.y);
     }
 

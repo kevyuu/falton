@@ -79,7 +79,7 @@ real spaceToViewLength(float length, Camera& camera) {
 
 void draw_polygon(const ftTransform& transform, Camera& camera, ftPolygon* polygon, ALLEGRO_COLOR *color) {
 
-    for (int i=0;i<polygon->numVertex;++i) {
+    for (uint32 i=0;i<polygon->numVertex;++i) {
         int i1 = i;
         int i2 = (i + 1) % polygon->numVertex;
 

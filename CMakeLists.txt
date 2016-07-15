@@ -39,20 +39,9 @@ include_directories(${GLFW_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS} ${GLEW_INCLUDE_D
 include_directories(/usr/local/Cellar/allegro/5.0.11/include)
 link_directories(/usr/local/Cellar/allegro/5.0.11/lib)
 
-link_libraries(allegro_acodec
-        allegro_audio
-        allegro_color
-        allegro_dialog
-        allegro_image
-        allegro_main
-        allegro_memfile
-        allegro_physfs
-        allegro_primitives
-        allegro_ttf
-        allegro_font
-        allegro)
-
 add_subdirectory(src)
+
+
 
 set(CONFIGURED_ONCE TRUE CACHE INTERNAL
         "A flag showing that CMake has configured at least once.")

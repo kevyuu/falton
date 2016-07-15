@@ -35,9 +35,10 @@ private:
     uint32 nChunk;
     uint32 nObject;
     uint32 capacity;
+    uint32 chunkCapacity;
 
     //make object size dynamic
-    T* objects[100];
+    T** objects;
 
 };
 
@@ -54,8 +55,10 @@ void ftChunkArray<T>::init(int chunkSize) {
     this->chunkSize = chunkSize;
     this->nChunk = 1;
     this->capacity = chunkSize;
+    this->chunkCapacity = 100;
 
-    memset(objects,0,sizeof(T*) * 100);
+    objects = new T*[chunkCapacity];
+    memset(objects,0,sizeof(T*) * chunkCapacity);
 
     objects[0] = new T[chunkSize];
     nObject = 0;
@@ -69,10 +72,18 @@ void ftChunkArray<T>::cleanup() {
         }
     }
     nObject = 0;
+    delete[] objects;
 }
 
 template <typename T>
 void ftChunkArray<T>::addChunk() {
+    if (nChunk == chunkCapacity) {
+        T** oldChunks = objects;
+        objects = new T*[chunkCapacity * 2];
+        memcpy(objects, oldChunks, chunkCapacity * sizeof(T*));
+        chunkCapacity *= 2;
+        delete[] oldChunks;
+    }
     objects[nChunk] = new T[chunkSize];
     nChunk++;
     capacity += chunkSize;
@@ -81,13 +92,14 @@ void ftChunkArray<T>::addChunk() {
 template <typename T>
 void ftChunkArray<T>::push(T obj) {
     if (nObject == capacity) addChunk();
-    operator[](nObject) = obj;
-    nObject++;
+    ++nObject;
+    operator[](nObject - 1) = obj;
 }
 
 
 template <typename T>
 T& ftChunkArray<T>::operator[] (uint32 index) const {
+    ftAssert( index < nObject, "index : "<<index<<" nObject: "<<nObject);
     uint32 chunkIndex = index / chunkSize;
     uint32 locationInChunk = index % chunkSize;
 
@@ -98,6 +110,7 @@ template <typename T>
 uint32 ftChunkArray<T>::add() {
     if (nObject == capacity) addChunk();
     ++nObject;
+    ftAssert(nObject <= chunkSize * 100, "nObject : "<<nObject<<", chunkSize : "<<chunkSize);
     return nObject - 1;
 }
 

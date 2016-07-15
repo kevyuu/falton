@@ -25,7 +25,7 @@ public:
     ShapeType shapeType;
 
     virtual real getArea() = 0;
-    virtual ftAABB constructAABB(ftTransform transform) = 0;
+    virtual ftAABB constructAABB(ftTransform transform) const = 0;
     virtual void copy(const ftShape* shape) = 0;
 
     virtual ~ftShape() {};

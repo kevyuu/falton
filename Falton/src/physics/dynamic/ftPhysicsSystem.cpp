@@ -2,16 +2,18 @@
 // Created by Kevin Yu on 4/14/16.
 //
 
-#include <falton/physics/joint/ftPivotJoint.h>
+#include <falton/physics/joint/ftHingeJoint.h>
 #include <falton/physics/dynamic/ftPhysicsSystem.h>
 #include <falton/physics/dynamic/ftIsland.h>
 #include <falton/physics/dynamic/ftIslandSystem.h>
 
 #include <ftBenchmark.h>
 #include <falton/physics/joint/ftDistanceJoint.h>
+#include <falton/physics/joint/ftDynamoJoint.h>
 
 void ftPhysicsSystem::setConfiguration(const ftConfig& config) {
     m_contactSolver.setConfiguration(config.solverConfig);
+    m_collisionSystem.setSleepRatio(config.sleepRatio);
     m_sleepLinearLimit = config.sleepLinearLimit;
     m_sleepAngualrLimit = config.sleepAngularLimit;
     m_sleepTimeLimit = config.sleepTimeLimit;
@@ -48,7 +50,7 @@ void ftPhysicsSystem::shutdown() {
     m_collisionSystem.shutdown();
     m_islandSystem.shutdown();
 
-    m_joints.cleanup();
+
 
     auto deleteColliders = [] (ftBody* body) {
         for (ftCollider* collider = body->colliders; collider!=nullptr;) {
@@ -67,6 +69,8 @@ void ftPhysicsSystem::shutdown() {
     m_kinematicBodies.cleanup();
     m_staticBodies.cleanup();
     m_sleepingBodies.cleanup();
+
+    m_joints.cleanup();
 
     m_shapeBuffer.cleanup();
 
@@ -101,7 +105,7 @@ ftBody* ftPhysicsSystem::createKinematicBody(const ftVector2& pos, real orientat
 }
 
 ftBody* ftPhysicsSystem::createDynamicBody(const ftVector2& pos, real orientation, real mass, real moment) {
-    ftAssert(mass != 0);
+    ftAssert(mass != 0, "");
     ftBody* body = m_dynamicBodies.create();
     body->mass = mass;
     body->inverseMass = 1 / mass;
@@ -114,7 +118,7 @@ ftBody* ftPhysicsSystem::createDynamicBody(const ftVector2& pos, real orientatio
 }
 
 void ftPhysicsSystem::updateBody(ftBody* body) {
-    ftAssert(body!=nullptr);
+    ftAssert(body!=nullptr, "");
     if (body->activationState == SLEEP) {
         body->activationState = ACTIVE;
         body->sleepTimer = 0.0f;
@@ -124,11 +128,12 @@ void ftPhysicsSystem::updateBody(ftBody* body) {
 }
 
 void ftPhysicsSystem::destroyBody(ftBody *body) {
-    ftAssert(body!=nullptr);
+    ftAssert(body!=nullptr, "");
     for (ftContactEdge* cEdge = body->contactList; cEdge != nullptr;) {
         ftContactEdge* next = cEdge->next;
         m_islandSystem.removeContact(cEdge->contact);
         m_collisionSystem.destroyContact(cEdge->contact);
+        cEdge = next;
     }
 
     for (ftCollider* collider = body->colliders; collider != nullptr;) {
@@ -147,13 +152,15 @@ void ftPhysicsSystem::destroyBody(ftBody *body) {
     else if (body->bodyType == KINEMATIC) bodyBuffer = &(m_kinematicBodies);
     else bodyBuffer = &(m_dynamicBodies);
 
+    bodyBuffer->destroy(body);
+
 }
 
 ftCollider* ftPhysicsSystem::createCollider(ftBody* body, ftShape* shape,
                                             const ftVector2& position, real orientation) {
 
-    ftAssert(body != nullptr);
-    ftAssert(shape != nullptr);
+    ftAssert(body != nullptr, "");
+    ftAssert(shape != nullptr, "");
 
     ftCollider* collider = new ftCollider;
 
@@ -173,13 +180,12 @@ ftCollider* ftPhysicsSystem::createCollider(ftBody* body, ftShape* shape,
 }
 
 void ftPhysicsSystem::destroyCollider(ftCollider* collider) {
-    ftAssert(collider!=nullptr);
+    ftAssert(collider!=nullptr, "");
     ftBody* body = collider->body;
-    for (ftContactEdge* cEdge; cEdge != nullptr; cEdge = cEdge->next) {
+    for (ftContactEdge* cEdge = body->contactList; cEdge != nullptr; cEdge = cEdge->next) {
         if (cEdge->contact->userdataA == collider) {
             m_islandSystem.removeContact(cEdge->contact);
             m_collisionSystem.destroyContact(cEdge->contact);
-
         }
     }
 
@@ -219,17 +225,17 @@ void ftPhysicsSystem::destroyShape(ftShape* shape) {
             m_shapeBuffer.destoryCircle(circle);
         }
         case SHAPE_POLYGON: {
-            ftPolygon* polygon = (ftPolygon*) polygon;
+            ftPolygon* polygon = (ftPolygon*) shape;
             m_shapeBuffer.destroyPolygon(polygon);
         }
         default: break;
     }
 }
 
-ftPivotJoint* ftPhysicsSystem::createPivotJoint(ftBody *bodyA, ftBody *bodyB, ftVector2 anchorPoint) {
-    ftAssert(bodyA != nullptr);
-    ftAssert(bodyB != nullptr);
-    ftPivotJoint* joint = ftPivotJoint::create(bodyA, bodyB, anchorPoint);
+ftHingeJoint* ftPhysicsSystem::createHingeJoint(ftBody *bodyA, ftBody *bodyB, ftVector2 anchorPoint) {
+    ftAssert(bodyA != nullptr, "");
+    ftAssert(bodyB != nullptr, "");
+    ftHingeJoint* joint = ftHingeJoint::create(bodyA, bodyB, anchorPoint);
     m_joints.push(joint);
     m_islandSystem.addJoint(joint);
     return joint;
@@ -237,9 +243,28 @@ ftPivotJoint* ftPhysicsSystem::createPivotJoint(ftBody *bodyA, ftBody *bodyB, ft
 
 ftDistanceJoint* ftPhysicsSystem::createDistanceJoint(ftBody *bodyA, ftBody *bodyB, ftVector2 localAnchorA,
                                                       ftVector2 localAnchorB) {
-    ftAssert(bodyA != nullptr);
-    ftAssert(bodyB != nullptr);
+    ftAssert(bodyA != nullptr, "");
+    ftAssert(bodyB != nullptr, "");
     ftDistanceJoint* joint = ftDistanceJoint::create(bodyA, bodyB, localAnchorA, localAnchorB);
+    m_joints.push(joint);
+    m_islandSystem.addJoint(joint);
+    return joint;
+}
+
+ftSpringJoint* ftPhysicsSystem::createSpringJoint(ftBody *bodyA, ftBody *bodyB, ftVector2 localAnchorA,
+                                                  ftVector2 localAnchorB) {
+    ftAssert(bodyA != nullptr, "");
+    ftAssert(bodyB != nullptr, "");
+    ftSpringJoint* joint = ftSpringJoint::create(bodyA, bodyB, localAnchorA, localAnchorB);
+    m_joints.push(joint);
+    m_islandSystem.addJoint(joint);
+    return joint;
+}
+
+ftDynamoJoint* ftPhysicsSystem::createDynamoJoint(ftBody *bodyA, ftBody *bodyB, real targetRate, real maxTorque) {
+    ftAssert(bodyA != nullptr, "");
+    ftAssert(bodyB != nullptr, "");
+    ftDynamoJoint* joint = ftDynamoJoint::create(bodyA, bodyB, targetRate, maxTorque);
     m_joints.push(joint);
     m_islandSystem.addJoint(joint);
     return joint;
@@ -285,14 +310,18 @@ void ftPhysicsSystem::step(real dt) {
 
     integrateVelocity(dt);
 
-    auto updateColSystem = [this](ftBody *body) -> void
+    const auto updateColSystem = [this](ftBody *body) -> void
     {
         for (auto collider = body->colliders; collider!= nullptr; collider = collider->next) {
             this->m_collisionSystem.moveShape(collider->collisionHandle, body->transform * collider->transform);
         }
     };
+
+    static int moveIdx = -1;
+    moveIdx = ftBenchmark::Begin("ftCollisionSystem::moveShape",moveIdx);
     m_dynamicBodies.forEach(std::cref(updateColSystem));
     m_kinematicBodies.forEach(std::cref(updateColSystem));
+    ftBenchmark::End();
 
     ftCollisionCallback callback;
     callback.beginContact = &beginContactListener;
@@ -300,7 +329,7 @@ void ftPhysicsSystem::step(real dt) {
     callback.endContact = &endContactListener;
     callback.data = &m_islandSystem;
 
-    auto colFilter = [] (void* userdataA, void* userdataB) -> bool {
+    const auto colFilter = [] (void* userdataA, void* userdataB) -> bool {
 
         ftCollider* colliderA = (ftCollider*) userdataA;
         ftCollider* colliderB = (ftCollider*) userdataB;
@@ -374,23 +403,18 @@ void ftPhysicsSystem::step(real dt) {
         }
     };
 
-    static int bnpIslandIdx = -1;
-    //bnpIslandIdx = ftBenchmark::Begin("ftIslandSystem::buildAndProcessIsland",bnpIslandIdx);
     m_islandSystem.buildAndProcessIsland(std::cref(processIsland));
-    //ftBenchmark::End();
 
     updateBodiesActivation(dt);
 
     integratePosition(dt);
-
-
 
 }
 
 void ftPhysicsSystem::integrateVelocity(real dt) {
 
     ftVector2 gravity = m_gravity;
-    auto updateVelo = [gravity, dt] (ftBody* body) {
+    const auto updateVelo = [gravity, dt] (ftBody* body) {
         body->velocity += gravity * dt;
     };
 
@@ -399,7 +423,7 @@ void ftPhysicsSystem::integrateVelocity(real dt) {
 }
 
 void ftPhysicsSystem::integratePosition(real dt) {
-    auto updatePos = [dt] (ftBody* body) {
+    const auto updatePos = [dt] (ftBody* body) {
         body->transform.rotation += body->angularVelocity * dt;
 
         ftVector2 worldCom = body->transform * body->centerOfMass;
@@ -425,6 +449,7 @@ void ftPhysicsSystem::updateBodiesActivation(real dt) {
 }
 
 void ftPhysicsSystem::beginContactListener(ftContact *contact, void* data) {
+
     ftIslandSystem* islandSystem = (ftIslandSystem*) data;
     islandSystem->addContact(contact);
 }

@@ -16,7 +16,7 @@ struct DemoWindow {
         ImGui::SetNextWindowSize(ImVec2(200,100), ImGuiSetCond_FirstUseEver);
         ImGui::SetNextWindowPos(ImVec2(0,0),ImGuiSetCond_FirstUseEver);
         ImGui::Begin("Demo");
-        const char* demoTitles[] = {"Basic", "Friction", "Stacking", "Pyramid", "Tuttee", "Restitution", "Sparse Pyramid", "Motor", "Distance Joint"};
+        const char* demoTitles[] = {"Basic", "Friction", "Stacking", "Pyramid", "Tuttee", "Restitution", "Sparse Pyramid", "Motor", "Distance Joint", "Spring", "Liquid", "Dominoes", "Demo13", "Platformer"};
         ImGui::Combo("Demo", &demo, demoTitles, IM_ARRAYSIZE(demoTitles));
         ImGui::End();
     }

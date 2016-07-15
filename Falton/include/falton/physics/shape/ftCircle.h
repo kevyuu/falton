@@ -17,7 +17,7 @@ public:
     ftCircle();
     real getArea();
     void copy(const ftShape* shape);
-    ftAABB constructAABB(ftTransform transform);
+    ftAABB constructAABB(ftTransform transform) const override;
 
     static ftCircle* create(real radius);
 };

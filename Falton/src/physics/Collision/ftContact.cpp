@@ -3,48 +3,40 @@
 //
 
 #include <cstring>
-#include "falton/physics/Collision/ftContact.h"
-
-#include <iostream>
-using namespace std;
+#include <falton/physics/Collision/ftContact.h>
 
 void ftContactBuffer::init() {
-    contacts = new ftContactElem*[128];
+    m_hashTable = new ftContactElem*[128];
 
     for (int i=0;i<128;++i) {
-        contacts[i] = nullptr;
+        m_hashTable[i] = nullptr;
     }
 
-    capacity = 128;
-    nContact = 0;
+    m_capacity = 128;
+    m_nContact = 0;
+    m_freeElementHead = nullptr;
+
+    m_elements.init(128);
 }
 
 void ftContactBuffer::cleanup() {
-    for (uint32 i=0;i<capacity;i++) {
-        ftContactElem *nextContact = contacts[i];
-        while (nextContact) {
-            ftContactElem *contact = nextContact;
-            nextContact = nextContact->next;
-            delete contact;
-        }
-    }
-
-    delete[] contacts;
+    delete[] m_hashTable;
+    m_elements.cleanup();
 }
 
 ftContact* ftContactBuffer::create(ftColHandle keyA, ftColHandle keyB) {
-    ftContactElem *contactElem = new ftContactElem;
+    ftContactElem *contactElem = allocateElement();
 
-    ++nContact;
+    ++m_nContact;
 
-    if (nContact > capacity) {
-        rehash(nContact * 2);
+    if (m_nContact > m_capacity) {
+        rehash(m_nContact * 2);
     }
 
     contactElem->handleA = keyA;
     contactElem->handleB = keyB;
     uint32 hashValue = hash(contactElem->handleA,
-                            contactElem->handleB, capacity);
+                            contactElem->handleB, m_capacity);
 
     add(contactElem, hashValue);
 
@@ -52,10 +44,10 @@ ftContact* ftContactBuffer::create(ftColHandle keyA, ftColHandle keyB) {
 }
 
 void ftContactBuffer::add(ftContactElem *elem, uint32 hashVal) {
-    if (contacts[hashVal]!=nullptr) contacts[hashVal]->prev = elem;
-    elem->next = contacts[hashVal];
+    if (m_hashTable[hashVal]!=nullptr) m_hashTable[hashVal]->prev = elem;
+    elem->next = m_hashTable[hashVal];
     elem->prev = nullptr;
-    contacts[hashVal] = elem;
+    m_hashTable[hashVal] = elem;
     elem->hashValue = hashVal;
 }
 
@@ -65,25 +57,25 @@ void ftContactBuffer::destroy(ftContact *contact) {
     ftContactElem* prev = elem->prev;
 
     if (prev!= nullptr) prev->next = next;
-    else contacts[elem->hashValue] = next;
+    else m_hashTable[elem->hashValue] = next;
 
     if (next != nullptr) next->prev = prev;
 
-    --nContact;
+    --m_nContact;
 
-    delete elem;
+    freeElement(elem);
 }
 
 uint32 ftContactBuffer::getSize() {
 
-    return nContact;
+    return m_nContact;
 
 }
 
 ftContact* ftContactBuffer::find(ftColHandle keyA, ftColHandle keyB) {
 
-    uint32 hashVal = hash(keyA, keyB, capacity);
-    ftContactElem *nextContact = contacts[hashVal];
+    uint32 hashVal = hash(keyA, keyB, m_capacity);
+    ftContactElem *nextContact = m_hashTable[hashVal];
     while(nextContact) {
         if (nextContact->handleA == keyA && nextContact->handleB == keyB) return &(nextContact->contact);
         nextContact = nextContact->next;
@@ -93,12 +85,15 @@ ftContact* ftContactBuffer::find(ftColHandle keyA, ftColHandle keyB) {
 
 }
 
-uint32 ftContactBuffer::hash(ftColHandle keyA, ftColHandle keyB, uint32 capacity) {
-    uint64 x = (uint64) keyA ^ (uint64) keyB;
-    x = ((x >> 16) ^ x) * 0x45d9f3b;
-    x = ((x >> 16) ^ x) * 0x45d9f3b;
-    x = ((x >> 16) ^ x);
-    return x % capacity;
+uint32 ftContactBuffer::hash(ftColHandle key1, ftColHandle key2, uint32 capacity) {
+    key1 = ((key1 >> 16) ^ key1) * 0x45d9f3b;
+    key1 = ((key1 >> 16) ^ key1) * 0x45d9f3b;
+    key1 = ((key1 >> 16) ^ key1);
+    key2 = ((key2 >> 16) ^ key2) * 0x45d9f3b;
+    key2 = ((key2 >> 16) ^ key2) * 0x45d9f3b;
+    key2 = ((key2 >> 16) ^ key2);
+    int32 key = key1 ^ key2;
+    return key % capacity;
 }
 
 uint64 ftContactBuffer::pairingFunction(ftColHandle keyA, ftColHandle keyB) {
@@ -107,14 +102,14 @@ uint64 ftContactBuffer::pairingFunction(ftColHandle keyA, ftColHandle keyB) {
 
 void ftContactBuffer::rehash(uint32 newCapacity) {
 
-    ftContactElem **oldBuffer = contacts;
-    contacts = new ftContactElem*[newCapacity];
+    ftContactElem **oldBuffer = m_hashTable;
+    m_hashTable = new ftContactElem*[newCapacity];
 
     for (uint32 i = 0; i < newCapacity; ++i) {
-        contacts[i] = nullptr;
+        m_hashTable[i] = nullptr;
     }
 
-    for (uint32 i=0;i<capacity;i++) {
+    for (uint32 i=0;i<m_capacity;i++) {
         ftContactElem *nextContact = oldBuffer[i];
         while(nextContact) {
             uint32 hashVal = hash(nextContact->handleA, nextContact->handleB, newCapacity);
@@ -126,199 +121,75 @@ void ftContactBuffer::rehash(uint32 newCapacity) {
 
     delete[] oldBuffer;
 
-    capacity = newCapacity;
+    m_capacity = newCapacity;
 }
 
-ftContactBuffer::ftIter ftContactBuffer::iterate() {
-
-    ftIter iter;
-
-    iter.index = capacity-1;
-    iter.contact = nullptr;
-
-    for (uint32 i = 0; i < capacity; ++i) {
-        ftContactElem *nextContact = contacts[i];
-        if (nextContact!=nullptr) {
-            iter.index = i;
-            iter.handleA = nextContact->handleA;
-            iter.handleB = nextContact->handleB;
-            iter.contact = (ftContact*)nextContact;
-            break;
-        }
-    }
-
-    return iter;
-
-}
-
-void ftContactBuffer::next(ftIter* iter) {
-
-    ftContactElem* contactElem = (ftContactElem*) iter->contact;
-    if (contactElem->next != nullptr) {
-        iter->contact = (ftContact*) contactElem->next;
+ftContactBuffer::ftContactElem* ftContactBuffer::allocateElement() {
+    if (m_freeElementHead == nullptr) {
+        int32 index = m_elements.add();
+        return &m_elements[index];
     } else {
-        int start = iter->index + 1;
-        iter->index = capacity-1;
-        iter->contact = nullptr;
-        for (uint32 i = start; i < capacity; ++i) {
-            ftContactElem *nextContact = contacts[i];
-            if (nextContact != nullptr) {
-                iter->index = i;
-                iter->handleA = nextContact->handleA;
-                iter->handleB = nextContact->handleB;
-                iter->contact = (ftContact*) nextContact;
-                return;
-            }
-        }
+        ftContactElem* newElem = m_freeElementHead;
+        m_freeElementHead = newElem->next;
+        return newElem;
     }
 }
 
-//Contact Buffer 2
-void ftContactBuffer2::init() {
-    contactIndex = new ftContactIndex[128];
-
-    for (int i=0 ; i < 128;++i) {
-        contactIndex[i].hashVal = -1;
-        contactIndex[i].contactElem = nullptr;
-    }
-
-    capacity = 128;
-    nContact = 0;
+void ftContactBuffer::freeElement(ftContactElem *elem) {
+    elem->hashValue = -1;
+    elem->next = m_freeElementHead;
+    m_freeElementHead = elem;
 }
 
-void ftContactBuffer2::cleanup() {
 
-    for (int i = 0; i < capacity; ++i) {
-        if (contactIndex[i].contactElem != nullptr) delete contactIndex[i].contactElem;
-    }
-
-    delete[] contactIndex;
+//contact buffer3
+void ftContactBuffer3::init() {
+    hashTable.init(512);
+    m_elements.init(128);
+    m_freeElementHead = nullptr;
 }
 
-ftContact* ftContactBuffer2::create(ftColHandle handleA, ftColHandle handleB) {
-    ftContactElem *contactElem = new ftContactElem;
-
-    ++nContact;
-
-    if (nContact > 0.8f * capacity) {
-        rehash(nContact * 2);
-    }
-
-    uint32 hashValue = hash(handleA, handleB, capacity);
-
-    add(contactElem, hashValue, handleA, handleB);
-
-    return &(contactElem->contact);
+void ftContactBuffer3::cleanup() {
+    hashTable.cleanup();
+    m_elements.cleanup();
 }
 
-void ftContactBuffer2::add(ftContactElem *elem, uint32 hashValue, uint32 handleA, uint32 handleB) {
-    uint32 index = hashValue;
-    while (contactIndex[index].contactElem != nullptr) {
-        ++index;
-        index %= capacity;
-    }
-    contactIndex[index].hashVal = hashValue;
-    contactIndex[index].handleA = handleA;
-    contactIndex[index].handleB = handleB;
-    contactIndex[index].contactElem = elem;
-
-    elem->index = index;
+ftContact* ftContactBuffer3::create(ftColHandle key1, ftColHandle key2) {
+    ftContactElem* elem = allocateElement();
+    elem->handleA = key1;
+    elem->handleB = key2;
+    hashTable.insert(key1, key2, elem);
+    return &elem->contact;
 }
 
-void ftContactBuffer2::destroy(ftContact *contact) {
+ftContact* ftContactBuffer3::find(ftColHandle key1, ftColHandle key2) {
+    ftContact* contact = (ftContact*) hashTable.find(key1, key2);
+    return contact;
+}
+
+void ftContactBuffer3::destroy(ftContact *contact) {
     ftContactElem* elem = (ftContactElem*) contact;
-    uint32 index = elem->index;
-
-    contactIndex[index].contactElem = nullptr;
-
-    --nContact;
-
-    delete elem;
+    hashTable.remove(elem->handleA, elem->handleB);
+    freeElement(elem);
 }
 
-uint32 ftContactBuffer2::getSize() {
-
-    return nContact;
-
-}
-
-ftContact* ftContactBuffer2::find(ftColHandle keyA, ftColHandle keyB) {
-
-    uint32 hashVal = hash(keyA, keyB, capacity);
-    uint32 index = hashVal;
-    while ((contactIndex[index].handleA !=keyA || contactIndex[index].handleB != keyB) &&
-            contactIndex[index].hashVal != -1) {
-        ++index;
-        index %= capacity;
-    }
-    return (ftContact*) contactIndex[index].contactElem;
-
-}
-
-uint32 ftContactBuffer2::hash(ftColHandle keyA, ftColHandle keyB, uint32 capacity) {
-    uint64 x = (uint64) keyA ^ (uint64) keyB;
-    x = ((x >> 16) ^ x) * 0x45d9f3b;
-    x = ((x >> 16) ^ x) * 0x45d9f3b;
-    x = ((x >> 16) ^ x);
-    return x % capacity;
-}
-
-uint64 ftContactBuffer2::pairingFunction(ftColHandle keyA, ftColHandle keyB) {
-    return (uint64) keyA ^ (uint64) keyB;
-}
-
-void ftContactBuffer2::rehash(uint32 newCapacity) {
-
-    ftContactIndex* oldIndex = contactIndex;
-    contactIndex = new ftContactIndex[newCapacity];
-
-    for (uint32 i = 0; i < newCapacity; ++i) {
-        contactIndex[i].contactElem = nullptr;
-        contactIndex[i].hashVal = -1;
-    }
-
-    for (uint32 i = 0; i < capacity; ++i) {
-        if (oldIndex[i].contactElem != nullptr) {
-            uint32 hashVal = hash(oldIndex[i].handleA, oldIndex[i].handleB, newCapacity);
-            add(oldIndex[i].contactElem, hashVal, oldIndex[i].handleA, oldIndex[i].handleB);
-        }
-    }
-
-    capacity = newCapacity;
-    delete[] oldIndex;
-}
-
-ftContactBuffer2::ftIter ftContactBuffer2::iterate() {
-    ftIter iter;
-
-    iter.index = 0;
-    while (iter.index < capacity && contactIndex[iter.index].contactElem == nullptr) {
-        iter.index++;
-    };
-
-    if (iter.index == capacity) {
-        iter.contact = nullptr;
+ftContactBuffer3::ftContactElem* ftContactBuffer3::allocateElement() {
+    if (m_freeElementHead == nullptr) {
+        int32 index = m_elements.add();
+        return &m_elements[index];
     } else {
-        iter.handleA = contactIndex[iter.index].handleA;
-        iter.handleB = contactIndex[iter.index].handleB;
-        iter.contact = (ftContact *) contactIndex[iter.index].contactElem;
+        ftContactElem* newElem = m_freeElementHead;
+        m_freeElementHead = newElem->next;
+        return newElem;
     }
-
-    return iter;
-
 }
 
-void ftContactBuffer2::next(ftIter* iter) {
-    ++iter->index;
-    while (iter->index < capacity && contactIndex[iter->index].contactElem == nullptr) {
-        ++iter->index;
-    };
+void ftContactBuffer3::freeElement(ftContactElem *elem) {
+    elem->isAllocated = -1;
+    elem->next = m_freeElementHead;
+    m_freeElementHead = elem;
+}
 
-    if (iter->index == capacity) {
-        iter->contact = nullptr;
-    } else {
-        iter->handleA = contactIndex[iter->index].handleA;
-        iter->handleB = contactIndex[iter->index].handleB;
-        iter->contact = (ftContact *) contactIndex[iter->index].contactElem;
-    }
+uint32 ftContactBuffer3::getSize() {
+    return hashTable.getSize();
 }

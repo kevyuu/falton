@@ -106,7 +106,7 @@ real ftPolygon::getArea() {
 }
 
 void ftPolygon::copy(const ftShape* shape) {
-    ftAssert(shape->shapeType == SHAPE_POLYGON);
+    ftAssert(shape->shapeType == SHAPE_POLYGON, "");
     ftPolygon* sourcePolygon = (ftPolygon*) shape;
     numVertex = sourcePolygon->numVertex;
     area = sourcePolygon->area;
@@ -129,7 +129,7 @@ void ftPolygon::copy(const ftShape* shape) {
     }
 }
 
-ftAABB ftPolygon::constructAABB(ftTransform transform) {
+ftAABB ftPolygon::constructAABB(ftTransform transform) const {
 
     ftAABB aabb;
     aabb.min = transform * vertices[0];

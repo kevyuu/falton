@@ -18,7 +18,7 @@ void ftBitSet::init(uint32 size) {
 
     bitTable = new char [nChar];
     capacity = nChar * 8;
-    memset(bitTable, 0, nChar);
+    memset(bitTable, 0, sizeof(char) * nChar);
 }
 
 void ftBitSet::cleanup() {

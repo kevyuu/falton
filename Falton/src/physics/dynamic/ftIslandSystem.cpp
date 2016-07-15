@@ -4,9 +4,8 @@
 
 #include "falton/physics/dynamic/ftIslandSystem.h"
 #include "falton/physics/dynamic/ftCollider.h"
-#include "falton/physics/dynamic/ftBody.h"
 #include "falton/physics/dynamic/ftIsland.h"
-#include "falton/physics/collision/ftContact.h"
+#include "falton/container/ftStack.h"
 
 
 void ftIslandSystem::init(ftBodyBuffers bodyBuffers) {
@@ -169,29 +168,30 @@ void ftIslandSystem::buildAndProcessIsland(std::function<void(const ftIsland &)>
     ftBodyBuffer *bodyBuffer = m_buffers.dynamicBuffer;
     ftBodyBuffer::ftIter iter = m_buffers.dynamicBuffer->iterate();
 
-    ftBody **dfsStack = new ftBody *[nBody];
+    ftStack<ftBody*> dfsStack;
+    dfsStack.init(nBody);
+
+    int32 nIsland = 0;
 
     for (ftBody *body = bodyBuffer->start(&iter); body != nullptr; body = bodyBuffer->next(&iter)) {
         if (body->islandId == -1) {
+            ++nIsland;
 
             resetIslandID(m_buffers.staticBuffer);
             resetIslandID(m_buffers.kinematicBuffer);
-
-            int stackSize = 0;
 
             ftIsland *island = new ftIsland;
             island->bodies.init(64);
             island->contacts.init(64);
             island->joints.init(64);
 
-            dfsStack[0] = body;
-            ++stackSize;
+            dfsStack.push(body);
+            body->islandId = -2;
 
-            while (stackSize > 0) {
-                ftBody *topBody = dfsStack[stackSize - 1];
-                --stackSize;
+            while (dfsStack.getSize() > 0) {
+                ftBody *topBody = dfsStack.pop();
 
-                if (topBody->islandId != -1) continue;
+                ftAssert(topBody->islandId == -2, "islandId : "<< topBody->islandId);
 
                 int index = island->bodies.add();
                 island->bodies[index] = topBody;
@@ -211,8 +211,10 @@ void ftIslandSystem::buildAndProcessIsland(std::function<void(const ftIsland &)>
                     island->contacts.push(contactEdge->contact);
                     islandContact->dfsFlag = true;
 
-                    dfsStack[stackSize] = contactEdge->other;
-                    ++stackSize;
+                    if (contactEdge->other->islandId != -1) continue;
+
+                    dfsStack.push(contactEdge->other);
+                    contactEdge->other->islandId = -2;
                 }
 
                 for (ftJointEdge* jointEdge = topBody->jointList;
@@ -226,8 +228,11 @@ void ftIslandSystem::buildAndProcessIsland(std::function<void(const ftIsland &)>
                     island->joints.push(joint);
                     islandJoint->dfsFlag = true;
 
-                    dfsStack[stackSize] = jointEdge->other;
-                    ++stackSize;
+                    if (jointEdge->other->islandId != -1) continue;
+
+                    dfsStack.push(jointEdge->other);
+                    jointEdge->other->islandId = -2;
+
                 }
             }
 
@@ -241,7 +246,7 @@ void ftIslandSystem::buildAndProcessIsland(std::function<void(const ftIsland &)>
 
     }
 
-    delete[] dfsStack;
+    dfsStack.cleanup();
 }
 
 void ftIslandSystem::resetIslandID(ftBodyBuffer* buffer) {

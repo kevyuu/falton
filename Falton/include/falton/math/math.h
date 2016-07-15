@@ -29,4 +29,5 @@ inline real ftMax(real x, real y) {
     return x > y ? x : y;
 }
 
+
 #endif //FALTON_MATH_H

@@ -50,7 +50,6 @@ struct ftContactConstraint {
 struct ftConstraintGroup {
 
     ftBody** bodies;
-    ftVector2* positions = nullptr;
     ftVector2* velocities = nullptr;
 
     real* angularVelocities;
