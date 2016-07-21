@@ -9,14 +9,12 @@
 #include <falton/physics/shape/ftAABB.h>
 #include <falton/physics/collision/broadphase/ftBroadphaseSystem.h>
 
-
-
 class ftDynamicBVH : public ftBroadphaseSystem {
 
 public:
 
     struct ftConfig {
-        real aabbExtension;
+        real aabbExtension = 0.05;
     };
 
     ftDynamicBVH() {};
@@ -28,14 +26,17 @@ public:
 
     void setConfiguration(const ftConfig& config);
 
-    ftBroadphaseHandle addShape(const ftCollisionShape *const colShape, const void *const userData) override;
+    ftBroadphaseHandle addShape(const ftShape* shape, const ftTransform& transform, const void *const userData) override;
 
     void removeShape(ftBroadphaseHandle handle) override;
 
-    void moveShape(ftBroadphaseHandle handle, const ftCollisionShape &collisionShape) override;
+    void moveShape(ftBroadphaseHandle handle, const ftShape* shape, const ftTransform& transform) override;
 
     void findPairs(ftChunkArray<ftBroadPhasePair> *pairs) override;
 
+    void regionQuery(const ftAABB& region, ftChunkArray<const void*>* results) override;
+
+    int getMemoryUsage() override;
 
 private:
     struct ftNode {
@@ -43,39 +44,37 @@ private:
         ftAABB aabb;
 
         union {
-            int32 parent;
-            int32 next;
+            uint32 parent;
+            uint32 next;
         };
 
-        int32 leftChild;
-        int32 rightChild;
-        int32 height;
+        uint32 leftChild;
+        uint32 rightChild;
+        uint32 height;
 
         const void *userData;
     };
 
-    static constexpr int32 NULL_NODE = -1;
+    static constexpr uint32 NULL_NODE = nulluint;
 
     ftChunkArray<ftNode> m_nodes;
 
-    ftChunkArray<int> m_moveBuffer;
+    uint32 m_root;
+    uint32 m_free;
 
-    int32 m_root;
-    int32 m_free;
+    uint32 allocateNode();
+    void freeNode(uint32 idx);
 
-    int32 allocateNode();
-    void freeNode(int32 idx);
+    void insertLeaf(uint32 newIndex);
+    void removeLeaf(uint32 leafIdx);
 
-    void insertLeaf(int32 newIndex);
-    void removeLeaf(int32 leafIdx);
+    bool isLeaf(uint32 index);
 
-    bool isLeaf(int32 index);
+    uint32 balanceFromIndex(uint32 index);
+    uint32 rotateLeft(uint32 index);
+    uint32 rotateRight(uint32 index);
 
-    int32 balanceFromIndex(int32 index);
-    int32 rotateLeft(int32 index);
-    int32 rotateRight(int32 index);
-
-    void recomputeHeightAndAABB(int32 index);
+    void recomputeHeightAndAABB(uint32 index);
 
     void computePairs(uint32 root, ftChunkArray<ftBroadPhasePair> *pairs);
 
@@ -84,12 +83,12 @@ private:
 };
 
 
-inline void ftDynamicBVH::recomputeHeightAndAABB(int32 index) {
-    int32 leftIdx = m_nodes[index].leftChild;
-    int32 rightIdx = m_nodes[index].rightChild;
+inline void ftDynamicBVH::recomputeHeightAndAABB(uint32 index) {
+    uint32 leftIdx = m_nodes[index].leftChild;
+    uint32 rightIdx = m_nodes[index].rightChild;
 
-    int32 leftHeight = m_nodes[leftIdx].height;
-    int32 rightHeight = m_nodes[rightIdx].height;
+    uint32 leftHeight = m_nodes[leftIdx].height;
+    uint32 rightHeight = m_nodes[rightIdx].height;
 
     m_nodes[index].height = ftMax(leftHeight, rightHeight) + 1;
 

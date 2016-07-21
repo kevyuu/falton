@@ -41,7 +41,5 @@ link_directories(/usr/local/Cellar/allegro/5.0.11/lib)
 
 add_subdirectory(src)
 
-
-
 set(CONFIGURED_ONCE TRUE CACHE INTERNAL
         "A flag showing that CMake has configured at least once.")

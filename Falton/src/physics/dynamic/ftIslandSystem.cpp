@@ -30,7 +30,7 @@ void ftIslandSystem::addContact(ftContact *contact) {
     ftContactEdge* contactEdgeA = createContactEdge(bodyA, bodyB, contact);
     ftContactEdge* contactEdgeB = createContactEdge(bodyB, bodyA, contact);
 
-    int32 index = m_islandContacts.add();
+    int32 index = m_islandContacts.push();
     contact->islandIndex = index;
     m_islandContacts[index].contact = contact;
     m_islandContacts[index].contactEdgeA = contactEdgeA;
@@ -100,7 +100,7 @@ void ftIslandSystem::addJoint(ftJoint *joint) {
     ftJointEdge* jointEdgeB = createJointEdge(bodyB, bodyA, joint);
 
 
-    int32 index = m_islandJoints.add();
+    int32 index = m_islandJoints.push();
     joint->islandIndex = index;
     m_islandJoints[index].joint = joint;
     m_islandJoints[index].jointEdgeA = jointEdgeA;
@@ -193,7 +193,7 @@ void ftIslandSystem::buildAndProcessIsland(std::function<void(const ftIsland &)>
 
                 ftAssert(topBody->islandId == -2, "islandId : "<< topBody->islandId);
 
-                int index = island->bodies.add();
+                int index = island->bodies.push();
                 island->bodies[index] = topBody;
                 topBody->islandId = index;
 

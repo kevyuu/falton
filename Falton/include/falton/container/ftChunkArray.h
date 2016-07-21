@@ -21,7 +21,7 @@ public:
 
     void addChunk();
     void push(T obj);
-    uint32 add();
+    uint32 push();
     void reserve(uint32 size);
     void remove();
     void removeAll();
@@ -107,7 +107,7 @@ T& ftChunkArray<T>::operator[] (uint32 index) const {
 }
 
 template <typename T>
-uint32 ftChunkArray<T>::add() {
+uint32 ftChunkArray<T>::push() {
     if (nObject == capacity) addChunk();
     ++nObject;
     ftAssert(nObject <= chunkSize * 100, "nObject : "<<nObject<<", chunkSize : "<<chunkSize);

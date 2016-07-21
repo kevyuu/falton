@@ -23,7 +23,7 @@ void ftShapeBuffer::cleanup() {
 ftCircle* ftShapeBuffer::createCircle() {
     int32 index;
     if (m_circleFree == NULL_SHAPE) {
-        index = m_circles.add();
+        index = m_circles.push();
     } else {
         index = m_circleFree;
         m_circleFree = m_circles[m_circleFree].next;
@@ -46,7 +46,7 @@ ftCircle* ftShapeBuffer::createCircle() {
 ftPolygon* ftShapeBuffer::createPolygon() {
     int32 index;
     if (m_polygonFree == NULL_SHAPE) {
-        index = m_polygons.add();
+        index = m_polygons.push();
     } else {
         index = m_polygonFree;
         m_polygonFree = m_polygons[m_polygonFree].next;

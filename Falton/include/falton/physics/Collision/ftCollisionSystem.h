@@ -31,7 +31,10 @@ public:
     ftTransform transform;
 
     ftBroadphaseHandle broadHandle;
-    void *userdata;
+    union {
+        void* userdata;
+        ftColHandle nextFree;
+    };
 };
 
 struct ftCollisionCallback {
@@ -51,8 +54,14 @@ public:
     void moveShape(ftColHandle handle, ftTransform transform);
 
     void updateContacts(ftCollisionFilterFunc filter, ftCollisionCallback callback);
+    void updateOneAtATime(ftCollisionFilterFunc filter, ftCollisionCallback callback);
+    void updateAllAtOnce(ftCollisionFilterFunc filter, ftCollisionCallback callback);
 
     void destroyContact(ftContact* contact);
+
+    void setSleepRatio(real ratio) {
+        m_sleepRatio = ratio;
+    }
 
     template <typename T>
     void forEachContact(T func);
@@ -60,10 +69,11 @@ public:
 private:
 
     ftChunkArray<ftCollisionShape> m_shapes;
+    ftColHandle m_freeShapes;
     uint32 m_nShape;
-    uint32 m_minQueueSize; //number of removed shape this current timestamp. Cannot reuse handle if shape remove in the same timestamp
-
-    ftIntQueue m_handleQueue;
+    uint32 m_nFreeShape;
+    uint32 m_minQueueSize; //number of removed shape this current timestamp. Cannot reuse handle if shape removed in the same timestamp
+    real m_sleepRatio;
 
     uint8 m_curTimeStamp;
 
@@ -71,6 +81,10 @@ private:
     ftContactBuffer m_contactBuffer;
 
     ftBitSet m_moveMasks;
+    ftChunkArray<ftColHandle> m_movedShapes;
+
+    void destroyEndingContact(ftCollisionCallback callback);
+    void updateContact(ftContact* contact, ftColHandle handleA, ftColHandle handleB, ftCollisionCallback callback);
 
 };
 

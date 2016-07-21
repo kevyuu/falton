@@ -19,11 +19,12 @@ void ftToroidalGrid::init() {
     m_free = NULL_NODE;
 
     m_nBucket = m_config.nRow * m_config.nCol;
-    m_buckets = new ftChunkArray<int>[m_nBucket];
+    m_buckets = new ftChunkArray<uint32>[m_nBucket];
 
     for (uint32 i = 0 ; i < m_nBucket; ++i) {
         m_buckets[i].init(16);
     }
+    m_bucketMask.init(m_nBucket);
 }
 
 void ftToroidalGrid::shutdown() {
@@ -35,28 +36,29 @@ void ftToroidalGrid::shutdown() {
     }
 
     delete[] m_buckets;
+    m_bucketMask.cleanup();
 }
 
-ftBroadphaseHandle ftToroidalGrid::addShape(const ftCollisionShape *const colShape, const void *const userData) {
+ftBroadphaseHandle ftToroidalGrid::addShape(const ftShape* shape,const ftTransform& transform, const void *const userData) {
     int32 handle;
     if (m_free != NULL_NODE) {
         handle = m_free;
         m_free = m_elements[m_free].next;
     } else {
-        handle = m_elements.add();
+        handle = m_elements.push();
     }
 
     m_elements[handle].userdata = userData;
-    m_elements[handle].aabb = colShape->shape->constructAABB(colShape->transform);
+    m_elements[handle].aabb = shape->constructAABB(transform);
     real minX = m_elements[handle].aabb.min.x;
     real minY = m_elements[handle].aabb.min.y;
     real maxX = m_elements[handle].aabb.max.x;
     real maxY = m_elements[handle].aabb.max.y;
 
-    m_elements[handle].xStart = minX / m_config.cellSize;
-    m_elements[handle].yStart = minY / m_config.cellSize;
-    m_elements[handle].xEnd = ftCeil(maxX / m_config.cellSize);
-    m_elements[handle].yEnd = ftCeil(maxY / m_config.cellSize);
+    m_elements[handle].xStart = ftFloor(minX / m_config.cellSize);
+    m_elements[handle].yStart = ftFloor(minY / m_config.cellSize);
+    m_elements[handle].xEnd = ftCeil(maxX / m_config.cellSize) - 1;
+    m_elements[handle].yEnd = ftCeil(maxY / m_config.cellSize) - 1;
 
     insertToBucket(handle);
 
@@ -72,22 +74,35 @@ void ftToroidalGrid::removeShape(ftBroadphaseHandle handle) {
 
 }
 
-void ftToroidalGrid::moveShape(ftBroadphaseHandle handle, const ftCollisionShape &collisionShape) {
+void ftToroidalGrid::moveShape(ftBroadphaseHandle handle, const ftShape* shape, const ftTransform& transform) {
 
-    removeFromBucket(handle);
 
-    m_elements[handle].aabb = collisionShape.shape->constructAABB(collisionShape.transform);
+
+    int32 oldXStart = ftFloor(m_elements[handle].aabb.min.x / m_config.cellSize);
+    int32 oldYStart = ftFloor(m_elements[handle].aabb.min.y / m_config.cellSize);
+    int32 oldXEnd = ftCeil(m_elements[handle].aabb.max.x / m_config.cellSize) - 1;
+    int32 oldYEnd = ftCeil(m_elements[handle].aabb.max.y / m_config.cellSize) - 1;
+
+    m_elements[handle].aabb = shape->constructAABB(transform);
     real minX = m_elements[handle].aabb.min.x;
     real minY = m_elements[handle].aabb.min.y;
     real maxX = m_elements[handle].aabb.max.x;
     real maxY = m_elements[handle].aabb.max.y;
 
-    m_elements[handle].xStart = ftFloor(minX / m_config.cellSize);
-    m_elements[handle].yStart = ftFloor(minY / m_config.cellSize);
-    m_elements[handle].xEnd = ftCeil(maxX / m_config.cellSize);
-    m_elements[handle].yEnd = ftCeil(maxY / m_config.cellSize);
+    int32 newXStart = ftFloor(minX / m_config.cellSize);
+    int32 newYStart = ftFloor(minY / m_config.cellSize);
+    int32 newXEnd = ftCeil(maxX / m_config.cellSize) - 1;
+    int32 newYEnd = ftCeil(maxY / m_config.cellSize) - 1;
 
-    insertToBucket(handle);
+    if (oldXStart != newXStart || oldYStart != newYStart ||
+            oldXEnd != newXEnd || oldYEnd != newYEnd) {
+        removeFromBucket(handle);
+        m_elements[handle].xStart = newXStart;
+        m_elements[handle].yStart = newYStart;
+        m_elements[handle].xEnd = newXEnd;
+        m_elements[handle].yEnd = newYEnd;
+        insertToBucket(handle);
+    }
 
 }
 
@@ -100,21 +115,63 @@ void ftToroidalGrid::findPairs(ftChunkArray<ftBroadPhasePair> *pairs) {
 
                 int32 handleA = m_buckets[i][j];
                 int32 handleB = m_buckets[i][k];
-                if (handleA != handleB && m_elements[handleA].aabb.overlap(m_elements[handleB].aabb)) {
-                    int32 index = pairs->add();
+                if (m_elements[handleA].aabb.overlap(m_elements[handleB].aabb)) {
+                    int32 index = pairs->push();
                     (*pairs)[index].userdataA = m_elements[handleA].userdata;
                     (*pairs)[index].userdataB = m_elements[handleB].userdata;
                 }
 
             }
         }
+    }
+}
 
+void ftToroidalGrid::regionQuery(const ftAABB &region, ftChunkArray<const void *> *results) {
+    int32 xStart = ftFloor(region.min.x / m_config.cellSize);
+    int32 yStart = ftFloor(region.min.y / m_config.cellSize);
+    int32 xEnd = ftCeil(region.max.x / m_config.cellSize) - 1;
+    int32 yEnd = ftCeil(region.max.y / m_config.cellSize) - 1;
+
+    if ((uint32)(xEnd - xStart) >= m_config.nCol) {
+        xStart = 0;
+        xEnd = m_config.nCol - 1;
+    }
+    if ((uint32)(yEnd - yStart) >= m_config.nRow) {
+        yStart = 0;
+        yEnd = m_config.nRow - 1;
+    }
+
+    for (int32 i = yStart; i <= yEnd; ++i) {
+        for (int32 j = xStart; j <= xEnd; ++j) {
+            int32 yGrid = ftPositiveMod(i , m_config.nRow);
+            int32 xGrid = ftPositiveMod(j , m_config.nCol);
+            int32 bucketIndex = yGrid * m_config.nCol + xGrid;
+            int32 nObjectInBucket = m_buckets[bucketIndex].getSize();
+            for (int32 k = 0; k < nObjectInBucket; ++k) {
+                int32 handle = m_buckets[bucketIndex][k];
+                if (region.overlap(m_elements[handle].aabb)) results->push(m_elements[handle].userdata);
+            }
+        }
     }
 }
 
 void ftToroidalGrid::insertToBucket(ftBroadphaseHandle handle) {
-    for (int32 i = m_elements[handle].yStart; i <= m_elements[handle].yEnd; ++i) {
-        for (int32 j = m_elements[handle].xStart; j <= m_elements[handle].xEnd; ++j) {
+    int32 xStart = m_elements[handle].xStart;
+    int32 yStart = m_elements[handle].yStart;
+    int32 xEnd = m_elements[handle].xEnd;
+    int32 yEnd = m_elements[handle].yEnd;
+
+    if ((uint32)(xEnd - xStart) >= m_config.nCol) {
+        xStart = 0;
+        xEnd = m_config.nCol - 1;
+    }
+    if ((uint32)(yEnd - yStart) >= m_config.nRow) {
+        yStart = 0;
+        yEnd = m_config.nRow - 1;
+    }
+
+    for (int32 i = yStart; i <= yEnd; ++i) {
+        for (int32 j = xStart; j <= xEnd; ++j) {
             int32 yGrid = ftPositiveMod(i , m_config.nRow);
             int32 xGrid = ftPositiveMod(j , m_config.nCol);
             int32 bucketIndex = yGrid * m_config.nCol + xGrid;
@@ -124,14 +181,29 @@ void ftToroidalGrid::insertToBucket(ftBroadphaseHandle handle) {
 }
 
 void ftToroidalGrid::removeFromBucket(ftBroadphaseHandle handle) {
-    for (int32 i = m_elements[handle].yStart; i <= m_elements[handle].yEnd; ++i) {
-        for (int32 j = m_elements[handle].xStart; j <= m_elements[handle].xEnd; ++j) {
-            int32 yGrid = ftPositiveMod(i , m_config.nRow);
-            int32 xGrid = ftPositiveMod(j , m_config.nCol);
-            int32 bucketIndex = yGrid * m_config.nCol + xGrid;
 
-            int32 nObject = m_buckets[bucketIndex].getSize();
-            int32 lastHandle = m_buckets[bucketIndex][nObject - 1];
+    int32 xStart = m_elements[handle].xStart;
+    int32 yStart = m_elements[handle].yStart;
+    int32 xEnd = m_elements[handle].xEnd;
+    int32 yEnd = m_elements[handle].yEnd;
+
+    if (xEnd - xStart >= m_config.nCol) {
+        xStart = 0;
+        xEnd = m_config.nCol - 1;
+    }
+    if (yEnd - yStart >= m_config.nRow) {
+        yStart = 0;
+        yEnd = m_config.nRow - 1;
+    }
+
+    for (int32 i = yStart; i <= yEnd; ++i) {
+        for (int32 j = xStart; j <= xEnd; ++j) {
+            uint32 yGrid = ftPositiveMod(i , m_config.nRow);
+            uint32 xGrid = ftPositiveMod(j , m_config.nCol);
+            uint32 bucketIndex = yGrid * m_config.nCol + xGrid;
+
+            uint32 nObject = m_buckets[bucketIndex].getSize();
+            uint32 lastHandle = m_buckets[bucketIndex][nObject - 1];
 
             for (uint32 k = 0; k < nObject; ++k) {
                 if (m_buckets[bucketIndex][k] == handle) {
@@ -144,4 +216,10 @@ void ftToroidalGrid::removeFromBucket(ftBroadphaseHandle handle) {
         }
     }
 }
+
+
+int ftToroidalGrid::getMemoryUsage() {
+    return (m_elements.getSize() * sizeof(ftElem)) + (m_nBucket * sizeof(uint32));
+}
+
 

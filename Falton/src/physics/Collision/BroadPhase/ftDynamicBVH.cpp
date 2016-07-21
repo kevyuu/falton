@@ -5,10 +5,7 @@
 #include "falton/physics/collision/broadphase/ftDynamicBVH.h"
 #include <falton/physics/collision/ftCollisionSystem.h>
 #include <falton/container/ftBitSet.h>
-
-#include <iostream>
-
-using namespace std;
+#include <falton/container/ftStack.h>
 
 void ftDynamicBVH::setConfiguration(const ftConfig &config) {
     aabbExtension = config.aabbExtension;
@@ -19,20 +16,18 @@ void ftDynamicBVH::init() {
     m_free = NULL_NODE;
 
     m_nodes.init(64);
-    m_moveBuffer.init(64);
 }
 
 void ftDynamicBVH::shutdown() {
     m_nodes.cleanup();
-    m_moveBuffer.cleanup();
 }
 
-ftBroadphaseHandle ftDynamicBVH::addShape(const ftCollisionShape *const colShape, const void *const userData) {
+ftBroadphaseHandle ftDynamicBVH::addShape(const ftShape* shape, const ftTransform& transform, const void *const userData) {
 
 
     int index = allocateNode();
 
-    m_nodes[index].aabb = colShape->shape->constructAABB(colShape->transform);
+    m_nodes[index].aabb = shape->constructAABB(transform);
     m_nodes[index].aabb.extend(aabbExtension);
     m_nodes[index].userData = userData;
 
@@ -41,9 +36,9 @@ ftBroadphaseHandle ftDynamicBVH::addShape(const ftCollisionShape *const colShape
     return index;
 }
 
-void ftDynamicBVH::moveShape(ftBroadphaseHandle handle, const ftCollisionShape &collisionShape) {
+void ftDynamicBVH::moveShape(ftBroadphaseHandle handle, const ftShape* shape, const ftTransform& transform) {
 
-    ftAABB aabb = collisionShape.shape->constructAABB(collisionShape.transform);
+    ftAABB aabb = shape->constructAABB(transform);
     if (!m_nodes[handle].aabb.isContain(aabb)) {
         removeLeaf(handle);
 
@@ -66,6 +61,30 @@ void ftDynamicBVH::findPairs(ftChunkArray<ftBroadPhasePair> *pairs) {
 
 }
 
+void ftDynamicBVH::regionQuery(const ftAABB& region, ftChunkArray<const void*>* results) {
+
+    ftStack<uint32> stack;
+    stack.init(m_nodes.getSize());
+
+    stack.push(m_root);
+    while (stack.getSize() > 0) {
+        uint32 currentNode = stack.pop();
+        if (currentNode == NULL_NODE) continue;
+        if (region.overlap(m_nodes[currentNode].aabb)) {
+            if (isLeaf(currentNode)) {
+                uint32 index = results->push();
+                (*results)[index] = m_nodes[currentNode].userData;
+            } else {
+                stack.push(m_nodes[currentNode].leftChild);
+                stack.push(m_nodes[currentNode].rightChild);
+            }
+        }
+    }
+
+    stack.cleanup();
+
+}
+
 void ftDynamicBVH::computePairs(uint32 root, ftChunkArray<ftBroadPhasePair> *pairs) {
     if (isLeaf(root)) return;
 
@@ -75,70 +94,68 @@ void ftDynamicBVH::computePairs(uint32 root, ftChunkArray<ftBroadPhasePair> *pai
     };
 
     uint32 nNode = m_nodes.getSize();
-    ftNodePair* stack = new ftNodePair[nNode * 3];
-    uint32 stackSize = 0;
+    ftStack<ftNodePair> stack;
+    stack.init(3 * nNode);
 
-    stack[stackSize].idxA = m_nodes[root].leftChild;
-    stack[stackSize].idxB = m_nodes[root].rightChild;
-    ++stackSize;
+    stack.add();
+    stack.top().idxA = m_nodes[root].leftChild;
+    stack.top().idxB = m_nodes[root].rightChild;
 
-    while (stackSize > 0) {
-        uint32 idxA = stack[stackSize-1].idxA;
-        uint32 idxB = stack[stackSize-1].idxB;
-        --stackSize;
+    while (stack.getSize() > 0) {
+        ftNodePair nodePair = stack.pop();
 
-        ftAABB* aabbA = &m_nodes[idxA].aabb;
-        ftAABB* aabbB = &m_nodes[idxB].aabb;
+        ftAABB* aabbA = &m_nodes[nodePair.idxA].aabb;
+        ftAABB* aabbB = &m_nodes[nodePair.idxB].aabb;
 
         if (!aabbA->overlap(*aabbB)) continue;
-        if (isLeaf(idxA) && isLeaf(idxB)) {
-            uint32 pairIdx = pairs->add();
-            (*pairs)[pairIdx].userdataA = m_nodes[idxA].userData;
-            (*pairs)[pairIdx].userdataB = m_nodes[idxB].userData;
+        if (isLeaf(nodePair.idxA) && isLeaf(nodePair.idxB)) {
+            uint32 pairIdx = pairs->push();
+            (*pairs)[pairIdx].userdataA = m_nodes[nodePair.idxA].userData;
+            (*pairs)[pairIdx].userdataB = m_nodes[nodePair.idxB].userData;
         }
-        else if (isLeaf(idxB) || (!isLeaf(idxA) && aabbA->getPerimeter() > aabbB->getPerimeter())) {
-            stack[stackSize].idxA = m_nodes[idxA].leftChild;
-            stack[stackSize].idxB = idxB;
-            ++stackSize;
+        else if (isLeaf(nodePair.idxB) || (!isLeaf(nodePair.idxA) && aabbA->getPerimeter() > aabbB->getPerimeter())) {
+            stack.add();
+            stack.top().idxA = m_nodes[nodePair.idxA].leftChild;
+            stack.top().idxB = nodePair.idxB;
 
-            stack[stackSize].idxA = m_nodes[idxA].rightChild;
-            stack[stackSize].idxB = idxB;
-            ++stackSize;
+            stack.add();
+            stack.top().idxA = m_nodes[nodePair.idxA].rightChild;
+            stack.top().idxB = nodePair.idxB;
+
         } else {
-            stack[stackSize].idxA = idxA;
-            stack[stackSize].idxB = m_nodes[idxB].leftChild;
-            ++stackSize;
+            stack.add();
+            stack.top().idxA = nodePair.idxA;
+            stack.top().idxB = m_nodes[nodePair.idxB].leftChild;
 
-            stack[stackSize].idxA = idxA;
-            stack[stackSize].idxB = m_nodes[idxB].rightChild;
-            ++stackSize;
+            stack.add();
+            stack.top().idxA = nodePair.idxA;
+            stack.top().idxB = m_nodes[nodePair.idxB].rightChild;
 
         }
     }
 
-    delete[] stack;
-
+    stack.cleanup();
 }
 
-int32 ftDynamicBVH::allocateNode(){
+uint32 ftDynamicBVH::allocateNode(){
     if (m_free == NULL_NODE) {
-        int32 index = (int32) m_nodes.add();
+        uint32 index = (uint32) m_nodes.push();
         return index;
     } else {
-        int32 index = m_free;
+        uint32 index = m_free;
         m_free = m_nodes[index].next;
         return index;
     }
 
 }
 
-void ftDynamicBVH::freeNode(int32 idx) {
+void ftDynamicBVH::freeNode(uint32 idx) {
     m_nodes[idx].next = m_free;
     m_nodes[idx].height = -1;
     m_free = idx;
 }
 
-void ftDynamicBVH::insertLeaf(int32 newIndex) {
+void ftDynamicBVH::insertLeaf(uint32 newIndex) {
     m_nodes[newIndex].height = 0;
     m_nodes[newIndex].leftChild = NULL_NODE;
     m_nodes[newIndex].rightChild = NULL_NODE;
@@ -151,15 +168,15 @@ void ftDynamicBVH::insertLeaf(int32 newIndex) {
 
     ftNode* node = &m_nodes[newIndex];
 
-    int32 iterIndex = m_root;
+    uint32 iterIndex = m_root;
     while(!isLeaf(iterIndex)) {
 
         real combinedPerimeter = ftAABB::combine(m_nodes[iterIndex].aabb, node->aabb).getPerimeter();
         real costParent = 2 * combinedPerimeter;
         real costInherit = 2 * combinedPerimeter - m_nodes[iterIndex].aabb.getPerimeter();
 
-        int32 rightIndex = m_nodes[iterIndex].rightChild;
-        int32 leftIndex = m_nodes[iterIndex].leftChild;
+        uint32 rightIndex = m_nodes[iterIndex].rightChild;
+        uint32 leftIndex = m_nodes[iterIndex].leftChild;
 
         real costRight = costInherit;
         ftNode* rightNode = &m_nodes[rightIndex];
@@ -191,8 +208,8 @@ void ftDynamicBVH::insertLeaf(int32 newIndex) {
 
     }
 
-    int32 oldParent = m_nodes[iterIndex].parent;
-    int32 newParent = allocateNode();
+    uint32 oldParent = m_nodes[iterIndex].parent;
+    uint32 newParent = allocateNode();
 
     m_nodes[newParent].parent = oldParent;
     m_nodes[newParent].leftChild = newIndex;
@@ -217,14 +234,14 @@ void ftDynamicBVH::insertLeaf(int32 newIndex) {
 
 }
 
-void ftDynamicBVH::removeLeaf(int32 leafIdx) {
-    int32 parentIdx = m_nodes[leafIdx].parent;
+void ftDynamicBVH::removeLeaf(uint32 leafIdx) {
+    uint32 parentIdx = m_nodes[leafIdx].parent;
 
     if (parentIdx != NULL_NODE) {
-        int32 grandParentIdx = m_nodes[parentIdx].parent;
+        uint32 grandParentIdx = m_nodes[parentIdx].parent;
 
         ftNode *parentNode = &m_nodes[parentIdx];
-        int32 siblingIdx = parentNode->leftChild;
+        uint32 siblingIdx = parentNode->leftChild;
         if (parentNode->leftChild == leafIdx) {
             siblingIdx = parentNode->rightChild;
         }
@@ -238,7 +255,7 @@ void ftDynamicBVH::removeLeaf(int32 leafIdx) {
             }
             m_nodes[siblingIdx].parent = grandParentIdx;
             recomputeHeightAndAABB(grandParentIdx);
-            balanceFromIndex(grandParentIdx);
+            //balanceFromIndex(grandParentIdx);
         } else {
             m_root = siblingIdx;
             m_nodes[siblingIdx].parent = NULL_NODE;
@@ -253,19 +270,19 @@ void ftDynamicBVH::removeLeaf(int32 leafIdx) {
 
 }
 
-bool ftDynamicBVH::isLeaf(int32 index) {
+bool ftDynamicBVH::isLeaf(uint32 index) {
     return (m_nodes[index].leftChild == NULL_NODE && m_nodes[index].rightChild == NULL_NODE);
 }
 
-int32 ftDynamicBVH::balanceFromIndex(int32 index) {
+uint32 ftDynamicBVH::balanceFromIndex(uint32 index) {
     while (index != NULL_NODE) {
-        int32 leftIdx = m_nodes[index].leftChild;
-        int32 rightIdx = m_nodes[index].rightChild;
+        uint32 leftIdx = m_nodes[index].leftChild;
+        uint32 rightIdx = m_nodes[index].rightChild;
 
-        int32 parentIdx = m_nodes[index].parent;
+        uint32 parentIdx = m_nodes[index].parent;
 
-        int32 diffHeight = m_nodes[rightIdx].height - m_nodes[leftIdx].height;
-        int32 newIndex = index;
+        int32 diffHeight = (int32) (m_nodes[rightIdx].height - m_nodes[leftIdx].height);
+        uint32 newIndex = index;
         if (diffHeight > 1) {
             newIndex = rotateLeft(index);
         } else if (diffHeight < -1) {
@@ -290,16 +307,16 @@ int32 ftDynamicBVH::balanceFromIndex(int32 index) {
     return 0;
 }
 
-int32 ftDynamicBVH::rotateLeft(int32 index) {
+uint32 ftDynamicBVH::rotateLeft(uint32 index) {
     ftNode* node = &m_nodes[index];
 
-    int32 rightIdx = m_nodes[index].rightChild;
+    uint32 rightIdx = m_nodes[index].rightChild;
     ftNode* rightNode = &m_nodes[rightIdx];
 
-    int32 grandLeftIdx = m_nodes[rightIdx].leftChild;
-    int32 grandRightIdx = m_nodes[rightIdx].rightChild;
-    int32 grandLeftHeight = m_nodes[grandLeftIdx].height;
-    int32 grandRightHeight = m_nodes[grandRightIdx].height;
+    uint32 grandLeftIdx = m_nodes[rightIdx].leftChild;
+    uint32 grandRightIdx = m_nodes[rightIdx].rightChild;
+    uint32 grandLeftHeight = m_nodes[grandLeftIdx].height;
+    uint32 grandRightHeight = m_nodes[grandRightIdx].height;
 
     rightNode->leftChild = index;
     rightNode->parent = node->parent;
@@ -322,16 +339,16 @@ int32 ftDynamicBVH::rotateLeft(int32 index) {
     return rightIdx;
 }
 
-int32 ftDynamicBVH::rotateRight(int32 index) {
+uint32 ftDynamicBVH::rotateRight(uint32 index) {
     ftNode* node = &m_nodes[index];
 
-    int32 leftIdx = m_nodes[index].leftChild;
+    uint32 leftIdx = m_nodes[index].leftChild;
     ftNode* leftNode = &m_nodes[leftIdx];
 
-    int32 grandLeftIdx = m_nodes[leftIdx].leftChild;
-    int32 grandRightIdx = m_nodes[leftIdx].rightChild;
-    int32 grandLeftHeight = m_nodes[grandLeftIdx].height;
-    int32 grandRightHeight = m_nodes[grandRightIdx].height;
+    uint32 grandLeftIdx = m_nodes[leftIdx].leftChild;
+    uint32 grandRightIdx = m_nodes[leftIdx].rightChild;
+    uint32 grandLeftHeight = m_nodes[grandLeftIdx].height;
+    uint32 grandRightHeight = m_nodes[grandRightIdx].height;
     ftNode* grandLeftNode = &m_nodes[grandLeftIdx];
     ftNode* grandRightNode = &m_nodes[grandRightIdx];
 
@@ -354,6 +371,11 @@ int32 ftDynamicBVH::rotateRight(int32 index) {
     recomputeHeightAndAABB(leftIdx);
 
     return leftIdx;
+}
+
+
+int ftDynamicBVH::getMemoryUsage() {
+    return m_nodes.getSize() * sizeof(ftNode);
 }
 
 

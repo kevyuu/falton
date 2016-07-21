@@ -126,7 +126,7 @@ void ftContactBuffer::rehash(uint32 newCapacity) {
 
 ftContactBuffer::ftContactElem* ftContactBuffer::allocateElement() {
     if (m_freeElementHead == nullptr) {
-        int32 index = m_elements.add();
+        int32 index = m_elements.push();
         return &m_elements[index];
     } else {
         ftContactElem* newElem = m_freeElementHead;
@@ -175,7 +175,7 @@ void ftContactBuffer3::destroy(ftContact *contact) {
 
 ftContactBuffer3::ftContactElem* ftContactBuffer3::allocateElement() {
     if (m_freeElementHead == nullptr) {
-        int32 index = m_elements.add();
+        int32 index = m_elements.push();
         return &m_elements[index];
     } else {
         ftContactElem* newElem = m_freeElementHead;

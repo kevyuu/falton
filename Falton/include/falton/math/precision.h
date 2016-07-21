@@ -8,7 +8,6 @@
 
 #include <cmath>
 #include <limits>
-
 #include <sys/time.h>
 
 #define real float

@@ -6,7 +6,7 @@
 #define FALTON_FTJOINT_H
 
 #include <falton/setting/general.h>
-#include <falton/math/ftVector2.h>
+#include <falton/math/math.h>
 
 struct ftBody;
 
@@ -17,7 +17,8 @@ struct ftJoint {
     int32 islandIndex;
 
     virtual void preSolve(real dt) = 0;
-    virtual void solve(real dt, ftVector2* linearVelocities, real* angularVelocities) = 0;
+    virtual void warmStart(ftVector2* vArray, real* wArray) = 0;
+    virtual void solve(real dt, ftVector2* vArray, real* wArray) = 0;
 };
 
 struct ftJointEdge {

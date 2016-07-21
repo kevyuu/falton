@@ -14,10 +14,12 @@ class ftHierarchicalGrid : public ftBroadphaseSystem {
 public:
     struct ftConfig {
         uint32 nLevel = 32;
-        real baseSize = 5;
+        real baseSize = 1.5;
         real sizeMul = 2;
         uint32 nBucket = 1024;
     };
+
+    int getMemoryUsage() override;
 
     ftHierarchicalGrid(){};
 
@@ -26,26 +28,32 @@ public:
     void init() override;
     void shutdown() override;
 
-    ftBroadphaseHandle addShape(const ftCollisionShape *const colShape, const void *const userData) override;
+    ftBroadphaseHandle addShape(const ftShape* shape, const ftTransform& transform, const void *const userData) override;
 
     void removeShape(ftBroadphaseHandle handle) override;
 
-    void moveShape(ftBroadphaseHandle handle, const ftCollisionShape& colShape) override;
+    void moveShape(ftBroadphaseHandle handle, const ftShape* shape, const ftTransform& transform) override;
 
     void findPairs(ftChunkArray<ftBroadPhasePair> *pairs) override;
+
+    void regionQuery(const ftAABB& region, ftChunkArray<const void*>* results) override;
 
 
 private:
 
     struct ftElem {
-        const ftCollisionShape* collisionShape;
         const void* userdata;
         ftAABB aabb;
         uint32 level;
         uint32 bucketIndex;
         ftElem* prev;
-        ftElem* next;
+        union {
+            ftElem* next;
+            uint32 nextFree;
+        };
     };
+
+    static const uint32 NULL_ELEM = nulluint;
 
     uint32* m_nObject;
 
@@ -56,7 +64,7 @@ private:
     real* m_cellSizeTable;
 
     ftChunkArray<ftElem> m_elemList;
-    ftIntQueue freeHandles;
+    uint32 m_freeElem;
 
     ftElem** m_elemBucket;
     uint32 m_bucketCapacity;

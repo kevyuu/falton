@@ -3,12 +3,11 @@
 //
 
 #include <falton/physics/collision/ftCollisionSystem.h>
-#include "falton/physics/collision/broadphase/ftQuadTree.h"
-
-#include <iostream>
-using namespace std;
+#include <falton/physics/collision/broadphase/ftQuadTree.h>
+#include <falton/container/ftStack.h>
 
 void ftQuadTree::setConfiguration(const ftConfig &config) {
+    ftAssert(config.maxLevel <= 15, "Quad Tree level only range from 0 to 15. Current configuration max level : "<<m_config.maxLevel);
     m_config = config;
 }
 
@@ -17,8 +16,8 @@ void ftQuadTree::init() {
     m_pRoot = nullptr;
     m_iFreeObject = -1;
 
-    m_objects.init(64);
-    m_nodes.init(64);
+    m_objects.init(128);
+    m_nodes.init(1024);
 
     m_pRoot = allocateNode();
     m_pRoot->center = (m_config.worldAABB.max + m_config.worldAABB.min) / 2;
@@ -32,12 +31,13 @@ void ftQuadTree::shutdown() {
     m_nodes.cleanup();
 }
 
-ftBroadphaseHandle ftQuadTree::addShape(const ftCollisionShape *const colShape, const void *const userData) {
+ftBroadphaseHandle ftQuadTree::addShape(const ftShape* shape, const ftTransform& transform, const void *const userData) {
 
     int32 iObj = allocateObject();
     ftObject* pObj = &m_objects[iObj];
     pObj->userdata = userData;
-    pObj->aabb = colShape->shape->constructAABB(colShape->transform);
+    pObj->aabb = shape->constructAABB(transform);
+    ftAssert(isNodeEnclosingObject(m_pRoot, pObj), "");
     insertObjectToTree(pObj, m_pRoot);
 
     ++m_nElem;
@@ -46,14 +46,17 @@ ftBroadphaseHandle ftQuadTree::addShape(const ftCollisionShape *const colShape, 
 }
 
 void ftQuadTree::removeShape(ftBroadphaseHandle handle) {
+    ftNode* pNode = m_objects[handle].pNode;
     removeObjectFromTree(&m_objects[handle]);
     freeObject(handle);
     --m_nElem;
+    removeNodeIfEmpty(pNode);
 }
 
-void ftQuadTree::moveShape(ftBroadphaseHandle handle, const ftCollisionShape &collisionShape) {
+void ftQuadTree::moveShape(ftBroadphaseHandle handle, const ftShape* shape, const ftTransform& transform) {
 
-    m_objects[handle].aabb = collisionShape.shape->constructAABB(collisionShape.transform);
+    m_objects[handle].aabb = shape->constructAABB(transform);
+    ftAssert(isNodeEnclosingObject(m_pRoot, &m_objects[handle]),"");
 
     ftObject* pObj = &m_objects[handle];
     ftNode* pNode = pObj->pNode;
@@ -61,11 +64,50 @@ void ftQuadTree::moveShape(ftBroadphaseHandle handle, const ftCollisionShape &co
     if (!isNodeEnclosingObject(pNode, pObj)) {
         removeObjectFromTree(pObj);
         insertObjectToTree(pObj, m_pRoot);
+        ftNode* nodeToRemove = pNode;
+        while (nodeToRemove != m_pRoot) {
+            ftNode* parent = nodeToRemove->pParent;
+            removeNodeIfEmpty(nodeToRemove);
+            nodeToRemove = parent;
+        }
     } else if (getNodeQuarterArea(pNode) > m_objects[handle].aabb.getArea()){
         //node might previously straddle and now can go deeper in the tree
         removeObjectFromTree(pObj);
         insertObjectToTree(pObj, pNode);
     }
+}
+
+void ftQuadTree::regionQuery(const ftAABB &region, ftChunkArray<const void *>* results) {
+
+    const auto isAABBOverlapWithNode = [] (const ftAABB& aabb, const ftNode& node) -> bool {
+        ftVector2 min = node.center - node.halfWidth;
+        ftVector2 max = node.center + node.halfWidth;
+        if (max.x < aabb.min.x || aabb.max.x < min.x) return false;
+        if (max.y< aabb.min.y || aabb.max.y < min.y) return false;
+        return true;
+    };
+
+    ftStack<ftNode*> stack;
+    stack.init(2 * m_nodes.getSize());
+
+    stack.push(m_pRoot);
+
+    while (stack.getSize() > 0) {
+        ftNode* pNode = stack.pop();
+        if (pNode != nullptr && isAABBOverlapWithNode(region, *pNode)) {
+            for (ftObject* pObject = pNode->pObjects; pObject != nullptr; pObject = pObject->pNext) {
+                if (pObject->aabb.overlap(region)) {
+                    results->push(pObject->userdata);
+                }
+            }
+            for (uint32 i = 0 ; i < 4; ++i) {
+                stack.push(pNode->pChild[i]);
+            }
+        }
+    }
+
+    stack.cleanup();
+
 }
 
 void ftQuadTree::findPairs(ftChunkArray<ftBroadPhasePair> *pairs) {
@@ -111,7 +153,7 @@ void ftQuadTree::findPairsBetweenNodes(ftNode* pNode1, ftNode* pNode2, ftChunkAr
         for (ftObject* pObj2 = pNode2->pObjects; pObj2 != nullptr;
                 pObj2 = pObj2->pNext) {
             if (pObj1->aabb.overlap(pObj2->aabb)) {
-                int32 index = pairs->add();
+                int32 index = pairs->push();
                 (*pairs)[index].userdataA = pObj1->userdata;
                 (*pairs)[index].userdataB = pObj2->userdata;
             }
@@ -127,7 +169,7 @@ void ftQuadTree::findPairsInNode(ftNode* pNode, ftChunkArray<ftBroadPhasePair>* 
         for (ftObject* pObj2 = pObj1->pNext; pObj2 != nullptr;
                 pObj2 = pObj2->pNext) {
             if (pObj1->aabb.overlap(pObj2->aabb)) {
-                int32 index = pairs->add();
+                int32 index = pairs->push();
                 (*pairs)[index].userdataA = pObj1->userdata;
                 (*pairs)[index].userdataB = pObj2->userdata;
             }
@@ -155,7 +197,7 @@ void ftQuadTree::insertObjectToTree(ftObject *pObj, ftNode *pRoot) {
         stradle = true;
     }
 
-    if (stradle) {
+    if (stradle || pRoot->getLevel() >= m_config.maxLevel) {
         pObj->pNext = pRoot->pObjects;
         pObj->pNode = pRoot;
         pRoot->pObjects = pObj;
@@ -163,8 +205,11 @@ void ftQuadTree::insertObjectToTree(ftObject *pObj, ftNode *pRoot) {
         if (pRoot->pChild[locationCode] ==  nullptr) {
             ftNode* pNode = allocateNode();
             pRoot->pChild[locationCode] = pNode;
+            ++pRoot->levelChild;
+            pNode->pParent = pRoot;
             pNode->center = childCenter;
             pNode->halfWidth = pRoot->halfWidth / 2;
+            pNode->setLevel(pRoot->getLevel() + 1);
         }
         insertObjectToTree(pObj, pRoot->pChild[locationCode]);
     }
@@ -180,10 +225,21 @@ void ftQuadTree::removeObjectFromTree(ftObject* pObject) {
 
 }
 
+void ftQuadTree::removeNodeIfEmpty(ftNode *pNode) {
+    if (pNode->pObjects == nullptr && pNode->getNChild() == 0) {
+        ftNode* pParent = pNode->pParent;
+        --pParent->levelChild;
+        for (uint8 i = 0 ; i < 4; ++i) {
+            if (pParent->pChild[i] == pNode) pParent->pChild[i] = nullptr;
+        }
+        freeNode(pNode);
+    }
+}
+
 ftQuadTree::ftNode* ftQuadTree::allocateNode() {
     ftNode* pNewNode;
     if (m_pFreeNode == nullptr) {
-        int32 index = m_nodes.add();
+        int32 index = m_nodes.push();
         pNewNode = &m_nodes[index];
     } else {
         pNewNode = m_pFreeNode;
@@ -195,6 +251,8 @@ ftQuadTree::ftNode* ftQuadTree::allocateNode() {
     pNewNode->pChild[2] = nullptr;
     pNewNode->pChild[3] = nullptr;
     pNewNode->pObjects = nullptr;
+    pNewNode->pParent = nullptr;
+    pNewNode->levelChild = 0;
 
     return pNewNode;
 
@@ -208,7 +266,7 @@ void ftQuadTree::freeNode(ftNode* pNode) {
 int32 ftQuadTree::allocateObject() {
     int32 iNewObj;
     if (m_iFreeObject == NULL_OBJECT) {
-        iNewObj = m_objects.add();
+        iNewObj = m_objects.push();
     } else {
         iNewObj = m_iFreeObject;
         m_iFreeObject = m_objects[m_iFreeObject].iNext;
@@ -233,7 +291,12 @@ bool ftQuadTree::isNodeEnclosingObject(ftNode *pNode, ftObject *pObj) {
     return false;
 }
 
-int32 ftQuadTree::getNodeQuarterArea(ftNode* pNode) {
+real ftQuadTree::getNodeQuarterArea(ftNode* pNode) {
     return pNode->halfWidth.x * pNode->halfWidth.y;
+}
+
+
+int ftQuadTree::getMemoryUsage() {
+    return (m_objects.getSize() * sizeof(ftObject)) + (m_nodes.getSize() * sizeof(ftNode));
 }
 

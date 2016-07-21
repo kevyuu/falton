@@ -7,9 +7,6 @@
 #include <falton/physics/collision/ftCollisionSystem.h>
 #include <falton/physics/collision/broadphase/ftHierarchicalGrid.h>
 
-#include <iostream>
-using namespace std;
-
 void ftHierarchicalGrid::setConfiguration(ftConfig config) {
 
     m_nLevel = config.nLevel;
@@ -22,7 +19,6 @@ void ftHierarchicalGrid::setConfiguration(ftConfig config) {
 void ftHierarchicalGrid::init() {
 
     m_elemList.init(64);
-    freeHandles.init();
 
     m_elemBucket = new ftElem*[m_bucketCapacity];
     for (uint32 i = 0; i < m_bucketCapacity; ++i) {
@@ -40,12 +36,12 @@ void ftHierarchicalGrid::init() {
         m_cellSizeTable[i] = m_cellSizeTable[i-1] * m_sizeMul;
     }
 
+    m_freeElem = NULL_ELEM;
 }
 
 void ftHierarchicalGrid::shutdown() {
 
     m_elemList.cleanup();
-    freeHandles.cleanup();
 
     delete[] m_elemBucket;
     delete[] m_nObject;
@@ -53,23 +49,22 @@ void ftHierarchicalGrid::shutdown() {
 
 }
 
-ftBroadphaseHandle  ftHierarchicalGrid::addShape(const ftCollisionShape *const colShape, const void *const userData) {
+ftBroadphaseHandle  ftHierarchicalGrid::addShape(const ftShape* shape, const ftTransform& transform, const void *const userData) {
 
     ftBroadphaseHandle handle;
-    if (freeHandles.getSize() > 0) {
-        handle = freeHandles.pop();
+    if (m_freeElem == NULL_ELEM) {
+        handle = m_elemList.push();
     } else {
-        handle = m_elemList.add();
+        handle = m_freeElem;
+        m_freeElem = m_elemList[handle].nextFree;
     }
-
     ftElem* elem = &m_elemList[handle];
-    elem->collisionShape = colShape;
     elem->userdata = userData;
 
-    elem->aabb = colShape->shape->constructAABB(colShape->transform);
+    elem->aabb = shape->constructAABB(transform);
 
     real width = elem->aabb.max.x - elem->aabb.min.x;
-    real height = elem->aabb.max.y - elem->aabb.max.y;
+    real height = elem->aabb.max.y - elem->aabb.min.y;
 
     uint32 level = 0;
     while (m_cellSizeTable[level] < width || m_cellSizeTable[level]< height) {
@@ -80,8 +75,8 @@ ftBroadphaseHandle  ftHierarchicalGrid::addShape(const ftCollisionShape *const c
 
     m_nObject[level]++;
 
-    int32 gridX = floorf(elem->aabb.min.x / size);
-    int32 gridY = floorf(elem->aabb.min.y / size);
+    int32 gridX = ftFloor(elem->aabb.min.x / size);
+    int32 gridY = ftFloor(elem->aabb.min.y / size);
 
     uint32 bucketIndex = computeHashIndex(gridX, gridY, level);
 
@@ -90,17 +85,17 @@ ftBroadphaseHandle  ftHierarchicalGrid::addShape(const ftCollisionShape *const c
     return handle;
 }
 
-void ftHierarchicalGrid::moveShape(ftBroadphaseHandle handle, const ftCollisionShape& colShape) {
+void ftHierarchicalGrid::moveShape(ftBroadphaseHandle handle, const ftShape* shape, const ftTransform& transform) {
 
     ftElem* elem = &m_elemList[handle];
 
-    elem->aabb = colShape.shape->constructAABB(colShape.transform);
+    elem->aabb = shape->constructAABB(transform);
 
     uint32 level = elem->level;
     real size = m_cellSizeTable[level];
 
-    int32 gridX = floorf(elem->aabb.min.x / size);
-    int32 gridY = floorf(elem->aabb.min.y / size);
+    int32 gridX = ftFloor(elem->aabb.min.x / size);
+    int32 gridY = ftFloor(elem->aabb.min.y / size);
 
     uint32 bucketIndex = computeHashIndex(gridX, gridY, level);
 
@@ -117,9 +112,10 @@ void ftHierarchicalGrid::removeShape(ftBroadphaseHandle handle) {
 
     unlink(elem);
 
-    freeHandles.push(handle);
+    m_elemList[handle].nextFree = m_freeElem;
+    m_freeElem = handle;
 
-    elem->collisionShape = nullptr;
+    elem->userdata = nullptr;
 
     --m_nObject[elem->level];
 
@@ -137,6 +133,35 @@ void ftHierarchicalGrid::unlink(ftElem *elem) {
     }
 }
 
+void ftHierarchicalGrid::regionQuery(const ftAABB &region, ftChunkArray<const void*>* results) {
+    ftAssert(region.getArea() < m_cellSizeTable[m_nLevel-1],"");
+
+    ftBitSet gridFlag;
+    gridFlag.init(m_bucketCapacity);
+
+    for (uint32 level = 0; level < m_nLevel; ++level) {
+        if (m_nObject[level] == 0) continue;
+        int32 startGridX = ftFloor(region.min.x / m_cellSizeTable[level]) - 1;
+        int32 startGridY = ftFloor(region.min.y / m_cellSizeTable[level]) - 1;
+        int32 endGridX = ftFloor(region.max.x / m_cellSizeTable[level]);
+        int32 endGridY = ftFloor(region.max.y / m_cellSizeTable[level]);
+
+        for (int32 gridX = startGridX; gridX <= endGridX; ++gridX) {
+            for (int32 gridY = startGridY; gridY <= endGridY; ++gridY) {
+                int32 hashIdx = computeHashIndex(gridX, gridY, level);
+                if (gridFlag.test(hashIdx)) continue;
+                for (ftElem* elem = m_elemBucket[hashIdx]; elem != nullptr; elem = elem->next) {
+                    results->push(elem->userdata);
+                }
+                gridFlag.on(hashIdx);
+            }
+        }
+    }
+
+    gridFlag.cleanup();
+
+}
+
 void ftHierarchicalGrid::findPairs(ftChunkArray<ftBroadPhasePair> *pairs) {
 
     ftBitSet bitMask;
@@ -147,7 +172,7 @@ void ftHierarchicalGrid::findPairs(ftChunkArray<ftBroadPhasePair> *pairs) {
 
         ftElem* elem = &m_elemList[i];
 
-        if (elem->collisionShape == nullptr) continue;
+        if (elem->userdata == nullptr) continue;
 
         uint32 level = elem->level;
         real size = m_cellSizeTable[level];
@@ -157,15 +182,15 @@ void ftHierarchicalGrid::findPairs(ftChunkArray<ftBroadPhasePair> *pairs) {
             // check current cell;
             for(ftElem* other = elem->next; other != nullptr; other = other->next) {
                 if (elem->aabb.overlap(other->aabb)) {
-                    uint32 index = pairs->add();
+                    uint32 index = pairs->push();
                     (*pairs)[index].userdataA = elem->userdata;
                     (*pairs)[index].userdataB = other->userdata;
                 }
             }
             bitMask.on(elem->bucketIndex);
 
-            int32 gridX = floorf(elem->aabb.min.x / size);
-            int32 gridY = floorf(elem->aabb.min.y / size);
+            int32 gridX = ftFloor(elem->aabb.min.x / size);
+            int32 gridY = ftFloor(elem->aabb.min.y / size);
 
             int16 xDirection[4] = {1 , 0 , 1 , -1};
             int16 yDirection[4] = {0 , 1 , 1 ,  1};
@@ -194,8 +219,8 @@ void ftHierarchicalGrid::findPairs(ftChunkArray<ftBroadPhasePair> *pairs) {
                 continue;
             }
 
-            int32 gridX = floorf(elem->aabb.min.x / size);
-            int32 gridY = floorf(elem->aabb.min.y / size);
+            int32 gridX = ftFloor(elem->aabb.min.x / size);
+            int32 gridY = ftFloor(elem->aabb.min.y / size);
 
             //check center cell;
             uint32 centerIndex = computeHashIndex(gridX, gridY, level);
@@ -226,7 +251,7 @@ void ftHierarchicalGrid::addCollidingPairInBucket(ftElem *elem, uint32 bucketInd
                                                   ftChunkArray<ftBroadPhasePair> *pairs) {
     for (ftElem* other = m_elemBucket[bucketIndex]; other != nullptr; other = other->next) {
         if (elem->aabb.overlap(other->aabb)) {
-            uint32 index = pairs->add();
+            uint32 index = pairs->push();
             (*pairs)[index].userdataA = elem->userdata;
             (*pairs)[index].userdataB = other->userdata;
         }
@@ -250,4 +275,9 @@ void ftHierarchicalGrid::insertElemToBucket(ftElem *elem, uint32 bucketIndex) {
     elem->next = m_elemBucket[bucketIndex];
     if (m_elemBucket[bucketIndex] != nullptr) m_elemBucket[bucketIndex]->prev = elem;
     m_elemBucket[bucketIndex] =  elem;
+}
+
+
+int ftHierarchicalGrid::getMemoryUsage() {
+    return (m_elemList.getSize() * sizeof(ftElem)) + (m_bucketCapacity * sizeof(ftElem*));
 }

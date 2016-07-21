@@ -14,6 +14,7 @@ public:
 
     struct ftConfig {
         ftAABB worldAABB;
+        uint8 maxLevel = 15; //level only range from 0 to 15
     };
 
     void setConfiguration(const ftConfig& config);
@@ -22,13 +23,17 @@ public:
 
     void shutdown() override;
 
-    ftBroadphaseHandle addShape(const ftCollisionShape *const colShape, const void *const userData) override;
+    ftBroadphaseHandle addShape(const ftShape *const shape, const ftTransform& transform, const void *const userData) override;
 
     void removeShape(ftBroadphaseHandle handle) override;
 
-    void moveShape(ftBroadphaseHandle handle, const ftCollisionShape &collisionShape) override;
+    void moveShape(ftBroadphaseHandle handle, const ftShape* shape, const ftTransform& transform) override;
 
-    void findPairs(ftChunkArray<ftBroadPhasePair> *pairs) override;
+    void findPairs(ftChunkArray<ftBroadPhasePair>* pairs) override;
+
+    void regionQuery(const ftAABB& region, ftChunkArray<const void*>* results) override;
+
+    int getMemoryUsage() override;
 
 private:
     struct ftNode;
@@ -37,8 +42,8 @@ private:
         const void* userdata;
         ftAABB aabb;
         union {
-            int32 iNext;
             ftObject* pNext;
+            int32 iNext; // use when object is free. Index to next free object;
         };
         ftNode* pNode;
     };
@@ -47,10 +52,25 @@ private:
         ftVector2 center;
         ftVector2 halfWidth;
         ftNode* pChild[4];
+        ftNode* pParent;
         union {
             ftObject* pObjects;
-            ftNode* pNext;
+            ftNode* pNext; // use when node is free. Pointer to next free node.
         };
+        uint8 levelChild; // first four bits for level and the next four bits for number of child
+
+        inline uint8 getLevel() {
+            return (levelChild >> 4);
+        }
+
+        inline void setLevel(uint8 level) {
+            levelChild &= 0x0F;
+            levelChild |= (level << 4);
+        }
+
+        inline uint8 getNChild() {
+            return (levelChild & 0x0F);
+        }
     };
 
     struct TraversePoint{
@@ -80,8 +100,9 @@ private:
 
     void insertObjectToTree(ftObject *pObj, ftNode *pRootNode);
     void removeObjectFromTree(ftObject* pObj);
+    void removeNodeIfEmpty(ftNode* pNode);
     bool isNodeEnclosingObject(ftNode *pNode, ftObject *pObj);
-    int32 getNodeQuarterArea(ftNode* pNode);
+    real getNodeQuarterArea(ftNode* pNode);
 
 };
 

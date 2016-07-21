@@ -357,7 +357,7 @@ void ftPhysicsSystem::step(real dt) {
     m_collisionSystem.updateContacts(colFilter, callback);
     ftBenchmark::End();
 
-    auto processIsland =
+    const auto processIsland =
             [this,dt]
             (const ftIsland& island) -> void {
         bool allSleeping = true;

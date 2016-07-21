@@ -18,21 +18,21 @@ void ftNSquaredBroadphase::shutdown() {
     m_freeHandleList.cleanup();
 }
 
-ftBroadphaseHandle ftNSquaredBroadphase::addShape(const ftCollisionShape* colShape, const void* userData) {
-    ftBroadphaseHandle freeHandle = this->m_nShape;
+ftBroadphaseHandle ftNSquaredBroadphase::addShape(const ftShape* shape, const ftTransform& transform, const void* userData) {
+    ftBroadphaseHandle freeHandle;
     if (m_freeHandleList.getSize() > 0) {
         freeHandle = m_freeHandleList.pop();
     } else {
-        freeHandle = m_elements.add();
+        freeHandle = m_elements.push();
     }
 
     ftElem* elem = &m_elements[freeHandle];
 
-    elem->aabb = colShape->shape->constructAABB(colShape->transform);
-    elem->collisionShape = colShape;
+    elem->aabb = shape->constructAABB(transform);
     elem->userdata = userData;
+    elem->isAllocated = true;
 
-    this->m_nShape++;
+    ++m_nShape;
 
     return freeHandle;
 
@@ -40,23 +40,24 @@ ftBroadphaseHandle ftNSquaredBroadphase::addShape(const ftCollisionShape* colSha
 
 void ftNSquaredBroadphase::removeShape(ftBroadphaseHandle handle) {
     ftElem* elem = &m_elements[handle];
-    elem->collisionShape = nullptr;
+    elem->isAllocated = false;
     m_freeHandleList.push(handle);
+    --m_nShape;
 }
 
-void ftNSquaredBroadphase::moveShape(ftBroadphaseHandle handle, const ftCollisionShape& colShape) {
+void ftNSquaredBroadphase::moveShape(ftBroadphaseHandle handle, const ftShape* shape, const ftTransform& transform) {
     ftElem* elem = &m_elements[handle];
-    elem->aabb = colShape.shape->constructAABB(colShape.transform);
+    elem->aabb = shape->constructAABB(transform);
 }
 
 void ftNSquaredBroadphase::findPairs(ftChunkArray<ftBroadPhasePair> *pairs) {
 
     ftBroadPhasePair pair;
-    for (uint32 i=0;i< m_nShape;i++) {
-        for (uint32 j = i+1; j < m_nShape; j++) {
+    for (uint32 i=0;i< m_nShape;++i) {
+        for (uint32 j = i+1; j < m_nShape; ++j) {
             ftElem* elem1 = &m_elements[i];
             ftElem* elem2 = &m_elements[j];
-            if (elem1->collisionShape != nullptr && elem2->collisionShape != nullptr
+            if (elem1->isAllocated && elem2->isAllocated
                     && elem1->aabb.overlap(elem2->aabb)) {
                 pair.userdataA = elem1->userdata;
                 pair.userdataB = elem2->userdata;
@@ -65,3 +66,17 @@ void ftNSquaredBroadphase::findPairs(ftChunkArray<ftBroadPhasePair> *pairs) {
         }
     }
 }
+
+void ftNSquaredBroadphase::regionQuery(const ftAABB &region, ftChunkArray<const void *> *results) {
+    for (uint32 i = 0; i < m_nShape; ++i) {
+        if (m_elements[i].isAllocated && region.overlap(m_elements[i].aabb)) {
+            results->push(m_elements[i].userdata);
+        }
+    }
+}
+
+
+int ftNSquaredBroadphase::getMemoryUsage() {
+    return m_elements.getSize() * sizeof(ftElem);
+}
+

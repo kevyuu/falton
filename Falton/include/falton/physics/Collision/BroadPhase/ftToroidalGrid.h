@@ -5,17 +5,17 @@
 #ifndef FALTON_FTTOROIDALGRID_H
 #define FALTON_FTTOROIDALGRID_H
 
-
 #include <falton/physics/collision/broadphase/ftBroadphaseSystem.h>
+#include <falton/container/ftBitSet.h>
 
 class ftToroidalGrid : public ftBroadphaseSystem {
 
 public:
 
     struct ftConfig {
-        real cellSize = 10;
-        uint32 nRow = 8;
-        uint32 nCol = 8;
+        real cellSize = 1.5;
+        uint32 nRow = 32;
+        uint32 nCol = 32;
     };
 
     void setConfiguration(const ftConfig& config);
@@ -24,14 +24,17 @@ public:
 
     void shutdown() override;
 
-    ftBroadphaseHandle addShape(const ftCollisionShape *const colShape, const void *const userData) override;
+    ftBroadphaseHandle addShape(const ftShape* shape, const ftTransform& transform, const void *const userData) override;
 
     void removeShape(ftBroadphaseHandle handle) override;
 
-    void moveShape(ftBroadphaseHandle handle, const ftCollisionShape &collisionShape) override;
+    void moveShape(ftBroadphaseHandle handle, const ftShape* shape, const ftTransform& transform) override;
 
     void findPairs(ftChunkArray<ftBroadPhasePair> *pairs) override;
 
+    void regionQuery(const ftAABB& region, ftChunkArray<const void*>* results) override;
+
+    int getMemoryUsage() override;
 private:
 
     struct ftElem {
@@ -48,8 +51,9 @@ private:
     ftConfig m_config;
     uint32 m_nBucket;
 
-    ftChunkArray<int> *m_buckets;
+    ftChunkArray<uint32> *m_buckets;
     ftChunkArray<ftElem> m_elements;
+    ftBitSet m_bucketMask; // use when inserting object to prevent adding the same object on the same grid
 
     int32 m_free;
 

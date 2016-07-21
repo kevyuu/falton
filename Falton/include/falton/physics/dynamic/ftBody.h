@@ -109,11 +109,13 @@ public:
     void init();
     void cleanup();
 
-    template <typename T> void forEach(const T& f); // T will be a lambda type that takes ftBody* as argument */
+    /* template T {
+     *  operator(ftBody* body);
+     * }*/
+    template <typename T> void forEach(const T& f);
 
 };
 
-/* T will be a lambda type that takes ftBody* as argument */
 template <typename T>
 void ftBodyBuffer::forEach(const T& f) {
     ftBodyElem* elem = bodies;

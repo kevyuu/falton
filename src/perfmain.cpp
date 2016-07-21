@@ -4,6 +4,9 @@
 
 #include <iostream>
 #include <fstream>
+#include <streambuf>
+#include <sstream>
+#include <string>
 
 #include <falton/physics/collision/broadphase/ftDynamicBVH.h>
 #include <falton/physics/collision/broadphase/ftToroidalGrid.h>
@@ -12,6 +15,7 @@
 #include <falton/physics/dynamic/ftPhysicsSystem.h>
 #include <ftBenchmark.h>
 #include <falton/physics/ftMassComputer.h>
+
 
 void MeasurePerformance();
 void MeasureTestCase1();
@@ -22,19 +26,106 @@ void TestCase1_init();
 void TestCase2_init();
 void TestCase3_init();
 void TestCase4_init();
-void CollectTimeAndMemoryData(std::string filename);
+void WarmUp();
+typedef void (*TestInit) ();
+void CollectTimeAndMemoryData(TestInit testInit,float time1[], float time2[], uint64 memory[]);
 
 ftPhysicsSystem physicsSystem;
 ftBroadphaseSystem* broadphaseSystem;
 
 const int N_TEST_STEP = 1000;
-const int N_TEST_SAMPLE = 100;
+const int N_TEST_SAMPLE = 1;
+
+std::stringstream headBuffer;
+std::stringstream tailBuffer;
+
+struct Axis {
+    std::string title = "Haha";
+    int32 tickInterval = 1;
+};
+
+struct Chart {
+    std::string title;
+    int nSeries = 0;
+    int nData = N_TEST_STEP;
+    string names[10];
+    float data[10][2000];
+
+    Axis xAxis, yAxis;
+
+    void pushData(string inputName, uint64 inputData[2000]) {
+        names[nSeries] = inputName;
+        for (int i = 0; i < nData; ++i) {
+            data[nSeries][i] = inputData[i];
+        }
+        ++nSeries;
+    }
+
+    void pushData(string inputName, float inputData[2000]) {
+        names[nSeries] = inputName;
+        for (int i = 0; i < nData; ++i) {
+            data[nSeries][i] = inputData[i];
+        }
+        ++nSeries;
+    }
+
+    void clearData() {
+        nSeries = 0;
+    }
+
+    void generateFile(std::string filename) {
+        std::string seriesString;
+        seriesString = "series : [";
+        for (int i = 0; i < nSeries; ++i) {
+            seriesString.append("{ name :");
+            seriesString.append("\"" + names[i] + "\"");
+            seriesString.append(", data: [");
+            for (int j = 0; j < nData; ++j) {
+                seriesString.append(std::to_string(data[i][j]));
+                seriesString.append(",\n");
+            }
+            seriesString.append("]},");
+        }
+
+        std::string titleString = "title : { text : \'" + title + + "\'},";
+
+        std::string xAxisString = "xAxis : { tickInterval : " + std::to_string(xAxis.tickInterval) +
+                ", title : \'" + xAxis.title + "\' },";
+        std::string yAxisString = "yAxis : { tickInterval : " + std::to_string(yAxis.tickInterval) +
+                ", title : \'" + yAxis.title + "\' },";
+
+        seriesString.append("]");
+        std::string fileString = headBuffer.str() + titleString + xAxisString + yAxisString + seriesString + tailBuffer.str();
+
+        std::ofstream outputFile(filename);
+        outputFile << fileString;
+        outputFile.close();
+    }
+};
 
 int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused))) {
+    std::ifstream headFile("charts/headHTML");
+    headBuffer << headFile.rdbuf();
+    headFile.close();
+
+    std::ifstream tailFile("charts/tailHTML");
+    tailBuffer << tailFile.rdbuf();
+    tailFile.close();
+    WarmUp();
     MeasurePerformance();
 }
 
 void MeasurePerformance() {
+//    MeasureTestCase1();
+
+//    MeasureTestCase2();
+
+//    MeasureTestCase3();
+
+    MeasureTestCase4();
+}
+
+void WarmUp() {
     ftDynamicBVH::ftConfig bvhConfig;
     ftToroidalGrid::ftConfig toroidalConfig;
     ftHierarchicalGrid::ftConfig hashGridConfig;
@@ -42,23 +133,80 @@ void MeasurePerformance() {
 
     ftPhysicsSystem::ftConfig physicsConfig;
 
+    float time1[N_TEST_STEP], time2[N_TEST_STEP];
+    uint64 memory[N_TEST_STEP];
+
+    //bvh
     bvhConfig.aabbExtension = 0.05;
     ftDynamicBVH* dynamicBVH = new ftDynamicBVH();
+    broadphaseSystem = dynamicBVH;
     dynamicBVH->setConfiguration(bvhConfig);
     physicsSystem.installBroadphase(dynamicBVH);
+    physicsSystem.setConfiguration(physicsConfig);
     physicsSystem.init();
-
     TestCase1_init();
-    MeasureTestCase1();
+    for (int i = 0; i < 1000; ++i) {
+        ftBenchmark::BeginFrame();
+        physicsSystem.step(1.0/60);
+        ftBenchmark::EndFrame();
+    }
+    ftBenchmark::Clear();
+    physicsSystem.shutdown();
 
-    TestCase2_init();
-    MeasureTestCase2();
+    toroidalConfig.cellSize = 1.5;
+    toroidalConfig.nCol = 256;
+    toroidalConfig.nRow = 32;
+    ftToroidalGrid* toroidalGrid = new ftToroidalGrid();
+    broadphaseSystem = toroidalGrid;
+    toroidalGrid->setConfiguration(toroidalConfig);
+    physicsSystem.installBroadphase(toroidalGrid);
+    physicsSystem.setConfiguration(physicsConfig);
+    physicsSystem.init();
+    TestCase1_init();
+    for (int i = 0; i < 1000; ++i) {
+        ftBenchmark::BeginFrame();
+        physicsSystem.step(1.0/60);
+        ftBenchmark::EndFrame();
+    }
+    ftBenchmark::Clear();
+    physicsSystem.shutdown();
 
-    TestCase3_init();
-    MeasureTestCase3();
+    hashGridConfig.baseSize = 1.5;
+    hashGridConfig.nBucket = 1024;
+    hashGridConfig.nLevel = 16;
+    hashGridConfig.sizeMul = 2;
+    ftHierarchicalGrid* hierarchicalGrid = new ftHierarchicalGrid();
+    broadphaseSystem = hierarchicalGrid;
+    hierarchicalGrid->setConfiguration(hashGridConfig);
+    physicsSystem.installBroadphase(hierarchicalGrid);
+    physicsSystem.setConfiguration(physicsConfig);
+    physicsSystem.init();
+    TestCase1_init();
+    for (int i = 0; i < 1000; ++i) {
+        ftBenchmark::BeginFrame();
+        physicsSystem.step(1.0/60);
+        ftBenchmark::EndFrame();
+    }
+    ftBenchmark::Clear();
+    physicsSystem.shutdown();
 
-    TestCase4_init();
-    MeasureTestCase4();
+    quadConfig.maxLevel = 15;
+    quadConfig.worldAABB.min = ftVector2(-55,-10);
+    quadConfig.worldAABB.max = ftVector2(55,150);
+    ftQuadTree* quadTree = new ftQuadTree();
+    broadphaseSystem = quadTree;
+    quadTree->setConfiguration(quadConfig);
+    physicsSystem.installBroadphase(quadTree);
+    physicsSystem.setConfiguration(physicsConfig);
+    physicsSystem.init();
+    TestCase1_init();
+    for (int i = 0; i < 1000; ++i) {
+        ftBenchmark::BeginFrame();
+        physicsSystem.step(1.0/60);
+        ftBenchmark::EndFrame();
+    }
+    ftBenchmark::Clear();
+    physicsSystem.shutdown();
 }
 
 void MeasureTestCase1() {
@@ -69,6 +217,16 @@ void MeasureTestCase1() {
 
     ftPhysicsSystem::ftConfig physicsConfig;
 
+    float time1[N_TEST_STEP], time2[N_TEST_STEP];
+    uint64 memory[N_TEST_STEP];
+
+    Chart chart1;
+    chart1.title = "Move Shape";
+    Chart chart2;
+    chart2.title = "Update Contacts";
+    Chart chart3;
+    chart3.title = "Memory";
+
     cout << "Test Case : 1"<<std::endl;
     cout<<"Algorithm : BVH"<<std::endl;
     //bvh
@@ -78,25 +236,25 @@ void MeasureTestCase1() {
     dynamicBVH->setConfiguration(bvhConfig);
     physicsSystem.installBroadphase(dynamicBVH);
     physicsSystem.setConfiguration(physicsConfig);
-    physicsSystem.init();
-    TestCase1_init();
-    CollectTimeAndMemoryData("bvh1");
-    physicsSystem.shutdown();
+    CollectTimeAndMemoryData(TestCase1_init,time1,time2, memory);
+    chart1.pushData("Bounding Volume Hierarchy", time1);
+    chart2.pushData("Bounding Volume Hierarchy", time2);
+    chart3.pushData("Bounding Volume Hierarchy", memory);
 
     cout<<"Algorithm : Toroidal Grid"<<std::endl;
     //toroidal
     toroidalConfig.cellSize = 1.5;
-    toroidalConfig.nCol = 32;
-    toroidalConfig.nRow = 64;
+    toroidalConfig.nCol = 256;
+    toroidalConfig.nRow = 32;
     ftToroidalGrid* toroidalGrid = new ftToroidalGrid();
     broadphaseSystem = toroidalGrid;
     toroidalGrid->setConfiguration(toroidalConfig);
     physicsSystem.installBroadphase(toroidalGrid);
     physicsSystem.setConfiguration(physicsConfig);
-    physicsSystem.init();
-    TestCase1_init();
-    CollectTimeAndMemoryData("toroidal1");
-    physicsSystem.shutdown();
+    CollectTimeAndMemoryData(TestCase1_init,time1, time2, memory);
+    chart1.pushData("Toroidal Grid", time1);
+    chart2.pushData("Toroidal Grid", time2);
+    chart3.pushData("Toroidal Grid", memory);
 
     cout<<"Algorithm : Hash Grid"<<std::endl;
     //hashgrid
@@ -109,25 +267,29 @@ void MeasureTestCase1() {
     hierarchicalGrid->setConfiguration(hashGridConfig);
     physicsSystem.installBroadphase(hierarchicalGrid);
     physicsSystem.setConfiguration(physicsConfig);
-    physicsSystem.init();
-    TestCase1_init();
-    CollectTimeAndMemoryData("hierarchical1");
-    physicsSystem.shutdown();
+    CollectTimeAndMemoryData(TestCase1_init,time1, time2, memory);
+    chart1.pushData("Hierarchical Grid", time1);
+    chart2.pushData("Hierarchical Grid", time2);
+    chart3.pushData("Hierarchical Grid", memory);
 
     cout<<"Algorithm : Quad Tree"<<std::endl;
     //quad
-    quadConfig.maxLevel = 16;
+    quadConfig.maxLevel = 15;
     quadConfig.worldAABB.min = ftVector2(-55,-10);
-    quadConfig.worldAABB.max = ftVector2(55,110);
+    quadConfig.worldAABB.max = ftVector2(55,150);
     ftQuadTree* quadTree = new ftQuadTree();
     broadphaseSystem = quadTree;
     quadTree->setConfiguration(quadConfig);
     physicsSystem.installBroadphase(quadTree);
     physicsSystem.setConfiguration(physicsConfig);
-    physicsSystem.init();
-    TestCase1_init();
-    CollectTimeAndMemoryData("Quad1");
-    physicsSystem.shutdown();
+    CollectTimeAndMemoryData(TestCase1_init,time1, time2, memory);
+    chart1.pushData("Quad Tree", time1);
+    chart2.pushData("Quad Tree", time2);
+    chart3.pushData("Quad Tree", memory);
+
+    chart1.generateFile("charts/testcase1/chart1.html");
+    chart2.generateFile("charts/testcase1/chart2.html");
+    chart3.generateFile("charts/testcase1/chart3.html");
 
 }
 
@@ -139,6 +301,18 @@ void MeasureTestCase2() {
 
     ftPhysicsSystem::ftConfig physicsConfig;
 
+    float time1[N_TEST_STEP], time2[N_TEST_STEP];
+    uint64 memory[N_TEST_STEP];
+
+    Chart chart1;
+    chart1.title = "Move Shape";
+    Chart chart2;
+    chart2.title = "Update Contacts";
+    Chart chart3;
+    chart3.title = "Memory";
+
+    cout << "Test Case : 1"<<std::endl;
+    cout<<"Algorithm : BVH"<<std::endl;
     //bvh
     bvhConfig.aabbExtension = 0.05;
     ftDynamicBVH* dynamicBVH = new ftDynamicBVH();
@@ -146,54 +320,61 @@ void MeasureTestCase2() {
     dynamicBVH->setConfiguration(bvhConfig);
     physicsSystem.installBroadphase(dynamicBVH);
     physicsSystem.setConfiguration(physicsConfig);
-    physicsSystem.init();
-    TestCase2_init();
-    CollectTimeAndMemoryData("bvh2");
-    physicsSystem.shutdown();
+    CollectTimeAndMemoryData(TestCase2_init,time1,time2, memory);
+    chart1.pushData("Bounding Volume Hierarchy", time1);
+    chart2.pushData("Bounding Volume Hierarchy", time2);
+    chart3.pushData("Bounding Volume Hierarchy", memory);
 
+    cout<<"Algorithm : Toroidal Grid"<<std::endl;
     //toroidal
     toroidalConfig.cellSize = 1.5;
-    toroidalConfig.nCol = 64;
-    toroidalConfig.nRow = 64;
+    toroidalConfig.nCol = 256;
+    toroidalConfig.nRow = 32;
     ftToroidalGrid* toroidalGrid = new ftToroidalGrid();
     broadphaseSystem = toroidalGrid;
     toroidalGrid->setConfiguration(toroidalConfig);
     physicsSystem.installBroadphase(toroidalGrid);
     physicsSystem.setConfiguration(physicsConfig);
-    physicsSystem.init();
-    TestCase2_init();
-    CollectTimeAndMemoryData("toroidal2");
-    physicsSystem.shutdown();
+    CollectTimeAndMemoryData(TestCase2_init,time1, time2, memory);
+    chart1.pushData("Toroidal Grid", time1);
+    chart2.pushData("Toroidal Grid", time2);
+    chart3.pushData("Toroidal Grid", memory);
 
-
+    cout<<"Algorithm : Hash Grid"<<std::endl;
     //hashgrid
     hashGridConfig.baseSize = 1.5;
     hashGridConfig.nBucket = 1024;
-    hashGridConfig.nLevel = 3;
-    hashGridConfig.sizeMul = 8;
+    hashGridConfig.nLevel = 16;
+    hashGridConfig.sizeMul = 2;
     ftHierarchicalGrid* hierarchicalGrid = new ftHierarchicalGrid();
     broadphaseSystem = hierarchicalGrid;
     hierarchicalGrid->setConfiguration(hashGridConfig);
     physicsSystem.installBroadphase(hierarchicalGrid);
     physicsSystem.setConfiguration(physicsConfig);
-    physicsSystem.init();
-    TestCase2_init();
-    CollectTimeAndMemoryData("hierarchical2");
-    physicsSystem.shutdown();
+    CollectTimeAndMemoryData(TestCase2_init,time1, time2, memory);
+    chart1.pushData("Hierarchical Grid", time1);
+    chart2.pushData("Hierarchical Grid", time2);
+    chart3.pushData("Hierarchical Grid", memory);
 
+    cout<<"Algorithm : Quad Tree"<<std::endl;
     //quad
-    quadConfig.maxLevel = 16;
-    quadConfig.worldAABB.min = ftVector2(-50,-50);
-    quadConfig.worldAABB.max = ftVector2(4050,4050);
+    quadConfig.maxLevel = 15;
+    quadConfig.worldAABB.min = ftVector2(-10,-10);
+    quadConfig.worldAABB.max = ftVector2(36000,36000);
     ftQuadTree* quadTree = new ftQuadTree();
     broadphaseSystem = quadTree;
     quadTree->setConfiguration(quadConfig);
     physicsSystem.installBroadphase(quadTree);
     physicsSystem.setConfiguration(physicsConfig);
-    physicsSystem.init();
-    TestCase2_init();
-    CollectTimeAndMemoryData("Quad2");
-    physicsSystem.shutdown();
+    CollectTimeAndMemoryData(TestCase2_init,time1, time2, memory);
+    chart1.pushData("Quad Tree", time1);
+    chart2.pushData("Quad Tree", time2);
+    chart3.pushData("Quad Tree", memory);
+
+    chart1.generateFile("charts/testcase2/chart1.html");
+    chart2.generateFile("charts/testcase2/chart2.html");
+    chart3.generateFile("charts/testcase2/chart3.html");
+
 }
 
 void MeasureTestCase3() {
@@ -204,6 +385,18 @@ void MeasureTestCase3() {
 
     ftPhysicsSystem::ftConfig physicsConfig;
 
+    float time1[N_TEST_STEP], time2[N_TEST_STEP];
+    uint64 memory[N_TEST_STEP];
+
+    Chart chart1;
+    chart1.title = "Move Shape";
+    Chart chart2;
+    chart2.title = "Update Contacts";
+    Chart chart3;
+    chart3.title = "Memory";
+
+    cout << "Test Case : 1"<<std::endl;
+    cout<<"Algorithm : BVH"<<std::endl;
     //bvh
     bvhConfig.aabbExtension = 0.05;
     ftDynamicBVH* dynamicBVH = new ftDynamicBVH();
@@ -211,60 +404,151 @@ void MeasureTestCase3() {
     dynamicBVH->setConfiguration(bvhConfig);
     physicsSystem.installBroadphase(dynamicBVH);
     physicsSystem.setConfiguration(physicsConfig);
-    physicsSystem.init();
-    TestCase3_init();
-    CollectTimeAndMemoryData("bvh3");
-    physicsSystem.shutdown();
+    CollectTimeAndMemoryData(TestCase3_init,time1,time2, memory);
+    chart1.pushData("Bounding Volume Hierarchy", time1);
+    chart2.pushData("Bounding Volume Hierarchy", time2);
+    chart3.pushData("Bounding Volume Hierarchy", memory);
 
+    cout<<"Algorithm : Toroidal Grid"<<std::endl;
     //toroidal
     toroidalConfig.cellSize = 1.5;
-    toroidalConfig.nCol = 64;
-    toroidalConfig.nRow = 64;
+    toroidalConfig.nCol = 256;
+    toroidalConfig.nRow = 32;
     ftToroidalGrid* toroidalGrid = new ftToroidalGrid();
     broadphaseSystem = toroidalGrid;
     toroidalGrid->setConfiguration(toroidalConfig);
     physicsSystem.installBroadphase(toroidalGrid);
     physicsSystem.setConfiguration(physicsConfig);
-    physicsSystem.init();
-    TestCase3_init();
-    CollectTimeAndMemoryData("toroidal3");
-    physicsSystem.shutdown();
+    CollectTimeAndMemoryData(TestCase3_init,time1, time2, memory);
+    chart1.pushData("Toroidal Grid", time1);
+    chart2.pushData("Toroidal Grid", time2);
+    chart3.pushData("Toroidal Grid", memory);
 
-
+    cout<<"Algorithm : Hash Grid"<<std::endl;
     //hashgrid
     hashGridConfig.baseSize = 1.5;
     hashGridConfig.nBucket = 1024;
-    hashGridConfig.nLevel = 3;
-    hashGridConfig.sizeMul = 8;
+    hashGridConfig.nLevel = 16;
+    hashGridConfig.sizeMul = 2;
     ftHierarchicalGrid* hierarchicalGrid = new ftHierarchicalGrid();
     broadphaseSystem = hierarchicalGrid;
     hierarchicalGrid->setConfiguration(hashGridConfig);
     physicsSystem.installBroadphase(hierarchicalGrid);
     physicsSystem.setConfiguration(physicsConfig);
-    physicsSystem.init();
-    TestCase3_init();
-    CollectTimeAndMemoryData("hierarchical3");
-    physicsSystem.shutdown();
+    CollectTimeAndMemoryData(TestCase3_init,time1, time2, memory);
+    chart1.pushData("Hierarchical Grid", time1);
+    chart2.pushData("Hierarchical Grid", time2);
+    chart3.pushData("Hierarchical Grid", memory);
 
+    cout<<"Algorithm : Quad Tree"<<std::endl;
     //quad
     quadConfig.maxLevel = 15;
-    quadConfig.worldAABB.min = ftVector2(-50,-50);
-    quadConfig.worldAABB.max = ftVector2(4050,4050);
+    quadConfig.worldAABB.min = ftVector2(-150,-10);
+    quadConfig.worldAABB.max = ftVector2(150,350);
     ftQuadTree* quadTree = new ftQuadTree();
     broadphaseSystem = quadTree;
     quadTree->setConfiguration(quadConfig);
     physicsSystem.installBroadphase(quadTree);
     physicsSystem.setConfiguration(physicsConfig);
-    physicsSystem.init();
-    TestCase3_init();
-    CollectTimeAndMemoryData("Quad3");
-    physicsSystem.shutdown();
+    CollectTimeAndMemoryData(TestCase3_init,time1, time2, memory);
+    chart1.pushData("Quad Tree", time1);
+    chart2.pushData("Quad Tree", time2);
+    chart3.pushData("Quad Tree", memory);
+
+    chart1.generateFile("charts/testcase3/chart1.html");
+    chart2.generateFile("charts/testcase3/chart2.html");
+    chart3.generateFile("charts/testcase3/chart3.html");
+
 }
 
-void CollectTimeAndMemoryData(std::string filename) {
+void MeasureTestCase4() {
+    ftDynamicBVH::ftConfig bvhConfig;
+    ftToroidalGrid::ftConfig toroidalConfig;
+    ftHierarchicalGrid::ftConfig hashGridConfig;
+    ftQuadTree::ftConfig quadConfig;
+
+    ftPhysicsSystem::ftConfig physicsConfig;
+
     float time1[N_TEST_STEP], time2[N_TEST_STEP];
     uint64 memory[N_TEST_STEP];
 
+    Chart chart1;
+    chart1.title = "Move Shape";
+    Chart chart2;
+    chart2.title = "Update Contacts";
+    Chart chart3;
+    chart3.title = "Memory";
+
+    cout << "Test Case : 1"<<std::endl;
+    cout<<"Algorithm : BVH"<<std::endl;
+    //bvh
+    bvhConfig.aabbExtension = 0.05;
+    ftDynamicBVH* dynamicBVH = new ftDynamicBVH();
+    broadphaseSystem = dynamicBVH;
+    dynamicBVH->setConfiguration(bvhConfig);
+    physicsSystem.installBroadphase(dynamicBVH);
+    physicsSystem.setConfiguration(physicsConfig);
+    CollectTimeAndMemoryData(TestCase4_init,time1,time2, memory);
+    chart1.pushData("Bounding Volume Hierarchy", time1);
+    chart2.pushData("Bounding Volume Hierarchy", time2);
+    chart3.pushData("Bounding Volume Hierarchy", memory);
+
+    cout<<"Algorithm : Toroidal Grid"<<std::endl;
+    //toroidal
+    toroidalConfig.cellSize = 1.5;
+    toroidalConfig.nCol = 256;
+    toroidalConfig.nRow = 32;
+    ftToroidalGrid* toroidalGrid = new ftToroidalGrid();
+    broadphaseSystem = toroidalGrid;
+    toroidalGrid->setConfiguration(toroidalConfig);
+    physicsSystem.installBroadphase(toroidalGrid);
+    physicsSystem.setConfiguration(physicsConfig);
+    CollectTimeAndMemoryData(TestCase4_init,time1, time2, memory);
+    chart1.pushData("Toroidal Grid", time1);
+    chart2.pushData("Toroidal Grid", time2);
+    chart3.pushData("Toroidal Grid", memory);
+
+    cout<<"Algorithm : Hash Grid"<<std::endl;
+    //hashgrid
+    hashGridConfig.baseSize = 1.5;
+    hashGridConfig.nBucket = 1024;
+    hashGridConfig.nLevel = 16;
+    hashGridConfig.sizeMul = 2;
+    ftHierarchicalGrid* hierarchicalGrid = new ftHierarchicalGrid();
+    broadphaseSystem = hierarchicalGrid;
+    hierarchicalGrid->setConfiguration(hashGridConfig);
+    physicsSystem.installBroadphase(hierarchicalGrid);
+    physicsSystem.setConfiguration(physicsConfig);
+    CollectTimeAndMemoryData(TestCase4_init,time1, time2, memory);
+    chart1.pushData("Hierarchical Grid", time1);
+    chart2.pushData("Hierarchical Grid", time2);
+    chart3.pushData("Hierarchical Grid", memory);
+
+    cout<<"Algorithm : Quad Tree"<<std::endl;
+    //quad
+    quadConfig.maxLevel = 15;
+    quadConfig.worldAABB.min = ftVector2(-10,-10);
+    quadConfig.worldAABB.max = ftVector2(5000,200);
+    ftQuadTree* quadTree = new ftQuadTree();
+    broadphaseSystem = quadTree;
+    quadTree->setConfiguration(quadConfig);
+    physicsSystem.installBroadphase(quadTree);
+    physicsSystem.setConfiguration(physicsConfig);
+    CollectTimeAndMemoryData(TestCase4_init,time1, time2, memory);
+    chart1.pushData("Quad Tree", time1);
+    chart2.pushData("Quad Tree", time2);
+    chart3.pushData("Quad Tree", memory);
+
+    chart1.generateFile("charts/testcase4/chart1.html");
+    chart2.generateFile("charts/testcase4/chart2.html");
+    chart3.generateFile("charts/testcase4/chart3.html");
+
+}
+
+void CollectTimeAndMemoryData(TestInit testInit,float time1[], float time2[], uint64 memory[]) {
+
+    physicsSystem.init();
+    testInit();
     cout<<"Iteration : "<<1<<std::endl;
     for (int i = 0; i < N_TEST_STEP; ++i) {
         ftBenchmark::BeginFrame();
@@ -275,9 +559,13 @@ void CollectTimeAndMemoryData(std::string filename) {
         memory[i] = broadphaseSystem->getMemoryUsage();
     }
     ftBenchmark::Clear();
+    physicsSystem.shutdown();
+
 
     for (int iter = 1; iter < N_TEST_SAMPLE; ++iter) {
         cout<<"Iteration : "<<iter + 1<<std::endl;
+        physicsSystem.init();
+        testInit();
         for (int i = 0; i < N_TEST_STEP; ++i) {
             ftBenchmark::BeginFrame();
             physicsSystem.step(1.0/60);
@@ -286,6 +574,7 @@ void CollectTimeAndMemoryData(std::string filename) {
             time2[i] += ftBenchmark::benchTables[1].data[i];
         }
         ftBenchmark::Clear();
+        physicsSystem.shutdown();
     }
 
     for (int i = 0; i < N_TEST_STEP; ++i) {
@@ -293,16 +582,6 @@ void CollectTimeAndMemoryData(std::string filename) {
         time2[i] /= N_TEST_SAMPLE;
     }
 
-    //write to file
-    ofstream file(filename);
-    if (file.is_open()) {
-        for (int i = 0; i < N_TEST_STEP; ++i) {
-            file << time1[i]<<" "<<time2[i]<<" "<<memory[i]<<std::endl;
-        }
-        file.close();
-    } else {
-        cout<<"fail to open file";
-    }
 }
 
 ftBody* createDynamicBox(ftVector2 position, ftVector2 halfWidth, real mass, real friction) {
@@ -352,8 +631,8 @@ ftBody*  createStaticBox(ftVector2 position, real orientation, ftVector2 halfWid
 //test liquid
 void TestCase1_init() {
     createStaticBox(ftVector2(0,0), 0,ftVector2(50,0.5), 0.6);
-    createStaticBox(ftVector2(-50,25), 0,ftVector2(0.5,25), 0.2);
-    createStaticBox(ftVector2(50,25), 0,ftVector2(0.5,25), 0.2);
+    createStaticBox(ftVector2(-50,50), 0,ftVector2(0.5,50), 0.2);
+    createStaticBox(ftVector2(50,50), 0,ftVector2(0.5,50), 0.2);
 
     ftVector2 x(-30, 0.75);
     ftVector2 y;
@@ -371,7 +650,7 @@ void TestCase1_init() {
 
 //test sparse pyramid
 void TestCase2_init() {
-    int32 spacing = 500;
+    int32 spacing = 4000;
     for (int k = 0 ; k < 8; ++k) {
         for (int l = 0 ; l < 8; ++l) {
             createStaticBox(ftVector2(-3 + spacing * l, spacing * k), 0,ftVector2(6,0.1), 0.2);
