@@ -231,6 +231,16 @@ void ftCollisionSystem::updateContacts(ftCollisionFilterFunc filter) {
 
     pairs.cleanup();
 
+    uint8 curTimeStamp = this->m_curTimeStamp;
+    const auto processEndContacts = [curTimeStamp]
+            (ftColHandle handleA __attribute__((unused)), ftColHandle handleB __attribute__((unused)), ftContact* contact) {
+        if (contact->timestamp != curTimeStamp) {
+            contact->collisionState = END_COLLISION;
+        }
+    };
+
+    m_contactBuffer.forEach(std::cref(processEndContacts));
+
     m_minQueueSize = 0;
     m_moveMasks.clear();
     m_movedShapes.removeAll();
@@ -254,7 +264,9 @@ void ftCollisionSystem::destroyEndingContacts(ftCollisionCallback callback) {
 }
 
 void ftCollisionSystem::destroyEndingContacts() {
-    const auto isEnding = [this] (ftColHandle handleA, ftColHandle handleB, ftContact* contact) {
+
+    const auto isEnding = [this]
+            (ftColHandle handleA, ftColHandle handleB, ftContact* contact) {
         return contact->timestamp != this->m_curTimeStamp;
     };
 
@@ -296,16 +308,6 @@ void ftCollisionSystem::updateContact(ftContact* contact, ftColHandle handleA, f
             contact->timestamp = m_curTimeStamp;
         }
     }
-
-    uint8 curTimeStamp = this->m_curTimeStamp;
-    const auto processEndContacts = [curTimeStamp]
-            (ftColHandle handleA __attribute__((unused)), ftColHandle handleB __attribute__((unused)), ftContact* contact) {
-        if (contact->timestamp != curTimeStamp) {
-            contact->collisionState = END_COLLISION;
-        }
-    };
-
-    m_contactBuffer.forEach(std::cref(processEndContacts));
 }
 
 void ftCollisionSystem::updateContact(ftContact* contact, ftColHandle handleA, ftColHandle handleB) {
@@ -341,4 +343,5 @@ void ftCollisionSystem::updateContact(ftContact* contact, ftColHandle handleA, f
             contact->timestamp = m_curTimeStamp;
         }
     }
+
 }

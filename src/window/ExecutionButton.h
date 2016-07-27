@@ -34,7 +34,7 @@ struct ExecutionButton {
         window_flags |= ImGuiWindowFlags_NoMove;
         window_flags |= ImGuiWindowFlags_NoScrollbar;
         window_flags |= ImGuiWindowFlags_NoCollapse;
-        ImGui::SetNextWindowPosCenter(ImGuiSetCond_FirstUseEver);
+        ImGui::SetNextWindowPos(ImVec2(SCREEN_WIDTH / 2 - 70,10),ImGuiSetCond_Once);
         ImGui::Begin("Play", nullptr, window_flags);
 
         starting = false;

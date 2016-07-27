@@ -151,7 +151,7 @@ void ftHierarchicalGrid::regionQuery(const ftAABB &region, ftChunkArray<const vo
                 int32 hashIdx = computeHashIndex(gridX, gridY, level);
                 if (gridFlag.test(hashIdx)) continue;
                 for (ftElem* elem = m_elemBucket[hashIdx]; elem != nullptr; elem = elem->next) {
-                    results->push(elem->userdata);
+                    if (region.overlap(elem->aabb)) results->push(elem->userdata);
                 }
                 gridFlag.on(hashIdx);
             }

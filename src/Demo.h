@@ -258,7 +258,7 @@ void Demo11_init() {
 
     for (int i = 0; i < 60 ; ++i) {
         y = x;
-        for (int j = 0; j < 30; ++j) {
+        for (int j = 0; j < 40; ++j) {
             ftBody* body = createBall(y, 1, 0.5, 0, 0.6);
             body->userdata = (void*)(i*j);
             y += ftVector2(1.125f, 0.0f);

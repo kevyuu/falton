@@ -20,4 +20,5 @@ target_link_libraries(main allegro_acodec
 
 add_executable(perfmain perfmain.cpp)
 
+add_executable(chartgen chartgen.cpp)
 

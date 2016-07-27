@@ -76,8 +76,6 @@ void ftToroidalGrid::removeShape(ftBroadphaseHandle handle) {
 
 void ftToroidalGrid::moveShape(ftBroadphaseHandle handle, const ftShape* shape, const ftTransform& transform) {
 
-
-
     int32 oldXStart = ftFloor(m_elements[handle].aabb.min.x / m_config.cellSize);
     int32 oldYStart = ftFloor(m_elements[handle].aabb.min.y / m_config.cellSize);
     int32 oldXEnd = ftCeil(m_elements[handle].aabb.max.x / m_config.cellSize) - 1;

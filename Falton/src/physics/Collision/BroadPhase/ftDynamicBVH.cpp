@@ -58,7 +58,6 @@ void ftDynamicBVH::findPairs(ftChunkArray<ftBroadPhasePair> *pairs) {
     for (uint32 i = 0; i < m_nodes.getSize(); ++i) {
         if (m_nodes[i].height > 0) computePairs(i, pairs);
     }
-
 }
 
 void ftDynamicBVH::regionQuery(const ftAABB& region, ftChunkArray<const void*>* results) {

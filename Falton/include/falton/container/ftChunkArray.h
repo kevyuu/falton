@@ -110,7 +110,7 @@ template <typename T>
 uint32 ftChunkArray<T>::push() {
     if (nObject == capacity) addChunk();
     ++nObject;
-    ftAssert(nObject <= chunkSize * 100, "nObject : "<<nObject<<", chunkSize : "<<chunkSize);
+    ftAssert(nObject <= chunkSize * nChunk, "nObject : "<<nObject<<", chunkSize : "<<chunkSize);
     return nObject - 1;
 }
 

@@ -352,9 +352,23 @@ void ftPhysicsSystem::step(real dt) {
 
     };
 
+//    const auto processContact = [this]
+//            (int32 handleA, int32 handleB, ftContact* contact) {
+//        if (contact->collisionState == BEGIN_COLLISION) {
+//            this->m_islandSystem.addContact(contact);
+//        } else if (contact->collisionState == END_COLLISION) {
+//            this->m_islandSystem.removeContact(contact);
+//        }
+//    };
+
     static int index = -1;
     index = ftBenchmark::Begin("ftCollisionSystem::updateContacts",index);
     m_collisionSystem.updateContacts(colFilter, callback);
+
+//    m_collisionSystem.updateContacts(colFilter);
+//    m_collisionSystem.forEachContact(std::cref(processContact));
+//    m_collisionSystem.destroyEndingContacts();
+
     ftBenchmark::End();
 
     const auto processIsland =

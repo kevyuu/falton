@@ -37,7 +37,8 @@ struct ftManifold {
 
 typedef enum ftCollisionState {
     BEGIN_COLLISION,
-    IN_COLLISION
+    IN_COLLISION,
+    END_COLLISION
 } ftCollisionState;
 
 struct ftContact {

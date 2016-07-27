@@ -57,6 +57,9 @@ public:
     void updateOneAtATime(ftCollisionFilterFunc filter, ftCollisionCallback callback);
     void updateAllAtOnce(ftCollisionFilterFunc filter, ftCollisionCallback callback);
 
+    void updateContacts(ftCollisionFilterFunc filter);
+    void destroyEndingContacts();
+
     void destroyContact(ftContact* contact);
 
     void setSleepRatio(real ratio) {
@@ -83,9 +86,10 @@ private:
     ftBitSet m_moveMasks;
     ftChunkArray<ftColHandle> m_movedShapes;
 
-    void destroyEndingContact(ftCollisionCallback callback);
-    void updateContact(ftContact* contact, ftColHandle handleA, ftColHandle handleB, ftCollisionCallback callback);
 
+    void updateContact(ftContact* contact, ftColHandle handleA, ftColHandle handleB, ftCollisionCallback callback);
+    void updateContact(ftContact* contact, ftColHandle handleA, ftColHandle handleB);
+    void destroyEndingContacts(ftCollisionCallback callback);
 };
 
 inline void ftCollisionSystem::destroyContact(ftContact *contact) {
