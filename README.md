@@ -21,5 +21,5 @@ There are four broadphase algorithm in Falton2D currently. They are :
 - Raycast
 
 # Demo
-![Alt text](falton/demogif/Liquid.gif "Liquid")
+![Liquid](demogif/Liquid.gif)
 Falton is still being developed. We don't have a stable version yet. API is not final.
