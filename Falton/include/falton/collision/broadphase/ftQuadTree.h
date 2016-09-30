@@ -6,7 +6,7 @@
 #define FALTON_FTQUADTREE_H
 
 
-#include <falton/physics/collision/broadphase/ftBroadphaseSystem.h>
+#include <falton/collision/broadphase/ftBroadphaseSystem.h>
 
 class ftQuadTree : public ftBroadphaseSystem {
 

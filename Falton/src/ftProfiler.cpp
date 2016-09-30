@@ -2,17 +2,17 @@
 // Created by Kevin Yu on 2016-05-24.
 //
 
-#include "ftBenchmark.h"
+#include "ftProfiler.h"
 
 #include <iostream>
 
-int ftBenchmark::nTags = 0;
-int ftBenchmark::nFrame = 0;
-long long ftBenchmark::ReadTSCCycle = 0;
-vector<ftBenchmark::BenchUnit> ftBenchmark::benchUnits;
-ftBenchmark::BenchTable ftBenchmark::benchTables[100];
+int ftProfiler::nTags = 0;
+int ftProfiler::nFrame = 0;
+long long ftProfiler::ReadTSCCycle = 0;
+vector<ftProfiler::BenchUnit> ftProfiler::benchUnits;
+ftProfiler::BenchTable ftProfiler::benchTables[100];
 
-void ftBenchmark::BeginFrame() {
+void ftProfiler::BeginFrame() {
     ++nFrame;
     for (int i = 0 ; i < nTags; ++i) {
         benchTables[i].data.push_back(0);
@@ -22,11 +22,11 @@ void ftBenchmark::BeginFrame() {
     ReadTSCCycle = end - start;
 }
 
-void ftBenchmark::EndFrame() {
+void ftProfiler::EndFrame() {
     //do nothing
 }
 
-void ftBenchmark::Clear() {
+void ftProfiler::Clear() {
     for (int i = 0 ; i < nTags; ++i) {
         benchTables[i].data.clear();
     }

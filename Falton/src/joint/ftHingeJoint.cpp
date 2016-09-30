@@ -2,11 +2,8 @@
 // Created by Kevin Yu on 4/13/16.
 //
 
-#include <falton/physics/dynamic/ftBody.h>
-#include "falton/physics/joint/ftHingeJoint.h"
-#include <iostream>
-
-using namespace std;
+#include <falton/dynamic/ftBody.h>
+#include <falton/joint/ftHingeJoint.h>
 
 ftHingeJoint* ftHingeJoint::create(ftBody *bodyA, ftBody *bodyB, ftVector2 anchorPoint) {
 

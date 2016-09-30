@@ -7,14 +7,13 @@
 #include <streambuf>
 #include <sstream>
 #include <string>
-#include <falton/setting/general.h>
 
 const int MAX_DATA = 1000;
 const int MAX_SERIES = 100;
 
 struct Axis {
     std::string title = "-";
-    int32 tickInterval = 1;
+    int tickInterval = 1;
 };
 
 struct Chart {
@@ -30,7 +29,7 @@ struct Chart {
         names[nSeries] = inputName;
         std::ifstream file(filename);
         float inputData;
-        int32 i = 0;
+        int i = 0;
         std::string line;
         while (std::getline(file, line) && i < nData)  //read stream line by line
         {
@@ -98,42 +97,56 @@ struct Chart {
 };
 
 int main(int argc, char *argv[]) {
-    std::string fileInputName(argv[1]);
-    std::string fileOutputName(argv[2]);
 
-    Chart chart;
+    std::string parameter(argv[1]);
 
-    std::ifstream fileInput(fileInputName);
-    std::string line;
+    if (parameter == "-F") {
+        std::string fileInputName(argv[2]);
+        std::string fileOutputName(argv[3]);
 
-    std::getline(fileInput, line);
-    chart.title = line;
+        Chart chart;
 
-    std::getline(fileInput, line);
-    chart.nData = std::stoi(line);
+        std::ifstream fileInput(fileInputName);
+        std::string line;
 
-    std::getline(fileInput, line);
-    chart.xAxis.title = line;
-    std::getline(fileInput, line);
-    chart.xAxis.tickInterval = stoi(line);
+        std::getline(fileInput, line);
+        chart.title = line;
 
-    std::getline(fileInput, line);
-    chart.yAxis.title = line;
-    std::getline(fileInput, line);
-    chart.yAxis.tickInterval = stoi(line);
+        std::getline(fileInput, line);
+        chart.nData = std::stoi(line);
 
-    while (std::getline(fileInput, line)) {
-        std::istringstream in(line);
-        std::string dataFileName;
-        in >> dataFileName;
+        std::getline(fileInput, line);
+        chart.xAxis.title = line;
+        std::getline(fileInput, line);
+        chart.xAxis.tickInterval = stoi(line);
 
-        std::string dataLabel;
-        in >> dataLabel;
+        std::getline(fileInput, line);
+        chart.yAxis.title = line;
+        std::getline(fileInput, line);
+        chart.yAxis.tickInterval = stoi(line);
 
-        chart.pushFile(dataFileName, dataLabel);
+        while (std::getline(fileInput, line)) {
+            std::istringstream in(line);
+            std::string dataFileName;
+            in >> dataFileName;
+
+            std::string dataLabel;
+            in >> dataLabel;
+
+            chart.pushFile(dataFileName, dataLabel);
+        }
+        fileInput.close();
+        chart.generateHTML(fileOutputName);
+    } else if (parameter == "-M") {
+        std::string title(argv[2]);
+        std::string filename1(argv[2]);
+        std::string filename2(argv[3]);
+
+        Chart chart;
+        chart.pushFile(filename1, "data1");
+        chart.pushFile(filename2, "data2");
+        chart.generateHTML("chart.html");
     }
-    fileInput.close();
-    chart.generateHTML(fileOutputName);
 
     return 0;
 

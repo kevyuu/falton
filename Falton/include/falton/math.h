@@ -7,8 +7,8 @@
 
 #include <cstdlib>
 #include <cmath>
-#include <falton/math/math.h>
-#include <falton/setting/general.h>
+#include <falton/math.h>
+#include <falton/setting.h>
 
 #define ftAbs abs
 #define ftCeil ceil

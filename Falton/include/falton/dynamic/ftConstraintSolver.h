@@ -5,10 +5,10 @@
 #ifndef FALTON_FTCONTACTCONSTRAINTSOLVER_H
 #define FALTON_FTCONTACTCONSTRAINTSOLVER_H
 
-#include <falton/physics/Collision/ftCollisionSystem.h>
-#include <falton/physics/dynamic/ftContactConstraint.h>
-#include "falton/physics/dynamic/ftBody.h"
-#include "falton/physics/dynamic/ftCollider.h"
+#include <falton/collision/ftCollisionSystem.h>
+#include <falton/dynamic/ftContactConstraint.h>
+#include <falton/dynamic/ftBody.h>
+#include <falton/dynamic/ftCollider.h>
 
 struct ftContactConstraint;
  struct ftConstraintGroup;

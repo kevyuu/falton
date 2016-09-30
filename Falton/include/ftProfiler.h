@@ -12,13 +12,13 @@
 #define PROFILE_BEGIN(TAG) \
     do { \
         static int index = -1; \
-        index = ftBenchmark::Begin(TAG, index); \
+        index = ftProfiler::Begin(TAG, index); \
     } while (0)
 
-#define PROFILE_END() ftBenchmark::End()
+#define PROFILE_END() ftProfiler::End()
 
 //A benchmarking facility that only accomodate up to 100 tags
-class ftBenchmark {
+class ftProfiler {
 
 public:
     static int nTags;
@@ -46,7 +46,7 @@ public:
     }
 
     static std::vector<BenchUnit> benchUnits;
-
+    
     static BenchTable benchTables[100];
 
     static void BeginFrame();

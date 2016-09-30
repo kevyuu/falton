@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="W:\falton\vsbuild\CMakeFiles\8ded36065d1ac09fc93033ca579c8065\RUN_TESTS_force.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{9A13D04C-ED44-3FD3-A35A-90785AC29925}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

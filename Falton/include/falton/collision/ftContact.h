@@ -6,7 +6,7 @@
 #define FALTON_FTCONTACT_H
 
 #include <cstdint>
-#include <falton/math/math.h>
+#include <falton/math.h>
 #include <falton/container/ftChunkArray.h>
 #include <falton/container/ftRHHashTable.h>
 
@@ -93,7 +93,7 @@ public:
     uint32 getSize();
 
     /* template IteratorT {
-     *      void operator()(int32 handleA, int32 handleB, ftContact* contact);
+     *      void operator()(ftContact* contact);
      * } */
     template <typename IteratorT>
     void forEach(IteratorT func);
@@ -109,10 +109,10 @@ public:
 template <typename IteratorT>
 void ftContactBuffer::forEach(IteratorT func) {
     for (uint32 i = 0; i < m_elements.getSize(); ++i) {
+        ftColHandle &handleA = m_elements[i].handleA;
+        ftColHandle &handleB = m_elements[i].handleB;
+        ftContact* contact = &m_elements[i].contact;
         if (m_elements[i].hashValue != nulluint) {
-            ftColHandle &handleA = m_elements[i].handleA;
-            ftColHandle &handleB = m_elements[i].handleB;
-            ftContact* contact = &m_elements[i].contact;
             func(handleA, handleB, contact);
         }
     }

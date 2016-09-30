@@ -2,8 +2,8 @@
 // Created by Kevin Yu on 3/19/16.
 //
 
-#include "falton/container/ftBitSet.h"
-#include "string.h"
+#include <falton/container/ftBitSet.h>
+#include <cstring>
 
 uint32 ftBitSet::table_index(int index) {
     return index/8;

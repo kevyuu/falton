@@ -8,7 +8,7 @@
 
 #include <falton/container/ftBitSet.h>
 #include <falton/container/ftIntQueue.h>
-#include "ftBroadphaseSystem.h"
+#include <falton/collision/broadphase/ftBroadphaseSystem.h>
 
 class ftHierarchicalGrid : public ftBroadphaseSystem {
 public:

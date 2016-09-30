@@ -2,9 +2,8 @@
 // Created by Kevin Yu on 2016-05-12.
 //
 
-#include "falton/physics/collision/broadphase/ftDynamicBVH.h"
-#include <falton/physics/collision/ftCollisionSystem.h>
-#include <falton/container/ftBitSet.h>
+#include "falton/collision/broadphase/ftDynamicBVH.h"
+#include <falton/collision/ftCollisionSystem.h>
 #include <falton/container/ftStack.h>
 
 void ftDynamicBVH::setConfiguration(const ftConfig &config) {

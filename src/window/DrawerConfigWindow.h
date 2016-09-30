@@ -12,8 +12,6 @@ struct DrawerConfigWindow {
 
     DrawConfig config;
 
-
-
     void draw() {
         ImGui::SetNextWindowPos(ImVec2(0,0),ImGuiSetCond_Once);
         ImGui::Begin("Draw Configuration");

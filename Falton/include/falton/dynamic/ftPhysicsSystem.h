@@ -5,12 +5,12 @@
 #ifndef FALTON_FTPHYSICSSYSTEM_H
 #define FALTON_FTPHYSICSSYSTEM_H
 
-#include <falton/setting/general.h>
-#include <falton/physics/ftConstraintSolver.h>
-#include <falton/physics/shape/ftShapeBuffer.h>
-#include <falton/physics/dynamic/ftIslandSystem.h>
-#include <falton/physics/joint/ftSpringJoint.h>
-#include <falton/physics/joint/ftDynamoJoint.h>
+#include <falton/setting.h>
+#include <falton/dynamic/ftConstraintSolver.h>
+#include <falton/shape/ftShapeBuffer.h>
+#include <falton/dynamic/ftIslandSystem.h>
+#include <falton/joint/ftSpringJoint.h>
+#include <falton/joint/ftDynamoJoint.h>
 
 struct ftBody;
 struct ftCollider;
@@ -70,6 +70,9 @@ public:
     void forEachKinematicBody(T func);
     template <typename T>
     void forEachDynamicBody(T func);
+    
+    template <typename T>
+    void forEachContact(T func);
 
     void step(real dt);
 
@@ -131,6 +134,14 @@ template <typename T>
 inline void ftPhysicsSystem::forEachDynamicBody(T func) {
     m_dynamicBodies.forEach(func);
     m_sleepingBodies.forEach(func);
+}
+
+template <typename T>
+inline void ftPhysicsSystem::forEachContact(T func) {
+    const auto iterate = [func](ftColHandle handleA, ftColHandle handleB, ftContact* contact) {
+        func(contact);
+    };
+    m_collisionSystem.forEachContact(std::cref(iterate));
 }
 
 

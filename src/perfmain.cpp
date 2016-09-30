@@ -5,14 +5,14 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <ftBenchmark.h>
+#include <ftProfiler.h>
 
 #include <falton/physics/collision/broadphase/ftDynamicBVH.h>
 #include <falton/physics/collision/broadphase/ftToroidalGrid.h>
 #include <falton/physics/collision/broadphase/ftQuadTree.h>
 #include <falton/physics/collision/broadphase/ftHierarchicalGrid.h>
 #include <falton/physics/dynamic/ftPhysicsSystem.h>
-#include <falton/physics/ftMassComputer.h>
+#include <falton/dynamic/ftMassComputer.h>
 
 ftPhysicsSystem physicsSystem;
 ftBroadphaseSystem* broadphaseSystem;
@@ -96,11 +96,11 @@ void WarmUp() {
     physicsSystem.init();
     TestCase1_init();
     for (int i = 0; i < 1000; ++i) {
-        ftBenchmark::BeginFrame();
+        ftProfiler::BeginFrame();
         physicsSystem.step(1.0/60);
-        ftBenchmark::EndFrame();
+        ftProfiler::EndFrame();
     }
-    ftBenchmark::Clear();
+    ftProfiler::Clear();
     physicsSystem.shutdown();
 
     toroidalConfig.cellSize = 1.5;
@@ -114,11 +114,11 @@ void WarmUp() {
     physicsSystem.init();
     TestCase1_init();
     for (int i = 0; i < 1000; ++i) {
-        ftBenchmark::BeginFrame();
+        ftProfiler::BeginFrame();
         physicsSystem.step(1.0/60);
-        ftBenchmark::EndFrame();
+        ftProfiler::EndFrame();
     }
-    ftBenchmark::Clear();
+    ftProfiler::Clear();
     physicsSystem.shutdown();
 
     hashGridConfig.baseSize = 1.5;
@@ -133,11 +133,11 @@ void WarmUp() {
     physicsSystem.init();
     TestCase1_init();
     for (int i = 0; i < 1000; ++i) {
-        ftBenchmark::BeginFrame();
+        ftProfiler::BeginFrame();
         physicsSystem.step(1.0/60);
-        ftBenchmark::EndFrame();
+        ftProfiler::EndFrame();
     }
-    ftBenchmark::Clear();
+    ftProfiler::Clear();
     physicsSystem.shutdown();
 
     quadConfig.maxLevel = 15;
@@ -151,11 +151,11 @@ void WarmUp() {
     physicsSystem.init();
     TestCase1_init();
     for (int i = 0; i < 1000; ++i) {
-        ftBenchmark::BeginFrame();
+        ftProfiler::BeginFrame();
         physicsSystem.step(1.0/60);
-        ftBenchmark::EndFrame();
+        ftProfiler::EndFrame();
     }
-    ftBenchmark::Clear();
+    ftProfiler::Clear();
     physicsSystem.shutdown();
 }
 
@@ -384,14 +384,14 @@ void CollectTimeAndMemoryData(TestInit testInit,float time1[], float time2[], ui
     testInit();
     cout<<"Iteration : "<<1<<std::endl;
     for (int i = 0; i < N_TEST_STEP; ++i) {
-        ftBenchmark::BeginFrame();
+        ftProfiler::BeginFrame();
         physicsSystem.step(1.0/60);
-        ftBenchmark::EndFrame();
-        time1[i] = ftBenchmark::benchTables[0].data[i];
-        time2[i] = ftBenchmark::benchTables[1].data[i];
+        ftProfiler::EndFrame();
+        time1[i] = ftProfiler::benchTables[0].data[i];
+        time2[i] = ftProfiler::benchTables[1].data[i];
         memory[i] = broadphaseSystem->getMemoryUsage();
     }
-    ftBenchmark::Clear();
+    ftProfiler::Clear();
     physicsSystem.shutdown();
 
 
@@ -400,13 +400,13 @@ void CollectTimeAndMemoryData(TestInit testInit,float time1[], float time2[], ui
         physicsSystem.init();
         testInit();
         for (int i = 0; i < N_TEST_STEP; ++i) {
-            ftBenchmark::BeginFrame();
+            ftProfiler::BeginFrame();
             physicsSystem.step(1.0/60);
-            ftBenchmark::EndFrame();
-            time1[i] += ftBenchmark::benchTables[0].data[i];
-            time2[i] += ftBenchmark::benchTables[1].data[i];
+            ftProfiler::EndFrame();
+            time1[i] += ftProfiler::benchTables[0].data[i];
+            time2[i] += ftProfiler::benchTables[1].data[i];
         }
-        ftBenchmark::Clear();
+        ftProfiler::Clear();
         physicsSystem.shutdown();
     }
 

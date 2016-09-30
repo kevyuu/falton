@@ -2,7 +2,7 @@
 // Created by Kevin Yu on 2016-05-20.
 //
 
-#include <falton/physics/shape/ftShapeBuffer.h>
+#include <falton/shape/ftShapeBuffer.h>
 
 void ftShapeBuffer::init() {
 

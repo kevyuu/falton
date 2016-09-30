@@ -2,11 +2,8 @@
 // Created by Kevin Yu on 2016-06-03.
 //
 
-#include <falton/physics/dynamic/ftBody.h>
-#include <falton/physics/joint/ftDistanceJoint.h>
-
-#include <iostream>
-using namespace std;
+#include <falton/dynamic/ftBody.h>
+#include <falton/joint/ftDistanceJoint.h>
 
 ftDistanceJoint* ftDistanceJoint::create(ftBody *bodyA, ftBody *bodyB,
                                          ftVector2 localAnchorA,

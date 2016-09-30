@@ -5,8 +5,8 @@
 #ifndef FALTON_RIGIDBODY_H
 #define FALTON_RIGIDBODY_H
 
-#include <falton/physics/joint/ftJoint.h>
-#include "falton/math/math.h"
+#include <falton/joint/ftJoint.h>
+#include <falton/math.h>
 
 struct ftCollider;
 struct ftBody;
@@ -32,7 +32,6 @@ struct ftContactEdge {
 };
 
 struct ftBody {
-public:
     ftTransform transform;
     ftVector2 centerOfMass;
 
@@ -67,10 +66,6 @@ public:
 
     void setMass(real mass);
     void setMoment(real moment);
-
-    friend class ftPhysicsSystem;
-    friend class ftIslandSystem;
-    friend class ftConstraintSolver;
 
 };
 

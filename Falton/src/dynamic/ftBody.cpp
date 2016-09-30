@@ -2,8 +2,8 @@
 // Created by Kevin Yu on 12/6/15.
 //
 
-#include <falton/physics/dynamic/ftCollider.h>
-#include <falton/physics/dynamic/ftBody.h>
+#include <falton/dynamic/ftCollider.h>
+#include <falton/dynamic/ftBody.h>
 
 void ftBody::applyForce(ftVector2 force, ftVector2 localPos) {
     forceAccum += force;

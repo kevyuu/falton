@@ -2,14 +2,13 @@
 // Created by Kevin Yu on 4/14/16.
 //
 
-#include <falton/physics/joint/ftHingeJoint.h>
-#include <falton/physics/dynamic/ftPhysicsSystem.h>
-#include <falton/physics/dynamic/ftIsland.h>
-#include <falton/physics/dynamic/ftIslandSystem.h>
+#include <falton/joint/ftHingeJoint.h>
+#include <falton/dynamic/ftPhysicsSystem.h>
+#include <falton/dynamic/ftIsland.h>
 
-#include <ftBenchmark.h>
-#include <falton/physics/joint/ftDistanceJoint.h>
-#include <falton/physics/joint/ftDynamoJoint.h>
+#include <ftProfiler.h>
+#include <falton/joint/ftDistanceJoint.h>
+#include <falton/joint/ftDynamoJoint.h>
 
 void ftPhysicsSystem::setConfiguration(const ftConfig& config) {
     m_contactSolver.setConfiguration(config.solverConfig);
@@ -315,17 +314,8 @@ void ftPhysicsSystem::step(real dt) {
         }
     };
 
-    static int moveIdx = -1;
-    // moveIdx = ftBenchmark::Begin("ftCollisionSystem::moveShape",moveIdx);
     m_dynamicBodies.forEach(std::cref(updateColSystem));
     m_kinematicBodies.forEach(std::cref(updateColSystem));
-    // ftBenchmark::End();
-
-    ftCollisionCallback callback;
-    callback.beginContact = &beginContactListener;
-    callback.updateContact = &updateContactListener;
-    callback.endContact = &endContactListener;
-    callback.data = &m_islandSystem;
 
     const auto colFilter = [] (void* userdataA, void* userdataB) -> bool {
 
@@ -350,24 +340,13 @@ void ftPhysicsSystem::step(real dt) {
 
     };
 
-//    const auto processContact = [this]
-//            (int32 handleA, int32 handleB, ftContact* contact) {
-//        if (contact->collisionState == BEGIN_COLLISION) {
-//            this->m_islandSystem.addContact(contact);
-//        } else if (contact->collisionState == END_COLLISION) {
-//            this->m_islandSystem.removeContact(contact);
-//        }
-//    };
+    ftCollisionCallback callback;
+    callback.beginContact = &beginContactListener;
+    callback.updateContact = &updateContactListener;
+    callback.endContact = &endContactListener;
+    callback.data = &m_islandSystem;
 
-    // static int index = -1;
-    // index = ftBenchmark::Begin("ftCollisionSystem::updateContacts",index);
     m_collisionSystem.updateContacts(colFilter, callback);
-
-//    m_collisionSystem.updateContacts(colFilter);
-//    m_collisionSystem.forEachContact(std::cref(processContact));
-//    m_collisionSystem.destroyEndingContacts();
-
-    // ftBenchmark::End();
 
     const auto processIsland =
             [this,dt]

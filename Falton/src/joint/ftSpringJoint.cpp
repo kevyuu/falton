@@ -2,7 +2,8 @@
 // Created by Kevin Yu on 2016-06-26.
 //
 
-#include "falton/physics/joint/ftSpringJoint.h"
+#include <falton/dynamic/ftBody.h>
+#include <falton/joint/ftSpringJoint.h>
 
 ftSpringJoint* ftSpringJoint::create(ftBody *bodyA, ftBody *bodyB, ftVector2 lAnchorA, ftVector2 lAnchorB) {
     ftSpringJoint* joint = new ftSpringJoint;

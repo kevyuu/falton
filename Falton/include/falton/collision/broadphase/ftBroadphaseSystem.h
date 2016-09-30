@@ -5,7 +5,7 @@
 #ifndef FALTON_BROADPHASE_H
 #define FALTON_BROADPHASE_H
 
-#include "falton/physics/shape/ftShape.h"
+#include <falton/shape/ftShape.h>
 
 typedef uint32 ftBroadphaseHandle;
 
@@ -30,6 +30,7 @@ public:
 
     virtual void findPairs(ftChunkArray<ftBroadPhasePair> *pairs) = 0;
     virtual void regionQuery(const ftAABB& region, ftChunkArray<const void*>* results) = 0;
+    //virtual void pointQuery(const ftVector2& point, ftChunkArray<const void*>* results) = 0;
 
     virtual int getMemoryUsage() = 0;
 

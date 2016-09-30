@@ -5,7 +5,7 @@
 #ifndef FALTON_FTSTACK_H
 #define FALTON_FTSTACK_H
 
-#include <falton/setting/general.h>
+#include <falton/setting.h>
 
 template <typename Data>
 class ftStack {

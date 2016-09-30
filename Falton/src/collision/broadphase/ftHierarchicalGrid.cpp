@@ -4,8 +4,8 @@
 
 #include <cstring>
 
-#include <falton/physics/collision/ftCollisionSystem.h>
-#include <falton/physics/collision/broadphase/ftHierarchicalGrid.h>
+#include <falton/collision/ftCollisionSystem.h>
+#include <falton/collision/broadphase/ftHierarchicalGrid.h>
 
 void ftHierarchicalGrid::setConfiguration(ftConfig config) {
 

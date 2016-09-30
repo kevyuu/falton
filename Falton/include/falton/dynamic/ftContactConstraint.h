@@ -5,8 +5,8 @@
 #ifndef FALTON_FTCONTACTCONSTRAINT_H
 #define FALTON_FTCONTACTCONSTRAINT_H
 
-#include <falton/physics/joint/ftJoint.h>
-#include "falton/math/math.h"
+#include <falton/joint/ftJoint.h>
+#include <falton/math.h>
 
 struct ftBody;
 struct ftContact;

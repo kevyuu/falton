@@ -7,8 +7,8 @@
 
 #include <falton/container/ftChunkArray.h>
 #include <functional>
-#include <falton/physics/joint/ftJoint.h>
-#include "ftBody.h"
+#include <falton/joint/ftJoint.h>
+#include <falton/dynamic/ftBody.h>
 
 struct ftBody;
 struct ftIsland;

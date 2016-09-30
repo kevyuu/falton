@@ -5,8 +5,8 @@
 #ifndef FALTON_POLYGON_H
 #define FALTON_POLYGON_H
 
-#include "falton/math/math.h"
-#include "falton/physics/shape/ftShape.h"
+#include <falton/math.h>
+#include <falton/shape/ftShape.h>
 
 class ftShape;
 

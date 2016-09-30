@@ -5,8 +5,7 @@
 #ifndef FALTON_FTDYNAMOJOINT_H
 #define FALTON_FTDYNAMOJOINT_H
 
-
-#include "ftJoint.h"
+#include <falton/joint/ftJoint.h>
 
 class ftDynamoJoint : public ftJoint{
 

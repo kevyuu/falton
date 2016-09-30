@@ -2,10 +2,9 @@
 // Created by Kevin Yu on 2/21/16.
 //
 
-
-#include "falton/physics/collision/ftCollisionSystem.h"
-#include <falton/physics/collision/ftManifoldComputer.h>
-#include <ftBenchmark.h>
+#include <falton/collision/ftCollisionSystem.h>
+#include <falton/collision/ftManifoldComputer.h>
+#include <ftProfiler.h>
 #include <functional>
 
 void ftCollisionSystem::init(ftBroadphaseSystem *broadphase) {
@@ -198,55 +197,6 @@ void ftCollisionSystem::updateOneAtATime(ftCollisionFilterFunc filter, ftCollisi
     m_movedShapes.removeAll();
 }
 
-void ftCollisionSystem::updateContacts(ftCollisionFilterFunc filter) {
-
-    ++m_curTimeStamp;
-
-    ftChunkArray<ftBroadPhasePair> pairs;
-    pairs.init(128);
-
-    m_broadphase->findPairs(&pairs);
-
-    for (uint32 i=0;i<pairs.getSize();i++) {
-        ftColHandle handleA = *(ftColHandle*)(&pairs[i].userdataA);
-        ftColHandle handleB = *(ftColHandle*)(&pairs[i].userdataB);
-        if (handleA > handleB) {
-            ftColHandle tmp = handleA;
-            handleA = handleB;
-            handleB = tmp;
-        }
-        void* userdataA = m_shapes[handleA].userdata;
-        void* userdataB = m_shapes[handleB].userdata;
-        if (!filter(userdataA, userdataB)) continue;
-
-        ftContact *contact = m_contactBuffer.find(handleA, handleB);
-        bool isMoving = this->m_moveMasks.test(handleA) || this->m_moveMasks.test(handleB);
-        if (!isMoving) {
-            if (contact != nullptr) contact->timestamp = m_curTimeStamp;
-            continue;
-        }
-
-        updateContact(contact, handleA, handleB);
-
-    }
-
-    pairs.cleanup();
-
-    uint8 curTimeStamp = this->m_curTimeStamp;
-    const auto processEndContacts = [curTimeStamp]
-            (ftColHandle handleA, ftColHandle handleB, ftContact* contact) {
-        if (contact->timestamp != curTimeStamp) {
-            contact->collisionState = END_COLLISION;
-        }
-    };
-
-    m_contactBuffer.forEach(std::cref(processEndContacts));
-
-    m_minQueueSize = 0;
-    m_moveMasks.clear();
-    m_movedShapes.removeAll();
-}
-
 void ftCollisionSystem::destroyEndingContacts(ftCollisionCallback callback) {
     const auto processEndContacts = [&callback, this]
             (ftColHandle handleA, ftColHandle handleB, ftContact* contact) {
@@ -258,16 +208,6 @@ void ftCollisionSystem::destroyEndingContacts(ftCollisionCallback callback) {
     m_contactBuffer.forEach(std::cref(processEndContacts));
 
     const auto isEnding = [this] (ftColHandle handleA, ftColHandle handleB, ftContact* contact) {
-        return contact->timestamp != this->m_curTimeStamp;
-    };
-
-    m_contactBuffer.removeIf(std::cref(isEnding));
-}
-
-void ftCollisionSystem::destroyEndingContacts() {
-
-    const auto isEnding = [this]
-            (ftColHandle handleA, ftColHandle handleB, ftContact* contact) {
         return contact->timestamp != this->m_curTimeStamp;
     };
 
@@ -309,40 +249,4 @@ void ftCollisionSystem::updateContact(ftContact* contact, ftColHandle handleA, f
             contact->timestamp = m_curTimeStamp;
         }
     }
-}
-
-void ftCollisionSystem::updateContact(ftContact* contact, ftColHandle handleA, ftColHandle handleB) {
-    const ftCollisionShape* colShapeA = &m_shapes[handleA];
-    const ftCollisionShape* colShapeB = &m_shapes[handleB];
-    void* userdataA = m_shapes[handleA].userdata;
-    void* userdataB = m_shapes[handleB].userdata;
-
-    if (contact == nullptr) {
-        ftManifold manifold;
-        ftManifoldComputer::Collide(*colShapeA, *colShapeB, &manifold);
-        if (manifold.numContact > 0) {
-            contact = m_contactBuffer.create(handleA, handleB);
-            contact->collisionState = BEGIN_COLLISION;
-            contact->manifold = manifold;
-            contact->userdataA = userdataA;
-            contact->userdataB = userdataB;
-            contact->timestamp = m_curTimeStamp;
-        }
-
-    } else if (contact->timestamp != m_curTimeStamp) {
-        contact->collisionState = IN_COLLISION;
-        ftManifold oldManifold = contact->manifold;
-
-        ftManifoldComputer::Collide(*colShapeA, *colShapeB, &(contact->manifold));
-        if (contact->manifold.numContact > 0) {
-            if (oldManifold.numContact != contact->manifold.numContact) {
-                contact->manifold.contactPoints[0].tIAcc = 0;
-                contact->manifold.contactPoints[0].nIAcc = 0;
-                contact->manifold.contactPoints[1].tIAcc = 0;
-                contact->manifold.contactPoints[1].nIAcc = 0;
-            }
-            contact->timestamp = m_curTimeStamp;
-        }
-    }
-
 }

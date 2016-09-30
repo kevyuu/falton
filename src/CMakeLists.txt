@@ -1,22 +1,11 @@
-file (GLOB_RECURSE SRC imgui/*.cpp)
-file (GLOB_RECURSE SRC window/*.cpp)
-file (GLOB_RECURSE IMGUI_SOURCES imgui/*.cpp imgui/*.h)
-file (GLOB_RECURSE GUI_SOURCES window/*.cpp window/*.h)
+file(GLOB TESTBED_SOURCES gl_main.cpp)
 
-add_executable(main main.cpp ${IMGUI_SOURCES} ${GUI_SOURCES} Demo.h DrawPhysics.h window/DrawerConfigWindow.h)
+add_executable(testbed ${TESTBED_SOURCES} ${IMGUI_SOURCES})
+target_link_libraries(testbed ${OPENGL_LIBRARIES} user32 gdi32 kernel32 shell32 falton ${GLFW_LIBRARY})
+target_include_directories(testbed PUBLIC ${GLFW_INCLUDE_DIR} ${OPENGL_INCLUDE_DIRS} ${FALTON_INCLUDE_DIR} ${IMGUI_INCLUDE_DIR})
 
-target_link_libraries(main allegro_acodec
-        allegro_audio
-        allegro_color
-        allegro_dialog
-        allegro_image
-        allegro_main
-        allegro_memfile
-        allegro_physfs
-        allegro_primitives
-        allegro_ttf
-        allegro_font
-        allegro)
+link_libraries(falton)
+include_directories(${FALTON_INCLUDE_DIRS})
 
 add_executable(perfmain perfmain.cpp)
 

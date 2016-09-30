@@ -5,7 +5,7 @@
 #ifndef FALTON_FTTOROIDALGRID_H
 #define FALTON_FTTOROIDALGRID_H
 
-#include <falton/physics/collision/broadphase/ftBroadphaseSystem.h>
+#include <falton/collision/broadphase/ftBroadphaseSystem.h>
 #include <falton/container/ftBitSet.h>
 
 class ftToroidalGrid : public ftBroadphaseSystem {

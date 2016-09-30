@@ -6,7 +6,7 @@
 #define FALTON_FTBITSET_H
 
 
-#include <falton/math/math.h>
+#include <falton/math.h>
 
 class ftBitSet {
 private:

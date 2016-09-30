@@ -5,9 +5,9 @@
 #ifndef FALTON_FTDYNAMICBVH_H
 #define FALTON_FTDYNAMICBVH_H
 
-#include <falton/setting/general.h>
-#include <falton/physics/shape/ftAABB.h>
-#include <falton/physics/collision/broadphase/ftBroadphaseSystem.h>
+#include <falton/setting.h>
+#include <falton/shape/ftAABB.h>
+#include <falton/collision/broadphase/ftBroadphaseSystem.h>
 
 class ftDynamicBVH : public ftBroadphaseSystem {
 

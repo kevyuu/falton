@@ -2,8 +2,8 @@
 // Created by Kevin Yu on 2016-05-23.
 //
 
-#include <falton/physics/collision/ftCollisionSystem.h>
-#include <falton/physics/collision/broadphase/ftQuadTree.h>
+#include <falton/collision/ftCollisionSystem.h>
+#include <falton/collision/broadphase/ftQuadTree.h>
 #include <falton/container/ftStack.h>
 
 void ftQuadTree::setConfiguration(const ftConfig &config) {

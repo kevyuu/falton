@@ -1,0 +1,9 @@
+W:/falton/vsbuild/CMakeFiles/RUN_TESTS.dir
+W:/falton/vsbuild/CMakeFiles/ALL_BUILD.dir
+W:/falton/vsbuild/CMakeFiles/ZERO_CHECK.dir
+W:/falton/vsbuild/Falton/CMakeFiles/falton.dir
+W:/falton/vsbuild/Falton/CMakeFiles/RUN_TESTS.dir
+W:/falton/vsbuild/src/CMakeFiles/testbed.dir
+W:/falton/vsbuild/src/CMakeFiles/perfmain.dir
+W:/falton/vsbuild/src/CMakeFiles/chartgen.dir
+W:/falton/vsbuild/src/CMakeFiles/RUN_TESTS.dir

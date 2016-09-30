@@ -2,8 +2,8 @@
 // Created by Kevin Yu on 2016-06-26.
 //
 
-#include <falton/physics/dynamic/ftBody.h>
-#include "falton/physics/joint/ftPistonJoint.h"
+#include <falton/dynamic/ftBody.h>
+#include <falton/joint/ftPistonJoint.h>
 
 ftPistonJoint* ftPistonJoint::create(ftBody *bodyA, ftBody *bodyB, ftVector2 axis, ftVector2 lAnchorA,
                                      ftVector2 lAnchorB) {

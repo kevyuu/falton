@@ -3851,6 +3851,11 @@ bool ImGui::Begin(const char* name, bool* p_open, const ImVec2& size_on_first_us
         {
             window->SetWindowPosCenterWanted = true;                            // May be processed on the next frame if this is our first frame and we are measuring size
             window->SetWindowPosAllowFlags &= ~(ImGuiSetCond_Once | ImGuiSetCond_FirstUseEver | ImGuiSetCond_Appearing);
+        } 
+        else if ((g.SetNextWindowPosVal.x == -FLT_MAX)||(g.SetNextWindowPosVal.y == -FLT_MAX))
+        {
+            window->SetWindowPosCenterWanted = true;
+            window->SetWindowPosAllowFlags &= ~(ImGuiSetCond_Once | ImGuiSetCond_FirstUseEver | ImGuiSetCond_Appearing);
         }
         else
         {
@@ -4037,8 +4042,10 @@ bool ImGui::Begin(const char* name, bool* p_open, const ImVec2& size_on_first_us
         window_pos_center |= ((flags & ImGuiWindowFlags_Modal) && !window_pos_set_by_api && window_appearing_after_being_hidden);
         if (window_pos_center)
         {
-            // Center (any sort of window)
-            SetWindowPos(ImMax(style.DisplaySafeAreaPadding, fullscreen_rect.GetCenter() - window->SizeFull * 0.5f));
+            ImVec2 centerv = fullscreen_rect.GetCenter() - window->SizeFull * 0.5f;
+            if (g.SetNextWindowPosVal.x != -FLT_MAX) centerv.x = g.SetNextWindowPosVal.x;
+            if (g.SetNextWindowPosVal.y != -FLT_MAX) centerv.y = g.SetNextWindowPosVal.y;
+            SetWindowPos(ImMax(style.DisplaySafeAreaPadding, centerv));
         }
         else if (flags & ImGuiWindowFlags_ChildMenu)
         {
@@ -4949,6 +4956,13 @@ void ImGui::SetNextWindowPosCenter(ImGuiSetCond cond)
 {
     ImGuiContext& g = *GImGui;
     g.SetNextWindowPosVal = ImVec2(-FLT_MAX, -FLT_MAX);
+    g.SetNextWindowPosCond = cond ? cond : ImGuiSetCond_Always;
+}
+
+void ImGui::SetNextWindowPosCenterH(float yPos, ImGuiSetCond cond)
+{
+    ImGuiContext& g = *GImGui;
+    g.SetNextWindowPosVal = ImVec2(-FLT_MAX, yPos);
     g.SetNextWindowPosCond = cond ? cond : ImGuiSetCond_Always;
 }
 

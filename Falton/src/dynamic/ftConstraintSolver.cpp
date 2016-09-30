@@ -2,12 +2,12 @@
 // Created by Kevin Yu on 3/22/16.
 //
 
-#include <falton/physics/dynamic/ftIsland.h>
-#include <falton/physics/collision/ftContact.h>
+#include <falton/dynamic/ftIsland.h>
+#include <falton/collision/ftContact.h>
 #include <falton/dynamic/ftConstraintSolver.h>
-#include <falton/physics/dynamic/ftContactConstraint.h>
-#include <falton/physics/dynamic/ftBody.h>
-#include <falton/physics/dynamic/ftCollider.h>
+#include <falton/dynamic/ftContactConstraint.h>
+#include <falton/dynamic/ftBody.h>
+#include <falton/dynamic/ftCollider.h>
 
 #include <iostream>
 

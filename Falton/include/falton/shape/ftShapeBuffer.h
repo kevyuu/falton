@@ -5,8 +5,8 @@
 #ifndef FALTON_FTSHAPEBUFFER_H
 #define FALTON_FTSHAPEBUFFER_H
 
-#include <falton/physics/shape/ftPolygon.h>
-#include <falton/physics/shape/ftCircle.h>
+#include <falton/shape/ftPolygon.h>
+#include <falton/shape/ftCircle.h>
 
 class ftShape;
 

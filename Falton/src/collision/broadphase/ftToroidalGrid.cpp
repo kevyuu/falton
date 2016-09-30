@@ -2,11 +2,8 @@
 // Created by Kevin Yu on 2016-05-21.
 //
 
-#include <falton/physics/collision/ftCollisionSystem.h>
-#include "falton/physics/collision/broadphase/ftToroidalGrid.h"
-
-#include <iostream>
-using namespace std;
+#include <falton/collision/ftCollisionSystem.h>
+#include <falton/collision/broadphase/ftToroidalGrid.h>
 
 const int32 ftToroidalGrid::NULL_NODE = -1;
 
@@ -214,7 +211,6 @@ void ftToroidalGrid::removeFromBucket(ftBroadphaseHandle handle) {
         }
     }
 }
-
 
 int ftToroidalGrid::getMemoryUsage() {
     return (m_elements.getSize() * sizeof(ftElem)) + (m_nBucket * sizeof(uint32));

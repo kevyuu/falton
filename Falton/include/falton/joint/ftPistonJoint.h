@@ -5,8 +5,7 @@
 #ifndef FALTON_FTPISTONJOINT_H
 #define FALTON_FTPISTONJOINT_H
 
-
-#include <falton/physics/joint/ftJoint.h>
+#include <falton/joint/ftJoint.h>
 
 class ftPistonJoint : public ftJoint {
 public:

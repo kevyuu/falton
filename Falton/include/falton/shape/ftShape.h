@@ -5,9 +5,9 @@
 #ifndef FALTON_SHAPE_H
 #define FALTON_SHAPE_H
 
-#include "falton/container/ftChunkArray.h"
-#include "falton/math/math.h"
-#include "ftAABB.h"
+#include <falton/container/ftChunkArray.h>
+#include <falton/math.h>
+#include <falton/shape/ftAABB.h>
 
 class ftPolygon;
 class ftCircle;

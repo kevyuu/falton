@@ -2,8 +2,8 @@
 // Created by Kevin Yu on 3/12/16.
 //
 
-#include "falton/container/ftIntQueue.h"
-#include <string.h>
+#include <falton/container/ftIntQueue.h>
+#include <cstring>
 
 void ftIntQueue::init(){
     this->front = 0;

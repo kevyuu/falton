@@ -1,0 +1,409 @@
+﻿  Building Custom Rule W:/falton/Falton/CMakeLists.txt
+  CMake does not need to re-run because W:\falton\vsbuild\Falton\CMakeFiles\generate.stamp is up-to-date.
+cl : Command line warning D9002: ignoring unknown option '/Ehsc'
+  ftDynamicBVH.cpp
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\xlocale(341): warning C4530: C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc
+W:\falton\Falton\include\falton/math.h(169): warning C4458: declaration of 'x' hides class member
+  W:\falton\Falton\include\falton/math.h(32): note: see declaration of 'ftVector2::x'
+W:\falton\Falton\include\falton/math.h(169): warning C4458: declaration of 'y' hides class member
+  W:\falton\Falton\include\falton/math.h(33): note: see declaration of 'ftVector2::y'
+W:\falton\Falton\include\falton/math.h(188): warning C4458: declaration of 'angle' hides class member
+  W:\falton\Falton\include\falton/math.h(178): note: see declaration of 'ftRotation::angle'
+W:\falton\Falton\include\falton/math.h(202): warning C4458: declaration of 'angle' hides class member
+  W:\falton\Falton\include\falton/math.h(178): note: see declaration of 'ftRotation::angle'
+W:\falton\Falton\include\falton/collision/broadphase/ftDynamicBVH.h(17): warning C4305: 'initializing': truncation from 'double' to 'float'
+W:\falton\Falton\include\falton/collision/broadphase/ftDynamicBVH.h(93): warning C4244: 'argument': conversion from 'uint32' to 'float', possible loss of data
+W:\falton\Falton\include\falton/collision/broadphase/ftDynamicBVH.h(93): warning C4244: '=': conversion from 'float' to 'uint32', possible loss of data
+W:\falton\Falton\src\collision\broadphase\ftDynamicBVH.cpp(152): warning C4245: '=': conversion from 'int' to 'uint32', signed/unsigned mismatch
+W:\falton\Falton\include\falton/container/ftChunkArray.h(54): warning C4458: declaration of 'chunkSize' hides class member
+  W:\falton\Falton\include\falton/container/ftChunkArray.h(34): note: see declaration of 'ftChunkArray<ftDynamicBVH::ftNode>::chunkSize'
+  W:\falton\Falton\include\falton/container/ftChunkArray.h(54): note: while compiling class template member function 'void ftChunkArray<ftDynamicBVH::ftNode>::init(int)'
+  W:\falton\Falton\src\collision\broadphase\ftDynamicBVH.cpp(17): note: see reference to function template instantiation 'void ftChunkArray<ftDynamicBVH::ftNode>::init(int)' being compiled
+  W:\falton\Falton\include\falton/collision/broadphase/ftDynamicBVH.h(60): note: see reference to class template instantiation 'ftChunkArray<ftDynamicBVH::ftNode>' being compiled
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\cmath(86): warning C4577: 'noexcept' used with no exception handling mode specified; termination on exception is not guaranteed. Specify /EHsc
+  ftHierarchicalGrid.cpp
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\xlocale(341): warning C4530: C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc
+W:\falton\Falton\include\falton/math.h(169): warning C4458: declaration of 'x' hides class member
+  W:\falton\Falton\include\falton/math.h(32): note: see declaration of 'ftVector2::x'
+W:\falton\Falton\include\falton/math.h(169): warning C4458: declaration of 'y' hides class member
+  W:\falton\Falton\include\falton/math.h(33): note: see declaration of 'ftVector2::y'
+W:\falton\Falton\include\falton/math.h(188): warning C4458: declaration of 'angle' hides class member
+  W:\falton\Falton\include\falton/math.h(178): note: see declaration of 'ftRotation::angle'
+W:\falton\Falton\include\falton/math.h(202): warning C4458: declaration of 'angle' hides class member
+  W:\falton\Falton\include\falton/math.h(178): note: see declaration of 'ftRotation::angle'
+W:\falton\Falton\src\collision\broadphase\ftHierarchicalGrid.cpp(78): warning C4244: 'initializing': conversion from 'float' to 'int32', possible loss of data
+W:\falton\Falton\src\collision\broadphase\ftHierarchicalGrid.cpp(79): warning C4244: 'initializing': conversion from 'float' to 'int32', possible loss of data
+W:\falton\Falton\src\collision\broadphase\ftHierarchicalGrid.cpp(97): warning C4244: 'initializing': conversion from 'float' to 'int32', possible loss of data
+W:\falton\Falton\src\collision\broadphase\ftHierarchicalGrid.cpp(98): warning C4244: 'initializing': conversion from 'float' to 'int32', possible loss of data
+W:\falton\Falton\src\collision\broadphase\ftHierarchicalGrid.cpp(144): warning C4244: 'initializing': conversion from 'float' to 'int32', possible loss of data
+W:\falton\Falton\src\collision\broadphase\ftHierarchicalGrid.cpp(145): warning C4244: 'initializing': conversion from 'float' to 'int32', possible loss of data
+W:\falton\Falton\src\collision\broadphase\ftHierarchicalGrid.cpp(146): warning C4244: 'initializing': conversion from 'float' to 'int32', possible loss of data
+W:\falton\Falton\src\collision\broadphase\ftHierarchicalGrid.cpp(147): warning C4244: 'initializing': conversion from 'float' to 'int32', possible loss of data
+W:\falton\Falton\src\collision\broadphase\ftHierarchicalGrid.cpp(192): warning C4244: 'initializing': conversion from 'float' to 'int32', possible loss of data
+W:\falton\Falton\src\collision\broadphase\ftHierarchicalGrid.cpp(193): warning C4244: 'initializing': conversion from 'float' to 'int32', possible loss of data
+W:\falton\Falton\src\collision\broadphase\ftHierarchicalGrid.cpp(222): warning C4244: 'initializing': conversion from 'float' to 'int32', possible loss of data
+W:\falton\Falton\src\collision\broadphase\ftHierarchicalGrid.cpp(223): warning C4244: 'initializing': conversion from 'float' to 'int32', possible loss of data
+W:\falton\Falton\include\falton/container/ftChunkArray.h(54): warning C4458: declaration of 'chunkSize' hides class member
+  W:\falton\Falton\include\falton/container/ftChunkArray.h(34): note: see declaration of 'ftChunkArray<ftHierarchicalGrid::ftElem>::chunkSize'
+  W:\falton\Falton\include\falton/container/ftChunkArray.h(54): note: while compiling class template member function 'void ftChunkArray<ftHierarchicalGrid::ftElem>::init(int)'
+  W:\falton\Falton\src\collision\broadphase\ftHierarchicalGrid.cpp(21): note: see reference to function template instantiation 'void ftChunkArray<ftHierarchicalGrid::ftElem>::init(int)' being compiled
+  W:\falton\Falton\include\falton/collision/broadphase/ftHierarchicalGrid.h(66): note: see reference to class template instantiation 'ftChunkArray<ftHierarchicalGrid::ftElem>' being compiled
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\cmath(86): warning C4577: 'noexcept' used with no exception handling mode specified; termination on exception is not guaranteed. Specify /EHsc
+  ftNSquaredBroadphase.cpp
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\xlocale(341): warning C4530: C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc
+W:\falton\Falton\include\falton/math.h(169): warning C4458: declaration of 'x' hides class member
+  W:\falton\Falton\include\falton/math.h(32): note: see declaration of 'ftVector2::x'
+W:\falton\Falton\include\falton/math.h(169): warning C4458: declaration of 'y' hides class member
+  W:\falton\Falton\include\falton/math.h(33): note: see declaration of 'ftVector2::y'
+W:\falton\Falton\include\falton/math.h(188): warning C4458: declaration of 'angle' hides class member
+  W:\falton\Falton\include\falton/math.h(178): note: see declaration of 'ftRotation::angle'
+W:\falton\Falton\include\falton/math.h(202): warning C4458: declaration of 'angle' hides class member
+  W:\falton\Falton\include\falton/math.h(178): note: see declaration of 'ftRotation::angle'
+W:\falton\Falton\include\falton/collision/broadphase/ftNSquaredBroadphase.h(28): warning C4373: 'ftNSquaredBroadphase::addShape': virtual function overrides 'ftBroadphaseSystem::addShape', previous versions of the compiler did not override when parameters only differed by const/volatile qualifiers
+  W:\falton\Falton\include\falton/collision/broadphase/ftBroadphaseSystem.h(27): note: see declaration of 'ftBroadphaseSystem::addShape'
+W:\falton\Falton\include\falton/container/ftChunkArray.h(54): warning C4458: declaration of 'chunkSize' hides class member
+  W:\falton\Falton\include\falton/container/ftChunkArray.h(34): note: see declaration of 'ftChunkArray<ftNSquaredBroadphase::ftElem>::chunkSize'
+  W:\falton\Falton\include\falton/container/ftChunkArray.h(54): note: while compiling class template member function 'void ftChunkArray<ftNSquaredBroadphase::ftElem>::init(int)'
+  W:\falton\Falton\src\collision\broadphase\ftNSquaredBroadphase.cpp(9): note: see reference to function template instantiation 'void ftChunkArray<ftNSquaredBroadphase::ftElem>::init(int)' being compiled
+  W:\falton\Falton\include\falton/collision/broadphase/ftNSquaredBroadphase.h(43): note: see reference to class template instantiation 'ftChunkArray<ftNSquaredBroadphase::ftElem>' being compiled
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\cmath(86): warning C4577: 'noexcept' used with no exception handling mode specified; termination on exception is not guaranteed. Specify /EHsc
+  ftQuadTree.cpp
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\xlocale(341): warning C4530: C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc
+W:\falton\Falton\include\falton/math.h(169): warning C4458: declaration of 'x' hides class member
+  W:\falton\Falton\include\falton/math.h(32): note: see declaration of 'ftVector2::x'
+W:\falton\Falton\include\falton/math.h(169): warning C4458: declaration of 'y' hides class member
+  W:\falton\Falton\include\falton/math.h(33): note: see declaration of 'ftVector2::y'
+W:\falton\Falton\include\falton/math.h(188): warning C4458: declaration of 'angle' hides class member
+  W:\falton\Falton\include\falton/math.h(178): note: see declaration of 'ftRotation::angle'
+W:\falton\Falton\include\falton/math.h(202): warning C4458: declaration of 'angle' hides class member
+  W:\falton\Falton\include\falton/math.h(178): note: see declaration of 'ftRotation::angle'
+W:\falton\Falton\include\falton/collision/broadphase/ftQuadTree.h(26): warning C4373: 'ftQuadTree::addShape': virtual function overrides 'ftBroadphaseSystem::addShape', previous versions of the compiler did not override when parameters only differed by const/volatile qualifiers
+  W:\falton\Falton\include\falton/collision/broadphase/ftBroadphaseSystem.h(27): note: see declaration of 'ftBroadphaseSystem::addShape'
+W:\falton\Falton\include\falton/container/ftChunkArray.h(54): warning C4458: declaration of 'chunkSize' hides class member
+  W:\falton\Falton\include\falton/container/ftChunkArray.h(34): note: see declaration of 'ftChunkArray<ftQuadTree::ftObject>::chunkSize'
+  W:\falton\Falton\include\falton/container/ftChunkArray.h(54): note: while compiling class template member function 'void ftChunkArray<ftQuadTree::ftObject>::init(int)'
+  W:\falton\Falton\src\collision\broadphase\ftQuadTree.cpp(19): note: see reference to function template instantiation 'void ftChunkArray<ftQuadTree::ftObject>::init(int)' being compiled
+  W:\falton\Falton\include\falton/collision/broadphase/ftQuadTree.h(84): note: see reference to class template instantiation 'ftChunkArray<ftQuadTree::ftObject>' being compiled
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\cmath(86): warning C4577: 'noexcept' used with no exception handling mode specified; termination on exception is not guaranteed. Specify /EHsc
+  ftToroidalGrid.cpp
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\xlocale(341): warning C4530: C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc
+W:\falton\Falton\include\falton/math.h(169): warning C4458: declaration of 'x' hides class member
+  W:\falton\Falton\include\falton/math.h(32): note: see declaration of 'ftVector2::x'
+W:\falton\Falton\include\falton/math.h(169): warning C4458: declaration of 'y' hides class member
+  W:\falton\Falton\include\falton/math.h(33): note: see declaration of 'ftVector2::y'
+W:\falton\Falton\include\falton/math.h(188): warning C4458: declaration of 'angle' hides class member
+  W:\falton\Falton\include\falton/math.h(178): note: see declaration of 'ftRotation::angle'
+W:\falton\Falton\include\falton/math.h(202): warning C4458: declaration of 'angle' hides class member
+  W:\falton\Falton\include\falton/math.h(178): note: see declaration of 'ftRotation::angle'
+W:\falton\Falton\src\collision\broadphase\ftToroidalGrid.cpp(55): warning C4244: '=': conversion from 'float' to 'int32', possible loss of data
+W:\falton\Falton\src\collision\broadphase\ftToroidalGrid.cpp(56): warning C4244: '=': conversion from 'float' to 'int32', possible loss of data
+W:\falton\Falton\src\collision\broadphase\ftToroidalGrid.cpp(57): warning C4244: '=': conversion from 'float' to 'int32', possible loss of data
+W:\falton\Falton\src\collision\broadphase\ftToroidalGrid.cpp(58): warning C4244: '=': conversion from 'float' to 'int32', possible loss of data
+W:\falton\Falton\src\collision\broadphase\ftToroidalGrid.cpp(76): warning C4244: 'initializing': conversion from 'float' to 'int32', possible loss of data
+W:\falton\Falton\src\collision\broadphase\ftToroidalGrid.cpp(77): warning C4244: 'initializing': conversion from 'float' to 'int32', possible loss of data
+W:\falton\Falton\src\collision\broadphase\ftToroidalGrid.cpp(78): warning C4244: 'initializing': conversion from 'float' to 'int32', possible loss of data
+W:\falton\Falton\src\collision\broadphase\ftToroidalGrid.cpp(79): warning C4244: 'initializing': conversion from 'float' to 'int32', possible loss of data
+W:\falton\Falton\src\collision\broadphase\ftToroidalGrid.cpp(87): warning C4244: 'initializing': conversion from 'float' to 'int32', possible loss of data
+W:\falton\Falton\src\collision\broadphase\ftToroidalGrid.cpp(88): warning C4244: 'initializing': conversion from 'float' to 'int32', possible loss of data
+W:\falton\Falton\src\collision\broadphase\ftToroidalGrid.cpp(89): warning C4244: 'initializing': conversion from 'float' to 'int32', possible loss of data
+W:\falton\Falton\src\collision\broadphase\ftToroidalGrid.cpp(90): warning C4244: 'initializing': conversion from 'float' to 'int32', possible loss of data
+W:\falton\Falton\src\collision\broadphase\ftToroidalGrid.cpp(125): warning C4244: 'initializing': conversion from 'float' to 'int32', possible loss of data
+W:\falton\Falton\src\collision\broadphase\ftToroidalGrid.cpp(126): warning C4244: 'initializing': conversion from 'float' to 'int32', possible loss of data
+W:\falton\Falton\src\collision\broadphase\ftToroidalGrid.cpp(127): warning C4244: 'initializing': conversion from 'float' to 'int32', possible loss of data
+W:\falton\Falton\src\collision\broadphase\ftToroidalGrid.cpp(128): warning C4244: 'initializing': conversion from 'float' to 'int32', possible loss of data
+W:\falton\Falton\src\collision\broadphase\ftToroidalGrid.cpp(185): warning C4018: '>=': signed/unsigned mismatch
+W:\falton\Falton\src\collision\broadphase\ftToroidalGrid.cpp(189): warning C4018: '>=': signed/unsigned mismatch
+W:\falton\Falton\include\falton/container/ftChunkArray.h(54): warning C4458: declaration of 'chunkSize' hides class member
+  W:\falton\Falton\include\falton/container/ftChunkArray.h(34): note: see declaration of 'ftChunkArray<ftColHandle>::chunkSize'
+  W:\falton\Falton\include\falton/container/ftChunkArray.h(54): note: while compiling class template member function 'void ftChunkArray<ftColHandle>::init(int)'
+  W:\falton\Falton\src\collision\broadphase\ftToroidalGrid.cpp(22): note: see reference to function template instantiation 'void ftChunkArray<ftColHandle>::init(int)' being compiled
+  W:\falton\Falton\include\falton/collision/ftCollisionSystem.h(87): note: see reference to class template instantiation 'ftChunkArray<ftColHandle>' being compiled
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\cmath(75): warning C4577: 'noexcept' used with no exception handling mode specified; termination on exception is not guaranteed. Specify /EHsc
+  ftCollisionSystem.cpp
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\xlocale(341): warning C4530: C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc
+W:\falton\Falton\include\falton/math.h(169): warning C4458: declaration of 'x' hides class member
+  W:\falton\Falton\include\falton/math.h(32): note: see declaration of 'ftVector2::x'
+W:\falton\Falton\include\falton/math.h(169): warning C4458: declaration of 'y' hides class member
+  W:\falton\Falton\include\falton/math.h(33): note: see declaration of 'ftVector2::y'
+W:\falton\Falton\include\falton/math.h(188): warning C4458: declaration of 'angle' hides class member
+  W:\falton\Falton\include\falton/math.h(178): note: see declaration of 'ftRotation::angle'
+W:\falton\Falton\include\falton/math.h(202): warning C4458: declaration of 'angle' hides class member
+  W:\falton\Falton\include\falton/math.h(178): note: see declaration of 'ftRotation::angle'
+W:\falton\Falton\src\collision\ftCollisionSystem.cpp(54): warning C4312: 'type cast': conversion from 'ftColHandle' to 'void *' of greater size
+W:\falton\Falton\src\collision\ftCollisionSystem.cpp(240): warning C4100: 'handleB': unreferenced formal parameter
+W:\falton\Falton\src\collision\ftCollisionSystem.cpp(240): warning C4100: 'handleA': unreferenced formal parameter
+W:\falton\Falton\src\collision\ftCollisionSystem.cpp(255): warning C4100: 'handleB': unreferenced formal parameter
+W:\falton\Falton\src\collision\ftCollisionSystem.cpp(255): warning C4100: 'handleA': unreferenced formal parameter
+W:\falton\Falton\src\collision\ftCollisionSystem.cpp(261): warning C4100: 'handleB': unreferenced formal parameter
+W:\falton\Falton\src\collision\ftCollisionSystem.cpp(261): warning C4100: 'handleA': unreferenced formal parameter
+W:\falton\Falton\src\collision\ftCollisionSystem.cpp(271): warning C4100: 'handleB': unreferenced formal parameter
+W:\falton\Falton\src\collision\ftCollisionSystem.cpp(271): warning C4100: 'handleA': unreferenced formal parameter
+W:\falton\Falton\include\falton/container/ftChunkArray.h(54): warning C4458: declaration of 'chunkSize' hides class member
+  W:\falton\Falton\include\falton/container/ftChunkArray.h(34): note: see declaration of 'ftChunkArray<ftBroadPhasePair>::chunkSize'
+  W:\falton\Falton\include\falton/container/ftChunkArray.h(54): note: while compiling class template member function 'void ftChunkArray<ftBroadPhasePair>::init(int)'
+  W:\falton\Falton\src\collision\ftCollisionSystem.cpp(110): note: see reference to function template instantiation 'void ftChunkArray<ftBroadPhasePair>::init(int)' being compiled
+  W:\falton\Falton\src\collision\ftCollisionSystem.cpp(109): note: see reference to class template instantiation 'ftChunkArray<ftBroadPhasePair>' being compiled
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\cmath(86): warning C4577: 'noexcept' used with no exception handling mode specified; termination on exception is not guaranteed. Specify /EHsc
+  ftContact.cpp
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\xlocale(341): warning C4530: C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc
+W:\falton\Falton\include\falton/math.h(169): warning C4458: declaration of 'x' hides class member
+  W:\falton\Falton\include\falton/math.h(32): note: see declaration of 'ftVector2::x'
+W:\falton\Falton\include\falton/math.h(169): warning C4458: declaration of 'y' hides class member
+  W:\falton\Falton\include\falton/math.h(33): note: see declaration of 'ftVector2::y'
+W:\falton\Falton\include\falton/math.h(188): warning C4458: declaration of 'angle' hides class member
+  W:\falton\Falton\include\falton/math.h(178): note: see declaration of 'ftRotation::angle'
+W:\falton\Falton\include\falton/math.h(202): warning C4458: declaration of 'angle' hides class member
+  W:\falton\Falton\include\falton/math.h(178): note: see declaration of 'ftRotation::angle'
+W:\falton\Falton\src\collision\ftContact.cpp(138): warning C4245: '=': conversion from 'int' to 'uint32', signed/unsigned mismatch
+W:\falton\Falton\src\collision\ftContact.cpp(187): warning C4245: '=': conversion from 'int' to 'uint32', signed/unsigned mismatch
+W:\falton\Falton\include\falton/container/ftChunkArray.h(54): warning C4458: declaration of 'chunkSize' hides class member
+  W:\falton\Falton\include\falton/container/ftChunkArray.h(34): note: see declaration of 'ftChunkArray<ftContactBuffer::ftContactElem>::chunkSize'
+  W:\falton\Falton\include\falton/container/ftChunkArray.h(54): note: while compiling class template member function 'void ftChunkArray<ftContactBuffer::ftContactElem>::init(int)'
+  W:\falton\Falton\src\collision\ftContact.cpp(18): note: see reference to function template instantiation 'void ftChunkArray<ftContactBuffer::ftContactElem>::init(int)' being compiled
+  W:\falton\Falton\include\falton/collision/ftContact.h(74): note: see reference to class template instantiation 'ftChunkArray<ftContactBuffer::ftContactElem>' being compiled
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\cmath(86): warning C4577: 'noexcept' used with no exception handling mode specified; termination on exception is not guaranteed. Specify /EHsc
+  ftManifoldComputer.cpp
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\xlocale(341): warning C4530: C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc
+W:\falton\Falton\include\falton/math.h(169): warning C4458: declaration of 'x' hides class member
+  W:\falton\Falton\include\falton/math.h(32): note: see declaration of 'ftVector2::x'
+W:\falton\Falton\include\falton/math.h(169): warning C4458: declaration of 'y' hides class member
+  W:\falton\Falton\include\falton/math.h(33): note: see declaration of 'ftVector2::y'
+W:\falton\Falton\include\falton/math.h(188): warning C4458: declaration of 'angle' hides class member
+  W:\falton\Falton\include\falton/math.h(178): note: see declaration of 'ftRotation::angle'
+W:\falton\Falton\include\falton/math.h(202): warning C4458: declaration of 'angle' hides class member
+  W:\falton\Falton\include\falton/math.h(178): note: see declaration of 'ftRotation::angle'
+W:\falton\Falton\src\collision\ftManifoldComputer.cpp(37): warning C4018: '<': signed/unsigned mismatch
+W:\falton\Falton\src\collision\ftManifoldComputer.cpp(42): warning C4018: '<': signed/unsigned mismatch
+W:\falton\Falton\src\collision\ftManifoldComputer.cpp(101): warning C4389: '==': signed/unsigned mismatch
+W:\falton\Falton\src\collision\ftManifoldComputer.cpp(113): warning C4018: '<': signed/unsigned mismatch
+W:\falton\Falton\src\collision\ftManifoldComputer.cpp(264): warning C4018: '<': signed/unsigned mismatch
+W:\falton\Falton\src\collision\ftManifoldComputer.cpp(267): warning C4018: '<': signed/unsigned mismatch
+W:\falton\Falton\src\collision\ftManifoldComputer.cpp(278): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+W:\falton\Falton\src\collision\ftManifoldComputer.cpp(285): warning C4018: '<': signed/unsigned mismatch
+W:\falton\Falton\src\collision\ftManifoldComputer.cpp(288): warning C4018: '<': signed/unsigned mismatch
+W:\falton\Falton\src\collision\ftManifoldComputer.cpp(299): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+W:\falton\Falton\src\collision\ftManifoldComputer.cpp(308): warning C4244: '=': conversion from 'float' to 'uint32', possible loss of data
+W:\falton\Falton\src\collision\ftManifoldComputer.cpp(312): warning C4244: '=': conversion from 'float' to 'uint32', possible loss of data
+W:\falton\Falton\src\collision\ftManifoldComputer.cpp(365): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+W:\falton\Falton\src\collision\ftManifoldComputer.cpp(369): warning C4244: 'return': conversion from 'float' to 'uint32', possible loss of data
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\cmath(86): warning C4577: 'noexcept' used with no exception handling mode specified; termination on exception is not guaranteed. Specify /EHsc
+  ftBitSet.cpp
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\xlocale(341): warning C4530: C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc
+W:\falton\Falton\include\falton/math.h(169): warning C4458: declaration of 'x' hides class member
+  W:\falton\Falton\include\falton/math.h(32): note: see declaration of 'ftVector2::x'
+W:\falton\Falton\include\falton/math.h(169): warning C4458: declaration of 'y' hides class member
+  W:\falton\Falton\include\falton/math.h(33): note: see declaration of 'ftVector2::y'
+W:\falton\Falton\include\falton/math.h(188): warning C4458: declaration of 'angle' hides class member
+  W:\falton\Falton\include\falton/math.h(178): note: see declaration of 'ftRotation::angle'
+W:\falton\Falton\include\falton/math.h(202): warning C4458: declaration of 'angle' hides class member
+  W:\falton\Falton\include\falton/math.h(178): note: see declaration of 'ftRotation::angle'
+W:\falton\Falton\src\container\ftBitSet.cpp(33): warning C4800: 'int': forcing value to bool 'true' or 'false' (performance warning)
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\cmath(86): warning C4577: 'noexcept' used with no exception handling mode specified; termination on exception is not guaranteed. Specify /EHsc
+  ftIntQueue.cpp
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\xlocale(341): warning C4530: C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc
+W:\falton\Falton\src\container\ftIntQueue.cpp(10): warning C4245: '=': conversion from 'int' to 'uint32', signed/unsigned mismatch
+W:\falton\Falton\src\container\ftIntQueue.cpp(21): warning C4458: declaration of 'handle' hides class member
+  W:\falton\Falton\include\falton/container/ftIntQueue.h(13): note: see declaration of 'ftIntQueue::handle'
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\exception(359): warning C4577: 'noexcept' used with no exception handling mode specified; termination on exception is not guaranteed. Specify /EHsc
+  ftRHHashTable.cpp
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\xlocale(341): warning C4530: C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc
+W:\falton\Falton\src\container\ftRHHashTable.cpp(10): warning C4244: '=': conversion from 'double' to 'int32', possible loss of data
+W:\falton\Falton\src\container\ftRHHashTable.cpp(33): warning C4244: '=': conversion from 'double' to 'int32', possible loss of data
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\exception(359): warning C4577: 'noexcept' used with no exception handling mode specified; termination on exception is not guaranteed. Specify /EHsc
+  ftBody.cpp
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\xlocale(341): warning C4530: C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc
+W:\falton\Falton\include\falton/math.h(169): warning C4458: declaration of 'x' hides class member
+  W:\falton\Falton\include\falton/math.h(32): note: see declaration of 'ftVector2::x'
+W:\falton\Falton\include\falton/math.h(169): warning C4458: declaration of 'y' hides class member
+  W:\falton\Falton\include\falton/math.h(33): note: see declaration of 'ftVector2::y'
+W:\falton\Falton\include\falton/math.h(188): warning C4458: declaration of 'angle' hides class member
+  W:\falton\Falton\include\falton/math.h(178): note: see declaration of 'ftRotation::angle'
+W:\falton\Falton\include\falton/math.h(202): warning C4458: declaration of 'angle' hides class member
+  W:\falton\Falton\include\falton/math.h(178): note: see declaration of 'ftRotation::angle'
+W:\falton\Falton\include\falton/dynamic/ftCollider.h(23): warning C4305: 'initializing': truncation from 'double' to 'float'
+W:\falton\Falton\src\dynamic\ftBody.cpp(22): warning C4458: declaration of 'mass' hides class member
+  W:\falton\Falton\include\falton/dynamic/ftBody.h(48): note: see declaration of 'ftBody::mass'
+W:\falton\Falton\src\dynamic\ftBody.cpp(32): warning C4458: declaration of 'moment' hides class member
+  W:\falton\Falton\include\falton/dynamic/ftBody.h(50): note: see declaration of 'ftBody::moment'
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\cmath(86): warning C4577: 'noexcept' used with no exception handling mode specified; termination on exception is not guaranteed. Specify /EHsc
+  ftConstraintSolver.cpp
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\xlocale(341): warning C4530: C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc
+W:\falton\Falton\include\falton/math.h(169): warning C4458: declaration of 'x' hides class member
+  W:\falton\Falton\include\falton/math.h(32): note: see declaration of 'ftVector2::x'
+W:\falton\Falton\include\falton/math.h(169): warning C4458: declaration of 'y' hides class member
+  W:\falton\Falton\include\falton/math.h(33): note: see declaration of 'ftVector2::y'
+W:\falton\Falton\include\falton/math.h(188): warning C4458: declaration of 'angle' hides class member
+  W:\falton\Falton\include\falton/math.h(178): note: see declaration of 'ftRotation::angle'
+W:\falton\Falton\include\falton/math.h(202): warning C4458: declaration of 'angle' hides class member
+  W:\falton\Falton\include\falton/math.h(178): note: see declaration of 'ftRotation::angle'
+W:\falton\Falton\include\falton/dynamic/ftCollider.h(23): warning C4305: 'initializing': truncation from 'double' to 'float'
+W:\falton\Falton\include\falton/dynamic/ftConstraintSolver.h(24): warning C4305: 'initializing': truncation from 'double' to 'float'
+W:\falton\Falton\include\falton/dynamic/ftConstraintSolver.h(25): warning C4305: 'initializing': truncation from 'double' to 'float'
+W:\falton\Falton\src\dynamic\ftConstraintSolver.cpp(129): warning C4018: '<': signed/unsigned mismatch
+W:\falton\Falton\src\dynamic\ftConstraintSolver.cpp(268): warning C4189: 'body': local variable is initialized but not referenced
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\cmath(86): warning C4577: 'noexcept' used with no exception handling mode specified; termination on exception is not guaranteed. Specify /EHsc
+  ftIslandSystem.cpp
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\xlocale(341): warning C4530: C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc
+W:\falton\Falton\include\falton/math.h(169): warning C4458: declaration of 'x' hides class member
+  W:\falton\Falton\include\falton/math.h(32): note: see declaration of 'ftVector2::x'
+W:\falton\Falton\include\falton/math.h(169): warning C4458: declaration of 'y' hides class member
+  W:\falton\Falton\include\falton/math.h(33): note: see declaration of 'ftVector2::y'
+W:\falton\Falton\include\falton/math.h(188): warning C4458: declaration of 'angle' hides class member
+  W:\falton\Falton\include\falton/math.h(178): note: see declaration of 'ftRotation::angle'
+W:\falton\Falton\include\falton/math.h(202): warning C4458: declaration of 'angle' hides class member
+  W:\falton\Falton\include\falton/math.h(178): note: see declaration of 'ftRotation::angle'
+W:\falton\Falton\include\falton/dynamic/ftCollider.h(23): warning C4305: 'initializing': truncation from 'double' to 'float'
+W:\falton\Falton\include\falton/container/ftChunkArray.h(54): warning C4458: declaration of 'chunkSize' hides class member
+  W:\falton\Falton\include\falton/container/ftChunkArray.h(34): note: see declaration of 'ftChunkArray<ftIslandContact>::chunkSize'
+  W:\falton\Falton\include\falton/container/ftChunkArray.h(54): note: while compiling class template member function 'void ftChunkArray<ftIslandContact>::init(int)'
+  W:\falton\Falton\src\dynamic\ftIslandSystem.cpp(13): note: see reference to function template instantiation 'void ftChunkArray<ftIslandContact>::init(int)' being compiled
+  W:\falton\Falton\include\falton/dynamic/ftIslandSystem.h(58): note: see reference to class template instantiation 'ftChunkArray<ftIslandContact>' being compiled
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\cmath(86): warning C4577: 'noexcept' used with no exception handling mode specified; termination on exception is not guaranteed. Specify /EHsc
+  ftMassComputer.cpp
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\xlocale(341): warning C4530: C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc
+W:\falton\Falton\include\falton/math.h(169): warning C4458: declaration of 'x' hides class member
+  W:\falton\Falton\include\falton/math.h(32): note: see declaration of 'ftVector2::x'
+W:\falton\Falton\include\falton/math.h(169): warning C4458: declaration of 'y' hides class member
+  W:\falton\Falton\include\falton/math.h(33): note: see declaration of 'ftVector2::y'
+W:\falton\Falton\include\falton/math.h(188): warning C4458: declaration of 'angle' hides class member
+  W:\falton\Falton\include\falton/math.h(178): note: see declaration of 'ftRotation::angle'
+W:\falton\Falton\include\falton/math.h(202): warning C4458: declaration of 'angle' hides class member
+  W:\falton\Falton\include\falton/math.h(178): note: see declaration of 'ftRotation::angle'
+W:\falton\Falton\src\dynamic\ftMassComputer.cpp(23): warning C4244: 'initializing': conversion from 'const uint32' to 'uint8', possible loss of data
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\cmath(86): warning C4577: 'noexcept' used with no exception handling mode specified; termination on exception is not guaranteed. Specify /EHsc
+  ftPhysicsSystem.cpp
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\xlocale(341): warning C4530: C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc
+W:\falton\Falton\include\falton/math.h(169): warning C4458: declaration of 'x' hides class member
+  W:\falton\Falton\include\falton/math.h(32): note: see declaration of 'ftVector2::x'
+W:\falton\Falton\include\falton/math.h(169): warning C4458: declaration of 'y' hides class member
+  W:\falton\Falton\include\falton/math.h(33): note: see declaration of 'ftVector2::y'
+W:\falton\Falton\include\falton/math.h(188): warning C4458: declaration of 'angle' hides class member
+  W:\falton\Falton\include\falton/math.h(178): note: see declaration of 'ftRotation::angle'
+W:\falton\Falton\include\falton/math.h(202): warning C4458: declaration of 'angle' hides class member
+  W:\falton\Falton\include\falton/math.h(178): note: see declaration of 'ftRotation::angle'
+W:\falton\Falton\include\falton/dynamic/ftCollider.h(23): warning C4305: 'initializing': truncation from 'double' to 'float'
+W:\falton\Falton\include\falton/dynamic/ftConstraintSolver.h(24): warning C4305: 'initializing': truncation from 'double' to 'float'
+W:\falton\Falton\include\falton/dynamic/ftConstraintSolver.h(25): warning C4305: 'initializing': truncation from 'double' to 'float'
+W:\falton\Falton\include\falton/dynamic/ftPhysicsSystem.h(32): warning C4305: 'initializing': truncation from 'double' to 'float'
+W:\falton\Falton\include\falton/dynamic/ftPhysicsSystem.h(95): warning C4305: 'initializing': truncation from 'double' to 'float'
+W:\falton\Falton\src\dynamic\ftPhysicsSystem.cpp(468): warning C4100: 'data': unreferenced formal parameter
+W:\falton\Falton\src\dynamic\ftPhysicsSystem.cpp(468): warning C4100: 'contact': unreferenced formal parameter
+W:\falton\Falton\include\falton/container/ftChunkArray.h(54): warning C4458: declaration of 'chunkSize' hides class member
+  W:\falton\Falton\include\falton/container/ftChunkArray.h(34): note: see declaration of 'ftChunkArray<ftJoint *>::chunkSize'
+  W:\falton\Falton\include\falton/container/ftChunkArray.h(54): note: while compiling class template member function 'void ftChunkArray<ftJoint *>::init(int)'
+  W:\falton\Falton\src\dynamic\ftPhysicsSystem.cpp(40): note: see reference to function template instantiation 'void ftChunkArray<ftJoint *>::init(int)' being compiled
+  W:\falton\Falton\include\falton/dynamic/ftPhysicsSystem.h(90): note: see reference to class template instantiation 'ftChunkArray<ftJoint *>' being compiled
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\cmath(30): warning C4577: 'noexcept' used with no exception handling mode specified; termination on exception is not guaranteed. Specify /EHsc
+  ftProfiler.cpp
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\xlocale(341): warning C4530: C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc
+W:\falton\Falton\src\ftProfiler.cpp(47): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\exception(359): warning C4577: 'noexcept' used with no exception handling mode specified; termination on exception is not guaranteed. Specify /EHsc
+  ftDistanceJoint.cpp
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\xlocale(341): warning C4530: C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc
+W:\falton\Falton\include\falton/math.h(169): warning C4458: declaration of 'x' hides class member
+  W:\falton\Falton\include\falton/math.h(32): note: see declaration of 'ftVector2::x'
+W:\falton\Falton\include\falton/math.h(169): warning C4458: declaration of 'y' hides class member
+  W:\falton\Falton\include\falton/math.h(33): note: see declaration of 'ftVector2::y'
+W:\falton\Falton\include\falton/math.h(188): warning C4458: declaration of 'angle' hides class member
+  W:\falton\Falton\include\falton/math.h(178): note: see declaration of 'ftRotation::angle'
+W:\falton\Falton\include\falton/math.h(202): warning C4458: declaration of 'angle' hides class member
+  W:\falton\Falton\include\falton/math.h(178): note: see declaration of 'ftRotation::angle'
+W:\falton\Falton\src\joint\ftDistanceJoint.cpp(48): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+W:\falton\Falton\src\joint\ftDistanceJoint.cpp(64): warning C4100: 'dt': unreferenced formal parameter
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\cmath(86): warning C4577: 'noexcept' used with no exception handling mode specified; termination on exception is not guaranteed. Specify /EHsc
+  ftDynamoJoint.cpp
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\xlocale(341): warning C4530: C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc
+W:\falton\Falton\include\falton/math.h(169): warning C4458: declaration of 'x' hides class member
+  W:\falton\Falton\include\falton/math.h(32): note: see declaration of 'ftVector2::x'
+W:\falton\Falton\include\falton/math.h(169): warning C4458: declaration of 'y' hides class member
+  W:\falton\Falton\include\falton/math.h(33): note: see declaration of 'ftVector2::y'
+W:\falton\Falton\include\falton/math.h(188): warning C4458: declaration of 'angle' hides class member
+  W:\falton\Falton\include\falton/math.h(178): note: see declaration of 'ftRotation::angle'
+W:\falton\Falton\include\falton/math.h(202): warning C4458: declaration of 'angle' hides class member
+  W:\falton\Falton\include\falton/math.h(178): note: see declaration of 'ftRotation::angle'
+W:\falton\Falton\src\joint\ftDynamoJoint.cpp(31): warning C4100: 'vArray': unreferenced formal parameter
+W:\falton\Falton\src\joint\ftDynamoJoint.cpp(36): warning C4100: 'vArray': unreferenced formal parameter
+W:\falton\Falton\src\joint\ftDynamoJoint.cpp(36): warning C4100: 'dt': unreferenced formal parameter
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\cmath(86): warning C4577: 'noexcept' used with no exception handling mode specified; termination on exception is not guaranteed. Specify /EHsc
+  ftHingeJoint.cpp
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\xlocale(341): warning C4530: C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc
+W:\falton\Falton\include\falton/math.h(169): warning C4458: declaration of 'x' hides class member
+  W:\falton\Falton\include\falton/math.h(32): note: see declaration of 'ftVector2::x'
+W:\falton\Falton\include\falton/math.h(169): warning C4458: declaration of 'y' hides class member
+  W:\falton\Falton\include\falton/math.h(33): note: see declaration of 'ftVector2::y'
+W:\falton\Falton\include\falton/math.h(188): warning C4458: declaration of 'angle' hides class member
+  W:\falton\Falton\include\falton/math.h(178): note: see declaration of 'ftRotation::angle'
+W:\falton\Falton\include\falton/math.h(202): warning C4458: declaration of 'angle' hides class member
+  W:\falton\Falton\include\falton/math.h(178): note: see declaration of 'ftRotation::angle'
+W:\falton\Falton\src\joint\ftHingeJoint.cpp(71): warning C4100: 'dt': unreferenced formal parameter
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\cmath(86): warning C4577: 'noexcept' used with no exception handling mode specified; termination on exception is not guaranteed. Specify /EHsc
+  Generating Code...
+  Compiling...
+  ftPistonJoint.cpp
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\xlocale(341): warning C4530: C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc
+W:\falton\Falton\include\falton/math.h(169): warning C4458: declaration of 'x' hides class member
+  W:\falton\Falton\include\falton/math.h(32): note: see declaration of 'ftVector2::x'
+W:\falton\Falton\include\falton/math.h(169): warning C4458: declaration of 'y' hides class member
+  W:\falton\Falton\include\falton/math.h(33): note: see declaration of 'ftVector2::y'
+W:\falton\Falton\include\falton/math.h(188): warning C4458: declaration of 'angle' hides class member
+  W:\falton\Falton\include\falton/math.h(178): note: see declaration of 'ftRotation::angle'
+W:\falton\Falton\include\falton/math.h(202): warning C4458: declaration of 'angle' hides class member
+  W:\falton\Falton\include\falton/math.h(178): note: see declaration of 'ftRotation::angle'
+W:\falton\Falton\src\joint\ftPistonJoint.cpp(21): warning C4100: 'dt': unreferenced formal parameter
+W:\falton\Falton\src\joint\ftPistonJoint.cpp(42): warning C4100: 'wArray': unreferenced formal parameter
+W:\falton\Falton\src\joint\ftPistonJoint.cpp(42): warning C4100: 'vArray': unreferenced formal parameter
+W:\falton\Falton\src\joint\ftPistonJoint.cpp(46): warning C4100: 'dt': unreferenced formal parameter
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\cmath(86): warning C4577: 'noexcept' used with no exception handling mode specified; termination on exception is not guaranteed. Specify /EHsc
+  ftSpringJoint.cpp
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\xlocale(341): warning C4530: C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc
+W:\falton\Falton\include\falton/math.h(169): warning C4458: declaration of 'x' hides class member
+  W:\falton\Falton\include\falton/math.h(32): note: see declaration of 'ftVector2::x'
+W:\falton\Falton\include\falton/math.h(169): warning C4458: declaration of 'y' hides class member
+  W:\falton\Falton\include\falton/math.h(33): note: see declaration of 'ftVector2::y'
+W:\falton\Falton\include\falton/math.h(188): warning C4458: declaration of 'angle' hides class member
+  W:\falton\Falton\include\falton/math.h(178): note: see declaration of 'ftRotation::angle'
+W:\falton\Falton\include\falton/math.h(202): warning C4458: declaration of 'angle' hides class member
+  W:\falton\Falton\include\falton/math.h(178): note: see declaration of 'ftRotation::angle'
+W:\falton\Falton\src\joint\ftSpringJoint.cpp(80): warning C4100: 'dt': unreferenced formal parameter
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\cmath(86): warning C4577: 'noexcept' used with no exception handling mode specified; termination on exception is not guaranteed. Specify /EHsc
+  ftCircle.cpp
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\xlocale(341): warning C4530: C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc
+W:\falton\Falton\include\falton/math.h(169): warning C4458: declaration of 'x' hides class member
+  W:\falton\Falton\include\falton/math.h(32): note: see declaration of 'ftVector2::x'
+W:\falton\Falton\include\falton/math.h(169): warning C4458: declaration of 'y' hides class member
+  W:\falton\Falton\include\falton/math.h(33): note: see declaration of 'ftVector2::y'
+W:\falton\Falton\include\falton/math.h(188): warning C4458: declaration of 'angle' hides class member
+  W:\falton\Falton\include\falton/math.h(178): note: see declaration of 'ftRotation::angle'
+W:\falton\Falton\include\falton/math.h(202): warning C4458: declaration of 'angle' hides class member
+  W:\falton\Falton\include\falton/math.h(178): note: see declaration of 'ftRotation::angle'
+W:\falton\Falton\src\shape\ftCircle.cpp(15): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\cmath(86): warning C4577: 'noexcept' used with no exception handling mode specified; termination on exception is not guaranteed. Specify /EHsc
+  ftPolygon.cpp
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\xlocale(341): warning C4530: C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc
+W:\falton\Falton\include\falton/math.h(169): warning C4458: declaration of 'x' hides class member
+  W:\falton\Falton\include\falton/math.h(32): note: see declaration of 'ftVector2::x'
+W:\falton\Falton\include\falton/math.h(169): warning C4458: declaration of 'y' hides class member
+  W:\falton\Falton\include\falton/math.h(33): note: see declaration of 'ftVector2::y'
+W:\falton\Falton\include\falton/math.h(188): warning C4458: declaration of 'angle' hides class member
+  W:\falton\Falton\include\falton/math.h(178): note: see declaration of 'ftRotation::angle'
+W:\falton\Falton\include\falton/math.h(202): warning C4458: declaration of 'angle' hides class member
+  W:\falton\Falton\include\falton/math.h(178): note: see declaration of 'ftRotation::angle'
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\cmath(86): warning C4577: 'noexcept' used with no exception handling mode specified; termination on exception is not guaranteed. Specify /EHsc
+  ftShapeBuffer.cpp
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\xlocale(341): warning C4530: C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc
+W:\falton\Falton\include\falton/math.h(169): warning C4458: declaration of 'x' hides class member
+  W:\falton\Falton\include\falton/math.h(32): note: see declaration of 'ftVector2::x'
+W:\falton\Falton\include\falton/math.h(169): warning C4458: declaration of 'y' hides class member
+  W:\falton\Falton\include\falton/math.h(33): note: see declaration of 'ftVector2::y'
+W:\falton\Falton\include\falton/math.h(188): warning C4458: declaration of 'angle' hides class member
+  W:\falton\Falton\include\falton/math.h(178): note: see declaration of 'ftRotation::angle'
+W:\falton\Falton\include\falton/math.h(202): warning C4458: declaration of 'angle' hides class member
+  W:\falton\Falton\include\falton/math.h(178): note: see declaration of 'ftRotation::angle'
+W:\falton\Falton\include\falton/container/ftChunkArray.h(54): warning C4458: declaration of 'chunkSize' hides class member
+  W:\falton\Falton\include\falton/container/ftChunkArray.h(34): note: see declaration of 'ftChunkArray<ftShapeBuffer::ftPolygonElem>::chunkSize'
+  W:\falton\Falton\include\falton/container/ftChunkArray.h(54): note: while compiling class template member function 'void ftChunkArray<ftShapeBuffer::ftPolygonElem>::init(int)'
+  W:\falton\Falton\src\shape\ftShapeBuffer.cpp(10): note: see reference to function template instantiation 'void ftChunkArray<ftShapeBuffer::ftPolygonElem>::init(int)' being compiled
+  W:\falton\Falton\include\falton/shape/ftShapeBuffer.h(50): note: see reference to class template instantiation 'ftChunkArray<ftShapeBuffer::ftPolygonElem>' being compiled
+C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\cmath(86): warning C4577: 'noexcept' used with no exception handling mode specified; termination on exception is not guaranteed. Specify /EHsc
+  Generating Code...
+  falton.vcxproj -> W:\falton\bin\lib\Debug\falton.lib

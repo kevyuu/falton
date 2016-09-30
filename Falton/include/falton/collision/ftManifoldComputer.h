@@ -5,8 +5,8 @@
 #ifndef FALTON_COLLISION_H
 #define FALTON_COLLISION_H
 
-#include "falton/math/math.h"
-#include <falton/physics/shape/ftShape.h>
+#include <falton/math.h>
+#include <falton/shape/ftShape.h>
 
 struct ftManifold;
 struct ftCollisionShape;

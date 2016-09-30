@@ -5,7 +5,7 @@
 #ifndef FALTON_FTAABB_H
 #define FALTON_FTAABB_H
 
-#include <falton/math/math.h>
+#include <falton/math.h>
 
 struct ftAABB {
     ftVector2 min;

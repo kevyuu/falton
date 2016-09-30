@@ -6,7 +6,7 @@
 #define FALTON_FTISLANDCOMPUTER_H
 
 #include <falton/container/ftChunkArray.h>
-#include <falton/physics/joint/ftJoint.h>
+#include <falton/joint/ftJoint.h>
 
 struct ftBody;
 struct ftContact;

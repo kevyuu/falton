@@ -5,6 +5,8 @@
 #ifndef FALTON_FTVECTORARRAY_H
 #define FALTON_FTVECTORARRAY_H
 
+#include <falton/setting.h>
+
 template <typename T>
 class ftVectorArray {
 public:

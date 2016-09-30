@@ -2,10 +2,10 @@
 // Created by Kevin Yu on 4/20/16.
 //
 
-#include "falton/physics/dynamic/ftIslandSystem.h"
-#include "falton/physics/dynamic/ftCollider.h"
-#include "falton/physics/dynamic/ftIsland.h"
-#include "falton/container/ftStack.h"
+#include <falton/dynamic/ftIslandSystem.h>
+#include <falton/dynamic/ftCollider.h>
+#include <falton/dynamic/ftIsland.h>
+#include <falton/container/ftStack.h>
 
 
 void ftIslandSystem::init(ftBodyBuffers bodyBuffers) {

@@ -2,9 +2,8 @@
 // Created by Kevin Yu on 12/30/15.
 //
 
-#include <falton/physics/collision/ftCollisionSystem.h>
-#include "falton/physics/shape/ftShape.h"
-#include "falton/physics/Collision/BroadPhase/ftNSquaredBroadphase.h"
+#include <falton/collision/ftCollisionSystem.h>
+#include <falton/collision/broadphase/ftNSquaredBroadphase.h>
 
 void ftNSquaredBroadphase::init() {
     m_elements.init(64);

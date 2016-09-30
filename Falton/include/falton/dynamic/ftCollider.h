@@ -5,15 +5,13 @@
 #ifndef FALTON_FTCOLLIDER_H
 #define FALTON_FTCOLLIDER_H
 
-#include "falton/math/math.h"
-#include "falton/physics/shape/ftShape.h"
-#include "falton/physics/Collision/ftCollisionSystem.h"
+#include <falton/math.h>
+#include <falton/shape/ftShape.h>
+#include <falton/collision/ftCollisionSystem.h>
 
 struct ftBody;
 
 struct ftCollider {
-
-public:
 
     ftBody *body = nullptr;
 
@@ -32,8 +30,6 @@ public:
     ftShape* shape = nullptr;
     ftCollider* next = nullptr;
 
-    friend class ftPhysicsSystem;
-    friend class ftConstraintSolver;
 };
 
 

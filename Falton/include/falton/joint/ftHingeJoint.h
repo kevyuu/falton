@@ -4,8 +4,8 @@
 
 #ifndef FALTON_FTPINJOINT_H
 #define FALTON_FTPINJOINT_H
-#include "falton/math/math.h"
-#include "ftJoint.h"
+
+#include <falton/joint/ftJoint.h>
 
 struct ftBody;
 

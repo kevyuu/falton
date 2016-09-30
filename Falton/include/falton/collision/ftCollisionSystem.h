@@ -6,11 +6,11 @@
 #define FALTON_FTCOLLISIONSYSTEM_H
 
 #include <stdint.h>
-#include <falton/math/math.h>
+#include <falton/math.h>
 #include <falton/container/ftChunkArray.h>
 #include <falton/container/ftIntQueue.h>
-#include <falton/physics/collision/broadphase/ftBroadphaseSystem.h>
-#include <falton/physics/collision/ftContact.h>
+#include <falton/collision/broadphase/ftBroadphaseSystem.h>
+#include <falton/collision/ftContact.h>
 #include <falton/container/ftBitSet.h>
 
 struct ftContact;
@@ -56,9 +56,6 @@ public:
     void updateContacts(ftCollisionFilterFunc filter, ftCollisionCallback callback);
     void updateOneAtATime(ftCollisionFilterFunc filter, ftCollisionCallback callback);
     void updateAllAtOnce(ftCollisionFilterFunc filter, ftCollisionCallback callback);
-
-    void updateContacts(ftCollisionFilterFunc filter);
-    void destroyEndingContacts();
 
     void destroyContact(ftContact* contact);
 

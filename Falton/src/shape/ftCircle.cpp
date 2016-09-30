@@ -3,7 +3,7 @@
 //
 
 #include <falton/setting.h>
-#include <falton/physics/shape/ftCircle.h>
+#include <falton/shape/ftCircle.h>
 
 ftCircle::ftCircle() {
     shapeType = SHAPE_CIRCLE;

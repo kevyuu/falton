@@ -5,8 +5,8 @@
 #ifndef FALTON_CHUNKARRAY_H
 #define FALTON_CHUNKARRAY_H
 
-#include <string>
-#include <falton/setting/general.h>
+#include <cstring>
+#include <falton/setting.h>
 
 template <typename T>
 class ftChunkArray {

@@ -2,7 +2,7 @@
 // Created by Kevin Yu on 4/10/16.
 //
 
-#include "falton/dynamic/ftMassComputer.h"
+#include <falton/dynamic/ftMassComputer.h>
 
 ftMassProperty ftMassComputer::computeForCircle(const ftCircle &circle, real mass, ftVector2 offset) {
 

@@ -7,10 +7,10 @@
 
 #include<queue>
 
-#include <falton/physics/collision/broadphase/ftBroadphaseSystem.h>
+#include <falton/collision/broadphase/ftBroadphaseSystem.h>
 #include <falton/container/ftIntQueue.h>
 #include <falton/container/ftChunkArray.h>
-#include <falton/physics/shape/ftAABB.h>
+#include <falton/shape/ftAABB.h>
 
 struct ftCollisionShape;
 

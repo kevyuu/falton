@@ -5,9 +5,9 @@
 #ifndef FALTON_FTMASSCOMPUTER_H
 #define FALTON_FTMASSCOMPUTER_H
 
-#include <falton/physics/shape/ftCircle.h>
-#include <falton/physics/shape/ftPolygon.h>
-#include "falton/math/math.h"
+#include <falton/shape/ftCircle.h>
+#include <falton/shape/ftPolygon.h>
+#include <falton/math.h>
 
 struct ftMassProperty {
     ftVector2 centerOfMass;

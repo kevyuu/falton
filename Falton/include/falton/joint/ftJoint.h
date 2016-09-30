@@ -5,8 +5,8 @@
 #ifndef FALTON_FTJOINT_H
 #define FALTON_FTJOINT_H
 
-#include <falton/setting/general.h>
-#include <falton/math/math.h>
+#include <falton/setting.h>
+#include <falton/math.h>
 
 struct ftBody;
 

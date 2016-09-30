@@ -1,0 +1,225 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="W:\falton\Falton\src\collision\broadphase\ftDynamicBVH.cpp">
+      <Filter>collision\broadphase</Filter>
+    </ClCompile>
+    <ClCompile Include="W:\falton\Falton\src\collision\broadphase\ftHierarchicalGrid.cpp">
+      <Filter>collision\broadphase</Filter>
+    </ClCompile>
+    <ClCompile Include="W:\falton\Falton\src\collision\broadphase\ftNSquaredBroadphase.cpp">
+      <Filter>collision\broadphase</Filter>
+    </ClCompile>
+    <ClCompile Include="W:\falton\Falton\src\collision\broadphase\ftQuadTree.cpp">
+      <Filter>collision\broadphase</Filter>
+    </ClCompile>
+    <ClCompile Include="W:\falton\Falton\src\collision\broadphase\ftToroidalGrid.cpp">
+      <Filter>collision\broadphase</Filter>
+    </ClCompile>
+    <ClCompile Include="W:\falton\Falton\src\collision\ftCollisionSystem.cpp">
+      <Filter>collision</Filter>
+    </ClCompile>
+    <ClCompile Include="W:\falton\Falton\src\collision\ftContact.cpp">
+      <Filter>collision</Filter>
+    </ClCompile>
+    <ClCompile Include="W:\falton\Falton\src\collision\ftManifoldComputer.cpp">
+      <Filter>collision</Filter>
+    </ClCompile>
+    <ClCompile Include="W:\falton\Falton\src\container\ftBitSet.cpp">
+      <Filter>container</Filter>
+    </ClCompile>
+    <ClCompile Include="W:\falton\Falton\src\container\ftIntQueue.cpp">
+      <Filter>container</Filter>
+    </ClCompile>
+    <ClCompile Include="W:\falton\Falton\src\container\ftRHHashTable.cpp">
+      <Filter>container</Filter>
+    </ClCompile>
+    <ClCompile Include="W:\falton\Falton\src\dynamic\ftBody.cpp">
+      <Filter>dynamic</Filter>
+    </ClCompile>
+    <ClCompile Include="W:\falton\Falton\src\dynamic\ftConstraintSolver.cpp">
+      <Filter>dynamic</Filter>
+    </ClCompile>
+    <ClCompile Include="W:\falton\Falton\src\dynamic\ftIslandSystem.cpp">
+      <Filter>dynamic</Filter>
+    </ClCompile>
+    <ClCompile Include="W:\falton\Falton\src\dynamic\ftMassComputer.cpp">
+      <Filter>dynamic</Filter>
+    </ClCompile>
+    <ClCompile Include="W:\falton\Falton\src\dynamic\ftPhysicsSystem.cpp">
+      <Filter>dynamic</Filter>
+    </ClCompile>
+    <ClCompile Include="W:\falton\Falton\src\ftProfiler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="W:\falton\Falton\src\joint\ftDistanceJoint.cpp">
+      <Filter>joint</Filter>
+    </ClCompile>
+    <ClCompile Include="W:\falton\Falton\src\joint\ftDynamoJoint.cpp">
+      <Filter>joint</Filter>
+    </ClCompile>
+    <ClCompile Include="W:\falton\Falton\src\joint\ftHingeJoint.cpp">
+      <Filter>joint</Filter>
+    </ClCompile>
+    <ClCompile Include="W:\falton\Falton\src\joint\ftPistonJoint.cpp">
+      <Filter>joint</Filter>
+    </ClCompile>
+    <ClCompile Include="W:\falton\Falton\src\joint\ftSpringJoint.cpp">
+      <Filter>joint</Filter>
+    </ClCompile>
+    <ClCompile Include="W:\falton\Falton\src\shape\ftCircle.cpp">
+      <Filter>shape</Filter>
+    </ClCompile>
+    <ClCompile Include="W:\falton\Falton\src\shape\ftPolygon.cpp">
+      <Filter>shape</Filter>
+    </ClCompile>
+    <ClCompile Include="W:\falton\Falton\src\shape\ftShapeBuffer.cpp">
+      <Filter>shape</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="W:\falton\Falton\include\falton\collision\broadphase\ftBroadphaseSystem.h">
+      <Filter>collision\broadphase</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\falton\Falton\include\falton\collision\broadphase\ftDynamicBVH.h">
+      <Filter>collision\broadphase</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\falton\Falton\include\falton\collision\broadphase\ftHierarchicalGrid.h">
+      <Filter>collision\broadphase</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\falton\Falton\include\falton\collision\broadphase\ftNSquaredBroadphase.h">
+      <Filter>collision\broadphase</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\falton\Falton\include\falton\collision\broadphase\ftQuadTree.h">
+      <Filter>collision\broadphase</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\falton\Falton\include\falton\collision\broadphase\ftToroidalGrid.h">
+      <Filter>collision\broadphase</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\falton\Falton\include\falton\collision\ftCollisionSystem.h">
+      <Filter>collision</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\falton\Falton\include\falton\collision\ftContact.h">
+      <Filter>collision</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\falton\Falton\include\falton\collision\ftManifoldComputer.h">
+      <Filter>collision</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\falton\Falton\include\falton\container\ftBitSet.h">
+      <Filter>container</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\falton\Falton\include\falton\container\ftChunkArray.h">
+      <Filter>container</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\falton\Falton\include\falton\container\ftIntQueue.h">
+      <Filter>container</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\falton\Falton\include\falton\container\ftRHHashTable.h">
+      <Filter>container</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\falton\Falton\include\falton\container\ftStack.h">
+      <Filter>container</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\falton\Falton\include\falton\container\ftVectorArray.h">
+      <Filter>container</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\falton\Falton\include\falton\dynamic\ftBody.h">
+      <Filter>dynamic</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\falton\Falton\include\falton\dynamic\ftCollider.h">
+      <Filter>dynamic</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\falton\Falton\include\falton\dynamic\ftConstraintSolver.h">
+      <Filter>dynamic</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\falton\Falton\include\falton\dynamic\ftContactConstraint.h">
+      <Filter>dynamic</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\falton\Falton\include\falton\dynamic\ftIsland.h">
+      <Filter>dynamic</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\falton\Falton\include\falton\dynamic\ftIslandSystem.h">
+      <Filter>dynamic</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\falton\Falton\include\falton\dynamic\ftMassComputer.h">
+      <Filter>dynamic</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\falton\Falton\include\falton\dynamic\ftPhysicsSystem.h">
+      <Filter>dynamic</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\falton\Falton\include\falton\joint\ftDistanceJoint.h">
+      <Filter>joint</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\falton\Falton\include\falton\joint\ftDynamoJoint.h">
+      <Filter>joint</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\falton\Falton\include\falton\joint\ftHingeJoint.h">
+      <Filter>joint</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\falton\Falton\include\falton\joint\ftJoint.h">
+      <Filter>joint</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\falton\Falton\include\falton\joint\ftPistonJoint.h">
+      <Filter>joint</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\falton\Falton\include\falton\joint\ftSpringJoint.h">
+      <Filter>joint</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\falton\Falton\include\falton\math.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\falton\Falton\include\falton\physics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\falton\Falton\include\falton\setting.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\falton\Falton\include\falton\shape\ftAABB.h">
+      <Filter>shape</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\falton\Falton\include\falton\shape\ftCircle.h">
+      <Filter>shape</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\falton\Falton\include\falton\shape\ftPolygon.h">
+      <Filter>shape</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\falton\Falton\include\falton\shape\ftShape.h">
+      <Filter>shape</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\falton\Falton\include\falton\shape\ftShapeBuffer.h">
+      <Filter>shape</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\falton\Falton\include\ftProfiler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="W:\falton\Falton\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="collision\broadphase">
+      <UniqueIdentifier>{0291E267-8F67-3BD4-845F-DA90F6C607EF}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{8E418F79-E1A9-3829-A017-CB9509609892}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{AA3E49B0-9878-3E83-8C64-5F06840E9822}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="collision">
+      <UniqueIdentifier>{3567FC50-2D21-3615-B66D-A76D751DCC50}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="container">
+      <UniqueIdentifier>{0C70EF07-8CFD-3318-8274-DC8A91B7C03E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="dynamic">
+      <UniqueIdentifier>{117C9DAD-E7AE-3D73-8DB6-9CE3E17BCAAB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="joint">
+      <UniqueIdentifier>{8A74AEE6-29BC-3B85-8153-1222B2D181D5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shape">
+      <UniqueIdentifier>{EDE78126-B045-34B3-94C9-66277072C342}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

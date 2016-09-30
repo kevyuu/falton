@@ -5,8 +5,7 @@
 #ifndef FALTON_FTDISTANCEJOINT_H
 #define FALTON_FTDISTANCEJOINT_H
 
-#include <falton/math/math.h>
-#include <falton/physics/joint/ftJoint.h>
+#include <falton/joint/ftJoint.h>
 
 class ftDistanceJoint : public ftJoint{
 public:

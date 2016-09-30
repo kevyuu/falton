@@ -5,7 +5,7 @@
 #ifndef FALTON_PLAYPAUSEBUTTON_H
 #define FALTON_PLAYPAUSEBUTTON_H
 
-#include "../imgui/imgui.h"
+#include <IMGUI/imgui.h>
 
 struct ExecutionButton {
 
@@ -26,7 +26,7 @@ struct ExecutionButton {
     const ImColor buttonDisabledColor = ImColor(200,200,200);
     const ImColor buttonActiveColor = ImColor(200, 10, 10);
 
-    void draw() {
+    void Draw() {
 
         ImGuiWindowFlags window_flags = 0;
         window_flags |= ImGuiWindowFlags_NoTitleBar;
@@ -34,7 +34,7 @@ struct ExecutionButton {
         window_flags |= ImGuiWindowFlags_NoMove;
         window_flags |= ImGuiWindowFlags_NoScrollbar;
         window_flags |= ImGuiWindowFlags_NoCollapse;
-        ImGui::SetNextWindowPos(ImVec2(SCREEN_WIDTH / 2 - 70,10),ImGuiSetCond_Once);
+        ImGui::SetNextWindowPosCenterH(20, ImGuiSetCond_Always);
         ImGui::Begin("Play", nullptr, window_flags);
 
         starting = false;
@@ -53,9 +53,7 @@ struct ExecutionButton {
             if (running) restarting = true;
             else starting = true;
             running = true;
-            playing = true;
         }
-
 
         bool changeColor = false;
         ImGui::PushID(1);

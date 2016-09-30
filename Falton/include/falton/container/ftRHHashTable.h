@@ -5,7 +5,7 @@
 #ifndef FALTON_RHHASHTABLE_H
 #define FALTON_RHHASHTABLE_H
 
-#include <falton/setting/general.h>
+#include <falton/setting.h>
 
 class ftRHHashTable {
 public:

@@ -5,12 +5,12 @@
 #ifndef FALTON_PHYSICSWINDOW_H
 #define FALTON_PHYSICSWINDOW_H
 
-#include <falton/physics/collision/broadphase/ftHierarchicalGrid.h>
-#include <falton/physics/collision/broadphase/ftDynamicBVH.h>
-#include <falton/physics/collision/broadphase/ftToroidalGrid.h>
-#include <falton/physics/collision/broadphase/ftQuadTree.h>
-#include "../imgui/imgui.h"
-#include "../imgui/imgui_internal.h"
+#include <falton/collision/broadphase/ftHierarchicalGrid.h>
+#include <falton/collision/broadphase/ftDynamicBVH.h>
+#include <falton/collision/broadphase/ftToroidalGrid.h>
+#include <falton/collision/broadphase/ftQuadTree.h>
+#include <IMGUI/imgui.h>
+#include <IMGUI/imgui_internal.h>
 
 struct PhysicsConfigWindow {
 
@@ -31,7 +31,7 @@ struct PhysicsConfigWindow {
     const char* windowTitle = "Physics Configuration";
     const char* broadphaseNames[5] = {"NSquared Broadphase", "Hierarchical Grid", "Dynamic BVH", "ToroidalGrid", "QuadTree"};
 
-    void draw() {
+    void Draw() {
 
         ImGui::SetNextWindowSize(ImVec2(450,300), ImGuiSetCond_Once);
         ImGui::Begin(windowTitle);

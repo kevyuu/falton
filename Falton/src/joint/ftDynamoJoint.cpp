@@ -2,8 +2,8 @@
 // Created by Kevin Yu on 2016-07-08.
 //
 
-#include <falton/physics/dynamic/ftBody.h>
-#include "falton/physics/joint/ftDynamoJoint.h"
+#include <falton/dynamic/ftBody.h>
+#include <falton/joint/ftDynamoJoint.h>
 
 ftDynamoJoint* ftDynamoJoint::create(ftBody* bodyA, ftBody* bodyB, real targetRate, real maxTorque) {
     ftDynamoJoint* joint = new ftDynamoJoint;

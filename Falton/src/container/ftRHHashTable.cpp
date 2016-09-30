@@ -5,9 +5,6 @@
 #include <cstring>
 #include <falton/container/ftRHHashTable.h>
 
-#include <iostream>
-using namespace std;
-
 void ftRHHashTable::init(int32 capacity) {
     m_capacity = capacity;
     m_objectLimit = 0.8 * m_capacity;

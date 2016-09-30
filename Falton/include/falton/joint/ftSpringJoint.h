@@ -5,8 +5,7 @@
 #ifndef FALTON_FTSPRINGJOINT_H
 #define FALTON_FTSPRINGJOINT_H
 
-
-#include <falton/physics/dynamic/ftBody.h>
+#include <falton/joint/ftJoint.h>
 
 class ftSpringJoint : public ftJoint {
 public:

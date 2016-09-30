@@ -2,8 +2,7 @@
 // Created by Kevin Yu on 4/15/16.
 //
 
-#include <cstring>
-#include <falton/physics/Collision/ftContact.h>
+#include <falton/collision/ftContact.h>
 
 void ftContactBuffer::init() {
     m_hashTable = new ftContactElem*[128];
@@ -185,7 +184,7 @@ ftContactBuffer3::ftContactElem* ftContactBuffer3::allocateElement() {
 }
 
 void ftContactBuffer3::freeElement(ftContactElem *elem) {
-    elem->isAllocated = -1;
+    elem->isAllocated = nulluint;
     elem->next = m_freeElementHead;
     m_freeElementHead = elem;
 }
