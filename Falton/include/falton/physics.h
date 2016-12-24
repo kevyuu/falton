@@ -13,12 +13,7 @@
 #include "dynamic/ftPhysicsSystem.h"
 #include "dynamic/ftMassComputer.h"
 
-#include "joint/ftJoint.h"
-#include "joint/ftDistanceJoint.h"
-#include "joint/ftDynamoJoint.h"
-#include "joint/ftHingeJoint.h"
-#include "joint/ftPistonJoint.h"
-#include "joint/ftSpringJoint.h"
+#include "falton/dynamic/ftJoint.h"
 
 #include "shape/ftAABB.h"
 #include "shape/ftCircle.h"

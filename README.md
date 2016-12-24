@@ -23,3 +23,8 @@ There are four broadphase algorithm in Falton2D currently. They are :
 # Demo
 
 Falton is still being developed. We don't have a stable version yet. API is not final.
+
+# TODO
+[] Chain Shape
+[] Refactor
+[] Internal memory allocation

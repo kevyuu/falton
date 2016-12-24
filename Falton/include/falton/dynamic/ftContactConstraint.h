@@ -1,11 +1,9 @@
 //
 // Created by Kevin Yu on 4/16/16.
 //
+#pragma once
 
-#ifndef FALTON_FTCONTACTCONSTRAINT_H
-#define FALTON_FTCONTACTCONSTRAINT_H
-
-#include <falton/joint/ftJoint.h>
+#include <falton/dynamic/ftJoint.h>
 #include <falton/math.h>
 
 struct ftBody;
@@ -62,5 +60,3 @@ struct ftConstraintGroup {
     uint32 nJoint;
 
 };
-
-#endif //FALTON_FTCONTACTCONSTRAINT_H

@@ -39,6 +39,20 @@ void ftBody::setMoment(real moment) {
     }
 }
 
+real ftBody::getMass() {
+    return this->mass;
+}
+
+real ftBody::getMoment() {
+    return this->moment;
+}
+
+void ftBody::addCollider(ftCollider *collider) {
+    collider->next = colliders;
+    colliders = collider;
+}
+
+
 ftBody* ftBodyBuffer::create() {
 
     ftBodyElem *element = new ftBodyElem;
@@ -101,7 +115,6 @@ void ftBodyBuffer::insert(ftBody *body) {
     element->prev = nullptr;
     if (bodies!=nullptr) bodies->prev = element;
     bodies = element;
-
     ++size;
 
 }

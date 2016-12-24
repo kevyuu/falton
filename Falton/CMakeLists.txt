@@ -7,7 +7,7 @@ file (GLOB DYNAMIC_SOURCES src/dynamic/*.cpp include/falton/dynamic/*.h)
 file (GLOB JOINT_SOURCES src/joint/*.cpp include/falton/joint/*.h)
 file (GLOB SHAPE_SOURCES src/shape/*.cpp include/falton/shape/*.h)
 
-add_library(falton ${SOURCE_FILES})
+add_library(falton ${SOURCE_FILES} src/dynamic/ftJointSolver.cpp)
 
 source_group(collision FILES ${COLLISION_SOURCES})
 source_group(collision\\broadphase FILES ${BROADPHASE_SOURCES})

@@ -144,7 +144,7 @@ void ftCollisionSystem::updateAllAtOnce(ftCollisionFilterFunc filter, ftCollisio
 }
 
 void ftCollisionSystem::updateOneAtATime(ftCollisionFilterFunc filter, ftCollisionCallback callback) {
-    m_curTimeStamp++;
+    ++m_curTimeStamp;
 
     const auto updateIdleContactTimestamp = [this, filter]
             (ftColHandle handleA, ftColHandle handleB, ftContact* contact) {

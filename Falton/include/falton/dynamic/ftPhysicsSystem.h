@@ -9,8 +9,6 @@
 #include <falton/dynamic/ftConstraintSolver.h>
 #include <falton/shape/ftShapeBuffer.h>
 #include <falton/dynamic/ftIslandSystem.h>
-#include <falton/joint/ftSpringJoint.h>
-#include <falton/joint/ftDynamoJoint.h>
 
 struct ftBody;
 struct ftCollider;

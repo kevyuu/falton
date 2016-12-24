@@ -3,7 +3,6 @@
 //
 
 #include <falton/dynamic/ftBody.h>
-#include <falton/joint/ftHingeJoint.h>
 
 ftHingeJoint* ftHingeJoint::create(ftBody *bodyA, ftBody *bodyB, ftVector2 anchorPoint) {
 

@@ -11,7 +11,7 @@
 #include <falton/dynamic/ftCollider.h>
 
 struct ftContactConstraint;
- struct ftConstraintGroup;
+struct ftConstraintGroup;
 struct ftContact;
 struct ftIsland;
 
@@ -37,13 +37,14 @@ public:
     void clearConstraints();
 
 private:
-    void createContactConstraint(ftCollider *colliderA, ftCollider *colliderB,
-                                 ftContact *contact, ftContactConstraint *constraint);
+    void createContactConstraint(ftCollider *colliderA, 
+                                 ftCollider *colliderB,
+                                 ftContact *contact, 
+                                 ftContactConstraint *constraint);
 
     ftConstraintGroup m_constraintGroup;
     ftConfig m_option;
 
 };
-
 
 #endif //FALTON_FTCONTACTCONSTRAINTSOLVER_H

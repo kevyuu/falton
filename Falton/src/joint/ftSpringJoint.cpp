@@ -3,10 +3,13 @@
 //
 
 #include <falton/dynamic/ftBody.h>
-#include <falton/joint/ftSpringJoint.h>
 
-ftSpringJoint* ftSpringJoint::create(ftBody *bodyA, ftBody *bodyB, ftVector2 lAnchorA, ftVector2 lAnchorB) {
-    ftSpringJoint* joint = new ftSpringJoint;
+ftSpringJoint *ftSpringJoint::create(ftBody *bodyA,
+                                     ftBody *bodyB,
+                                     ftVector2 lAnchorA,
+                                     ftVector2 lAnchorB)
+{
+    ftSpringJoint *joint = new ftSpringJoint;
 
     joint->bodyA = bodyA;
     joint->bodyB = bodyB;
@@ -24,7 +27,8 @@ ftSpringJoint* ftSpringJoint::create(ftBody *bodyA, ftBody *bodyB, ftVector2 lAn
     return joint;
 }
 
-void ftSpringJoint::preSolve(real dt) {
+void ftSpringJoint::preSolve(real dt)
+{
     bodyIDA = bodyA->islandId;
     bodyIDB = bodyB->islandId;
 
@@ -41,7 +45,7 @@ void ftSpringJoint::preSolve(real dt) {
     real rtA = rA.cross(tAxis);
     real rtB = rB.cross(tAxis);
     kTrans += (invMomentA * rtA * rtA + invMomentB * rtB * rtB);
-    invKTrans = 1/kTrans;
+    invKTrans = 1 / kTrans;
 
     //apply spring force
     {
@@ -56,7 +60,8 @@ void ftSpringJoint::preSolve(real dt) {
     }
 }
 
-void ftSpringJoint::warmStart(ftVector2* vArray, real* wArray) {
+void ftSpringJoint::warmStart(ftVector2 *vArray, real *wArray)
+{
     //translation constraint
     {
         ftVector2 linearI = tAxis * translationIAcc;
@@ -77,12 +82,12 @@ void ftSpringJoint::warmStart(ftVector2* vArray, real* wArray) {
     }
 }
 
-void ftSpringJoint::solve(real dt, ftVector2 *vArray, real *wArray) {
+void ftSpringJoint::solve(real dt, ftVector2 *vArray, real *wArray)
+{
 
     //translation constraint
     {
-        ftVector2 dv = vArray[bodyIDB] + rB.invCross(wArray[bodyIDB])
-                       - vArray[bodyIDA] - rA.invCross(wArray[bodyIDA]);
+        ftVector2 dv = vArray[bodyIDB] + rB.invCross(wArray[bodyIDB]) - vArray[bodyIDA] - rA.invCross(wArray[bodyIDA]);
         real jv = dv.dot(tAxis);
 
         real impulse = invKTrans * (jv * -1);
@@ -98,7 +103,6 @@ void ftSpringJoint::solve(real dt, ftVector2 *vArray, real *wArray) {
 
         vArray[bodyIDB] += (invMassB * linearI);
         wArray[bodyIDB] += (invMomentB * angularIB);
-
     }
 
     //rotation constraint
@@ -111,5 +115,4 @@ void ftSpringJoint::solve(real dt, ftVector2 *vArray, real *wArray) {
         wArray[bodyIDB] += invMomentB * impulse;
         wArray[bodyIDA] -= invMomentA * impulse;
     }
-
 }

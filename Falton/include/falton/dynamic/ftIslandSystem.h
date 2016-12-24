@@ -7,7 +7,7 @@
 
 #include <falton/container/ftChunkArray.h>
 #include <functional>
-#include <falton/joint/ftJoint.h>
+#include <falton/dynamic/ftJoint.h>
 #include <falton/dynamic/ftBody.h>
 
 struct ftBody;

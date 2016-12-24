@@ -2,13 +2,12 @@
 // Created by Kevin Yu on 4/14/16.
 //
 
-#include <falton/joint/ftHingeJoint.h>
-#include <falton/dynamic/ftPhysicsSystem.h>
-#include <falton/dynamic/ftIsland.h>
 
-#include <ftProfiler.h>
-#include <falton/joint/ftDistanceJoint.h>
-#include <falton/joint/ftDynamoJoint.h>
+#include "falton/dynamic/ftPhysicsSystem.h"
+#include "falton/dynamic/ftJoint.h"
+#include "falton/dynamic/ftIsland.h"
+
+#include "ftProfiler.h"
 
 void ftPhysicsSystem::setConfiguration(const ftConfig& config) {
     m_contactSolver.setConfiguration(config.solverConfig);
@@ -229,7 +228,9 @@ void ftPhysicsSystem::destroyShape(ftShape* shape) {
     }
 }
 
-ftHingeJoint* ftPhysicsSystem::createHingeJoint(ftBody *bodyA, ftBody *bodyB, ftVector2 anchorPoint) {
+ftHingeJoint* ftPhysicsSystem::createHingeJoint(ftBody *bodyA, 
+                                                ftBody *bodyB, 
+                                                ftVector2 anchorPoint) {
     ftAssert(bodyA != nullptr, "");
     ftAssert(bodyB != nullptr, "");
     ftHingeJoint* joint = ftHingeJoint::create(bodyA, bodyB, anchorPoint);
@@ -238,7 +239,8 @@ ftHingeJoint* ftPhysicsSystem::createHingeJoint(ftBody *bodyA, ftBody *bodyB, ft
     return joint;
 }
 
-ftDistanceJoint* ftPhysicsSystem::createDistanceJoint(ftBody *bodyA, ftBody *bodyB, ftVector2 localAnchorA,
+ftDistanceJoint* ftPhysicsSystem::createDistanceJoint(ftBody *bodyA, ftBody *bodyB, 
+                                                      ftVector2 localAnchorA,
                                                       ftVector2 localAnchorB) {
     ftAssert(bodyA != nullptr, "");
     ftAssert(bodyB != nullptr, "");
@@ -248,7 +250,8 @@ ftDistanceJoint* ftPhysicsSystem::createDistanceJoint(ftBody *bodyA, ftBody *bod
     return joint;
 }
 
-ftSpringJoint* ftPhysicsSystem::createSpringJoint(ftBody *bodyA, ftBody *bodyB, ftVector2 localAnchorA,
+ftSpringJoint* ftPhysicsSystem::createSpringJoint(ftBody *bodyA, ftBody *bodyB, 
+                                                  ftVector2 localAnchorA,
                                                   ftVector2 localAnchorB) {
     ftAssert(bodyA != nullptr, "");
     ftAssert(bodyB != nullptr, "");
@@ -258,7 +261,10 @@ ftSpringJoint* ftPhysicsSystem::createSpringJoint(ftBody *bodyA, ftBody *bodyB, 
     return joint;
 }
 
-ftDynamoJoint* ftPhysicsSystem::createDynamoJoint(ftBody *bodyA, ftBody *bodyB, real targetRate, real maxTorque) {
+ftDynamoJoint* ftPhysicsSystem::createDynamoJoint(ftBody *bodyA, 
+                                                  ftBody *bodyB, 
+                                                  real targetRate, 
+                                                  real maxTorque) {
     ftAssert(bodyA != nullptr, "");
     ftAssert(bodyB != nullptr, "");
     ftDynamoJoint* joint = ftDynamoJoint::create(bodyA, bodyB, targetRate, maxTorque);

@@ -28,8 +28,7 @@ namespace FaltonDemo {
         ftMassProperty boxmp = ftMassComputer::computeForPolygon(*boxShape,mass, ftVector2(0,0));
         ftBody* box = physicsSystem->createDynamicBody(position,0, boxmp.mass, boxmp.moment);
         box->centerOfMass = boxmp.centerOfMass;
-        box->moment = boxmp.moment;
-
+        
         ftCollider* boxCollider = physicsSystem->createCollider(box, boxShape, ftVector2(0,0), 0);
         boxCollider->friction = friction;
         boxCollider->restitution = 0;
@@ -197,12 +196,9 @@ namespace FaltonDemo {
 
         CreateStaticBox(physicsSystem, ftVector2(0,-11),0, ftVector2(50,10), 0.2);
         ftBody* body2 = CreateDynamicBox(physicsSystem, ftVector2(7,1),ftVector2(4,0.25), 100, 0.2);
-        body2->colliders->group = 1;
 
         ftBody* body3 = CreateBall(physicsSystem, pivot1,10, 0.5,0.2, 0);
-        body3->colliders->group = 1;
         ftBody* body4 = CreateBall(physicsSystem, pivot2,10, 0.5,0.2, 0);
-        body4->colliders->group = 1;
 
         physicsSystem->createHingeJoint(body2, body3, pivot1);
         physicsSystem->createHingeJoint(body2, body4, pivot2);
@@ -280,19 +276,14 @@ namespace FaltonDemo {
 
         {
             ftBody *body2 = CreateDynamicBox(physicsSystem, ftVector2(7, 3), ftVector2(4, 0.25), 100, 0.2);
-            body2->colliders->group = 1;
 
             ftVector2 pivot1 = ftVector2(5, 1);
             ftVector2 pivot2 = ftVector2(9, 1);
             ftBody *body3 = CreateBall(physicsSystem, pivot1, 10, 0.5, 0.2, 0);
-            body3->colliders->group = 1;
             ftBody *body4 = CreateBall(physicsSystem, pivot2, 10, 0.5, 0.2, 0);
-            body4->colliders->group = 1;
 
             ftBody* body5 = CreateDynamicBox(physicsSystem, pivot1, ftVector2(0.05,0.05), 100, 0.2);
-            body5->colliders->group = 1;
             ftBody* body6 = CreateDynamicBox(physicsSystem, pivot2, ftVector2(0.05,0.05), 100, 0.2);
-            body6->colliders->group = 1;
 
             physicsSystem->createHingeJoint(body5, body3, pivot1);
             physicsSystem->createHingeJoint(body6, body4, pivot2);

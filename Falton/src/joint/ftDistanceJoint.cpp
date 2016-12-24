@@ -1,9 +1,8 @@
-//
+ //
 // Created by Kevin Yu on 2016-06-03.
 //
 
 #include <falton/dynamic/ftBody.h>
-#include <falton/joint/ftDistanceJoint.h>
 
 ftDistanceJoint* ftDistanceJoint::create(ftBody *bodyA, ftBody *bodyB,
                                          ftVector2 localAnchorA,
@@ -84,4 +83,3 @@ void ftDistanceJoint::solve(real dt, ftVector2 *vArray, real *wArray) {
     wArray[bodyIDB] -= invMomentB * angularIB;
 
 }
-

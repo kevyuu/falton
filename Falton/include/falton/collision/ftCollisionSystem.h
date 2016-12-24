@@ -82,8 +82,7 @@ private:
 
     ftBitSet m_moveMasks;
     ftChunkArray<ftColHandle> m_movedShapes;
-
-
+    
     void updateContact(ftContact* contact, ftColHandle handleA, ftColHandle handleB, ftCollisionCallback callback);
     void updateContact(ftContact* contact, ftColHandle handleA, ftColHandle handleB);
     void destroyEndingContacts(ftCollisionCallback callback);

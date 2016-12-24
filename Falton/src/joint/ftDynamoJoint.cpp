@@ -3,7 +3,6 @@
 //
 
 #include <falton/dynamic/ftBody.h>
-#include <falton/joint/ftDynamoJoint.h>
 
 ftDynamoJoint* ftDynamoJoint::create(ftBody* bodyA, ftBody* bodyB, real targetRate, real maxTorque) {
     ftDynamoJoint* joint = new ftDynamoJoint;

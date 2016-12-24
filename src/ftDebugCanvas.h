@@ -41,7 +41,7 @@ public:
     void DrawPolygon(const ftPolygon& polygon, const ftTransform& transform, const Color& color);
     void DrawCircle(const ftCircle& circle, const ftTransform& transform, const Color& color);
     void DrawSolidCircle(const ftVector2& center, real radius, const Color& color);
-    void DrawBody(const ftBody* const body, Color color);
+    void DrawBody(ftBody* body, Color color);
     void DrawPhysics(ftPhysicsSystem* physicsSystem);
     void Render();
     void Cleanup();

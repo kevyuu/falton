@@ -13,8 +13,10 @@
 
 using namespace std;
 
-void ftConstraintSolver::createContactConstraint(ftCollider *colliderA, ftCollider *colliderB,
-                                              ftContact *contact, ftContactConstraint *constraint) {
+void ftConstraintSolver::createContactConstraint(ftCollider *colliderA, 
+                                                 ftCollider *colliderB,
+                                                 ftContact *contact, 
+                                                 ftContactConstraint *constraint) {
 
     ftManifold *manifold = &(contact->manifold);
 
@@ -137,7 +139,7 @@ void ftConstraintSolver::solve(real dt) {
     uint8 numIteration = m_option.numIteration;
     while (numIteration > 0) {
 
-        for (uint32 i = 0; i < m_constraintGroup.nConstraint; ++i) {
+        for (int i = 0; i < m_constraintGroup.nConstraint; ++i) {
 
             ftContactConstraint *constraint = &(m_constraintGroup.constraints[i]);
             uint32 bodyIDA = constraint->bodyIDA;
@@ -145,7 +147,7 @@ void ftConstraintSolver::solve(real dt) {
             ftVector2 normal = constraint->normal;
             ftVector2 tangent = normal.tangent();
 
-            for (uint8 j = 0; j < constraint->numContactPoint; ++j) {
+            for (int j = 0; j < constraint->numContactPoint; ++j) {
 
                 ftContactPointConstraint *pointConstraint = &(constraint->pointConstraint[j]);
 
@@ -220,15 +222,11 @@ void ftConstraintSolver::solve(real dt) {
                 }
 
             }
-
-
-
         }
 
         for (uint32 i = 0 ; i < m_constraintGroup.nJoint ; ++i) {
             m_constraintGroup.joints[i]->solve(dt, m_constraintGroup.velocities,
                                                m_constraintGroup.angularVelocities);
-
         }
 
         numIteration--;
@@ -266,9 +264,9 @@ void ftConstraintSolver::createConstraints(const ftIsland &island) {
 
     for (int32 i = 0; i < nBody; ++i) {
         ftBody *body = island.bodies[i];
-        m_constraintGroup.velocities[i] = island.bodies[i]->velocity;
-        m_constraintGroup.angularVelocities[i] = island.bodies[i]->angularVelocity;
-        m_constraintGroup.bodies[i] = island.bodies[i];
+        m_constraintGroup.velocities[i] = body->velocity;
+        m_constraintGroup.angularVelocities[i] = body->angularVelocity;
+        m_constraintGroup.bodies[i] = body;
     }
 
     for (int32 i = 0; i < nContact; ++i) {

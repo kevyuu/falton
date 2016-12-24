@@ -33,7 +33,6 @@ private:
     };
 
     struct MTVOutput {
-
         enum PolygonID
         {
             polygon_A,
@@ -70,12 +69,14 @@ private:
 
     static MTVOutput FindPolygonToPolygonMTV(const MTVInput& mtvInput);
 
-    static ClipPoint ClipIncidentToReferenceLine(const ftVector2& refAxis, ftVector2 clipBoundary ,
-                          const ftVector2& incVertex1, const ftVector2& incVertex2);
+    static ClipPoint ClipIncidentToReferenceLine(const ftVector2& refAxis, 
+                                                 ftVector2 clipBoundary ,
+                                                 const ftVector2& incVertex1, 
+                                                 const ftVector2& incVertex2);
 
     static uint32 FindIncidentEdge(const ftVector2& separatingAxis,
-                                const ftVector2* incidentNormals,
-                                int normalsCount);
+                                   const ftVector2* incidentNormals,
+                                   int normalsCount);
 
 };
 

@@ -215,5 +215,3 @@ void ftToroidalGrid::removeFromBucket(ftBroadphaseHandle handle) {
 int ftToroidalGrid::getMemoryUsage() {
     return (m_elements.getSize() * sizeof(ftElem)) + (m_nBucket * sizeof(uint32));
 }
-
-

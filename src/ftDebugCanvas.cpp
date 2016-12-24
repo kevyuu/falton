@@ -216,14 +216,16 @@ void ftDebugCanvas::DrawSolidCircle(const ftVector2& center, real radius, const 
 }
 
 
-void ftDebugCanvas::DrawBody(const ftBody* const body, Color color) {
-    for (ftCollider* collider = body->colliders; collider != nullptr; collider = collider->next) {
+void ftDebugCanvas::DrawBody(ftBody* body, Color color) {
+    
+    auto drawCollider = [this, &body, color] (ftCollider* collider) {
         if (collider->shape->shapeType == SHAPE_CIRCLE) {
             DrawCircle(*((ftCircle*) collider->shape), body->transform, color);
         } else {
             DrawPolygon(*((ftPolygon*) collider->shape), body->transform, color);
         }
-    }
+    };
+    body->forEachCollider(drawCollider);
 }
 
 

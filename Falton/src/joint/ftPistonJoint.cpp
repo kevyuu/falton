@@ -3,7 +3,6 @@
 //
 
 #include <falton/dynamic/ftBody.h>
-#include <falton/joint/ftPistonJoint.h>
 
 ftPistonJoint* ftPistonJoint::create(ftBody *bodyA, ftBody *bodyB, ftVector2 axis, ftVector2 lAnchorA,
                                      ftVector2 lAnchorB) {

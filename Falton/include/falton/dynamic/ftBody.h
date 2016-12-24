@@ -5,7 +5,7 @@
 #ifndef FALTON_RIGIDBODY_H
 #define FALTON_RIGIDBODY_H
 
-#include <falton/joint/ftJoint.h>
+#include <falton/dynamic/ftJoint.h>
 #include <falton/math.h>
 
 struct ftCollider;
@@ -15,13 +15,13 @@ struct ftContact;
 enum ftBodyType {
     STATIC,
     KINEMATIC,
-    DYNAMIC
+    DYNAMIC,
+    COUNT_BODY_TYPE
 };
 
 enum ftActivationState {
-    DISABLE_SLEEP,
     ACTIVE,
-    SLEEP
+    SLEEP,
 };
 
 struct ftContactEdge {
@@ -31,27 +31,23 @@ struct ftContactEdge {
     ftContactEdge* next = nullptr;
 };
 
-struct ftBody {
-    ftTransform transform;
-    ftVector2 centerOfMass;
+class ftBody {
+
+private:
 
     ftBodyType bodyType;
     ftActivationState activationState = ACTIVE;
 
     ftVector2 forceAccum;
-    ftVector2 velocity;
 
     real torqueAccum = 0;
-    real angularVelocity = 0;
-
+    
     real mass;
     real inverseMass;
     real moment;
     real inverseMoment;
 
     real sleepTimer = 0.0f;
-
-    void* userdata;
 
     ftCollider* colliders = nullptr;
 
@@ -60,14 +56,71 @@ struct ftBody {
 
     int32 islandId = -1;
 
+    friend class ftPhysicsSystem;
+    friend class ftIslandSystem;
+    friend class ftConstraintSolver;
+    friend class ftJointSolver;
+    
+    friend class ftDistanceJoint;
+    friend class ftDynamoJoint;
+    friend class ftHingeJoint;
+    friend class ftPistonJoint;
+    friend class ftSpringJoint;
+    
+public:
+
+    void* userdata;
+
+    ftTransform transform;
+    ftVector2 centerOfMass;
+    ftVector2 velocity;
+    real angularVelocity = 0;
+
     void applyForce(ftVector2 force, ftVector2 localPos);
-    void applyForceAtCenterOfMass(ftVector2 force);
+    void applyForceAtCenterOfMass(ftVector2 force);  
     void applyTorque(real torque);
 
     void setMass(real mass);
     void setMoment(real moment);
 
+    real getMass();
+    real getMoment();
+
+    void addContactEdge(ftContactEdge* contactEdge);
+    void addJointEdge(ftJointEdge* jointEdge);
+    void addCollider(ftCollider* collider);
+
+    template <typename T>
+    void forEachCollider(T func);
+
+    template <typename T>
+    void forEachContact(T func);
+
+    template <typename T>
+    void forEachJoint(T func);
+
 };
+
+template <typename T>
+void ftBody::forEachCollider(T func) {
+    for (ftCollider* collider = colliders; collider != nullptr; collider = collider->next) {
+        func(collider);
+    }
+}
+
+template <typename T>
+void ftBody::forEachContact(T func) {
+    for (ftContactEdge* contactEdge = contactList; contactEdge != nullptr; contactEdge = contactEdge->next) {
+        func(contactEdge->contact);
+    }
+}
+
+template <typename T>
+void ftBody::forEachJoint(T func) {
+    for (ftJointEdge* jointEdge = jointList; jointEdge != nullptr; jointEdge = jointEdge->next) {
+        func(jointEdge->joint);
+    }
+}
 
 class ftBodyBuffer {
 
