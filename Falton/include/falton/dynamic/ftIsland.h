@@ -8,7 +8,7 @@
 #include <falton/container/ftChunkArray.h>
 #include <falton/dynamic/ftJoint.h>
 
-struct ftBody;
+class ftBody;
 struct ftContact;
 
 class ftBodyBuffer;
@@ -18,7 +18,5 @@ struct ftIsland {
     ftChunkArray<ftContact*> contacts;
     ftChunkArray<ftJoint*> joints;
 };
-
-
 
 #endif //FALTON_FTISLANDCOMPUTER_H

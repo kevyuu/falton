@@ -17,12 +17,7 @@
 #include "src/dynamic/ftIslandSystem.cpp"
 #include "src/dynamic/ftMassComputer.cpp"
 #include "src/dynamic/ftPhysicsSystem.cpp"
-
-#include "src/joint/ftDistanceJoint.cpp"
-#include "src/joint/ftDynamoJoint.cpp"
-#include "src/joint/ftHingeJoint.cpp"
-#include "src/joint/ftPistonJoint.cpp"
-#include "src/joint/ftSpringJoint.cpp"
+#include "src/dynamic/ftJointSolver.cpp"
 
 #include "src/shape/ftCircle.cpp"
 #include "src/shape/ftPolygon.cpp"

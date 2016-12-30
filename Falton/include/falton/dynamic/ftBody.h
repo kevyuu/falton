@@ -5,12 +5,14 @@
 #ifndef FALTON_RIGIDBODY_H
 #define FALTON_RIGIDBODY_H
 
-#include <falton/dynamic/ftJoint.h>
-#include <falton/math.h>
+#include <falton/collision/ftContact.h>
+#include "falton/collision/ftContact.h"
+#include "falton/math.h"
 
 struct ftCollider;
-struct ftBody;
 struct ftContact;
+class ftBody;
+struct ftJointEdge;
 
 enum ftBodyType {
     STATIC,

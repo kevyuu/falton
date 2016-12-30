@@ -19,6 +19,7 @@ class ftDistanceJoint;
 
 typedef void (*ftBodyIterFunc) (ftBody* body, void* data);
 
+/* Role : System */
 class  ftPhysicsSystem {
 
 public:
@@ -33,6 +34,8 @@ public:
 
         ftConstraintSolver::ftConfig solverConfig;
     };
+
+    ftVector2 m_gravity = {0, -10};
 
     void setConfiguration(const ftConfig& config);
 
@@ -94,7 +97,6 @@ private:
     real m_sleepTimeLimit = 0.05f;
     real m_sleepLinearLimit = 0.08f;
     real m_sleepAngualrLimit = (2.0f / 180.0f * PI);
-    ftVector2 m_gravity = {0, -10};
 
     ftShape* createShape(ftShape* shape);
     void destroyShape(ftShape* shape);

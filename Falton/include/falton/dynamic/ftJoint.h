@@ -1,9 +1,10 @@
 #pragma once
 
-#include <falton/setting.h>
-#include <falton/math.h>
+#include "falton/setting.h"
+#include "falton/math.h"
+#include "falton/dynamic/ftBody.h"
+#include "ftBody.h"
 
-class ftBody;
 
 class ftJoint
 {
@@ -25,10 +26,6 @@ class ftJoint
     ftBody *bodyB;
 
     int32 islandIndex;
-
-    virtual void preSolve(real dt) = 0;
-    virtual void warmStart(ftVector2 *vArray, real *wArray) = 0;
-    virtual void solve(real dt, ftVector2 *vArray, real *wArray) = 0;
 };
 
 struct ftJointEdge
@@ -45,11 +42,20 @@ class ftDistanceJoint : public ftJoint
     static ftDistanceJoint *create(ftBody *bodyA,
                                    ftBody *bodyB,
                                    ftVector2 localAnchorA,
-                                   ftVector2 localAnchorB);
+                                   ftVector2 localAnchorB)
+    {
 
-    void preSolve(real dt) override;
-    void warmStart(ftVector2 *vArray, real *wArray) override;
-    void solve(real dt, ftVector2 *vArray, real *wArray) override;
+        ftDistanceJoint *joint = new ftDistanceJoint;
+        joint->jointType = ftJoint::DISTANCE_JOINT;
+        joint->bodyA = bodyA;
+        joint->bodyB = bodyB;
+        joint->localAnchorA = localAnchorA;
+        joint->localAnchorB = localAnchorB;
+        joint->distance = (bodyA->transform * localAnchorA - bodyB->transform * localAnchorB).magnitude();
+        joint->iAcc = 0;
+
+        return joint;
+    }
 
     real distance;
 
@@ -76,11 +82,18 @@ class ftDynamoJoint : public ftJoint
 {
 
   public:
-    static ftDynamoJoint *create(ftBody *bodyA, ftBody *bodyB, real targetRate, real maxTorque);
-
-    void preSolve(real dt) override;
-    void warmStart(ftVector2 *vArray, real *wArray) override;
-    void solve(real dt, ftVector2 *vArray, real *wArray) override;
+    static ftDynamoJoint *create(ftBody *bodyA,
+                                 ftBody *bodyB,
+                                 real targetRate,
+                                 real maxTorque)
+    {
+        ftDynamoJoint* joint = new ftDynamoJoint;
+        joint->bodyA = bodyA;
+        joint->bodyB = bodyB;
+        joint->targetRate = targetRate;
+        joint->maxTorque = maxTorque;
+        return joint;
+    }
 
     real targetRate;
     real maxTorque;
@@ -94,6 +107,7 @@ class ftDynamoJoint : public ftJoint
     real invMomentA;
     real invMomentB;
 
+    friend class ftPhysicsSystem;
     friend class ftJointSolver;
 };
 
@@ -101,10 +115,23 @@ class ftHingeJoint : public ftJoint
 {
   public:
     real torqueFriction;
-    static ftHingeJoint *create(ftBody *bodyA, ftBody *bodyB, ftVector2 anchorPoint);
-    void preSolve(real dt);
-    void warmStart(ftVector2 *vArray, real *wArray);
-    void solve(real dt, ftVector2 *vArray, real *wArray);
+    static ftHingeJoint *create(ftBody *bodyA,
+                                ftBody *bodyB,
+                                ftVector2 anchorPoint)
+    {
+
+        ftHingeJoint *joint = new ftHingeJoint;
+        joint->jointType = ftJoint::HINGE_JOINT;
+        joint->bodyA = bodyA;
+        joint->bodyB = bodyB;
+        joint->anchorPoint = anchorPoint;
+
+        joint->localAnchorA = bodyA->transform.rotation.invRotate(anchorPoint - bodyA->transform.center);
+        joint->localAnchorB = bodyB->transform.rotation.invRotate(anchorPoint - bodyB->transform.center);
+        joint->torqueFriction = 0;
+
+        return joint;
+    }
 
   private:
     ftVector2 anchorPoint;
@@ -136,11 +163,22 @@ class ftHingeJoint : public ftJoint
 class ftPistonJoint : public ftJoint
 {
   public:
-    static ftPistonJoint *create(ftBody *bodyA, ftBody *bodyB, ftVector2 axis, ftVector2 lAnchorA, ftVector2 lAnchorB);
+    static ftPistonJoint *create(ftBody *bodyA,
+                                 ftBody *bodyB,
+                                 ftVector2 axis,
+                                 ftVector2 lAnchorA,
+                                 ftVector2 lAnchorB)
+    {
+        ftPistonJoint *joint = new ftPistonJoint;
+        joint->jointType = ftJoint::PISTON_JOINT;
+        joint->bodyA = bodyA;
+        joint->bodyB = bodyB;
+        joint->localAnchorA = lAnchorA;
+        joint->localAnchorB = lAnchorB;
+        joint->tAxis = axis.perpendicular();
 
-    void preSolve(real dt) override;
-    void warmStart(ftVector2 *vArray, real *wArray) override;
-    void solve(real dt, ftVector2 *vArray, real *wArray) override;
+        return joint;
+    }
 
   private:
     int32 bodyIDA, bodyIDB;
@@ -165,11 +203,28 @@ class ftPistonJoint : public ftJoint
 class ftSpringJoint : public ftJoint
 {
   public:
-    static ftSpringJoint *create(ftBody *bodyA, ftBody *bodyB, ftVector2 lAnchorA, ftVector2 lAnchorB);
+    static ftSpringJoint *create(ftBody *bodyA,
+                                 ftBody *bodyB,
+                                 ftVector2 lAnchorA,
+                                 ftVector2 lAnchorB)
+    {
+        ftSpringJoint *joint = new ftSpringJoint;
+        joint->jointType = ftJoint::SPRING_JOINT;
+        joint->bodyA = bodyA;
+        joint->bodyB = bodyB;
 
-    void preSolve(real dt) override;
-    void warmStart(ftVector2 *vArray, real *wArray) override;
-    void solve(real dt, ftVector2 *vArray, real *wArray) override;
+        joint->localAnchorA = lAnchorA;
+        joint->localAnchorB = lAnchorB;
+
+        ftVector2 anchorDiff = bodyB->transform * lAnchorB - bodyA->transform * lAnchorA;
+        joint->springAxis = anchorDiff.unit();
+        joint->tAxis = joint->springAxis.perpendicular();
+
+        joint->stiffness = 1;
+        joint->restLength = anchorDiff.magnitude();
+
+        return joint;
+    }
 
     real stiffness;
     real restLength;

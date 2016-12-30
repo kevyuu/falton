@@ -2,6 +2,46 @@
 #include "falton/dynamic/ftJoint.h"
 #include "falton/dynamic/ftBody.h"
 
+ftJointSolver::ftJointFunc ftJointSolver::jointFunc[] = {
+    {
+        ftJointSolver::preSolveDistanceJoint,
+        ftJointSolver::warmStartDistanceJoint,
+        ftJointSolver::solveDistanceJoint
+    },
+    {
+        ftJointSolver::preSolveDynamoJoint,
+        ftJointSolver::warmStartDynamoJoint,
+        ftJointSolver::solveDynamoJoint
+    },
+    {
+        ftJointSolver::preSolveHingeJoint,
+        ftJointSolver::warmStartHingeJoint,
+        ftJointSolver::solveHingeJoint
+    },
+    {
+        ftJointSolver::preSolvePistonJoint,
+        ftJointSolver::warmStartPistonJoint,
+        ftJointSolver::solvePistonJoint
+    },
+    {
+        ftJointSolver::preSolveSpringJoint,
+        ftJointSolver::warmStartSpringJoint,
+        ftJointSolver::solveSpringJoint
+    }
+};
+
+void ftJointSolver::preSolve(ftJoint* joint, real dt) {
+    jointFunc[joint->jointType].preSolve(joint, dt);
+}
+
+void ftJointSolver::warmStart(ftJoint* joint, ftVector2* vArray, real* wArray) {
+    jointFunc[joint->jointType].warmStart(joint, vArray, wArray);
+}
+
+void ftJointSolver::solve(ftJoint* joint, ftVector2* vArray, real* wArray) {
+    jointFunc[joint->jointType].solve(joint, vArray, wArray);
+}
+
 // Distance Joint
 void ftJointSolver::preSolveDistanceJoint(ftJoint *joint, real dt)
 { 

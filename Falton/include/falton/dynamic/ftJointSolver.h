@@ -9,76 +9,75 @@ class ftJoint;
 class ftJointSolver
 {
 
-  public:
-    
-    void preSolve(ftJoint *joint, real dt);
-    void warmStart(ftJoint *joint,
-                   ftVector2 *vArray,
-                   real *wArray);
-    void solve(ftJoint *joint,
-               ftVector2 *vArray,
-               real *wArray);
+public:
+  static void preSolve(ftJoint *joint, real dt);
+  static void warmStart(ftJoint *joint,
+                        ftVector2 *vArray,
+                        real *wArray);
+  static void solve(ftJoint *joint,
+                    ftVector2 *vArray,
+                    real *wArray);
 
-  private:
-    ftJointFunc jointFunc[ftJoint::COUNT_JOINT_TYPE];
+private:
+  typedef void (*ftPreSolveFunc)(ftJoint *joint, real dt);
+  typedef void (*ftWarmStartFunc)(ftJoint *joint,
+                                  ftVector2 *vArray,
+                                  real *wArray);
+  typedef void (*ftSolveFunc)(ftJoint *joint,
+                              ftVector2 *vArray,
+                              real *wArray);
 
-    struct ftJointFunc
-    {
-        ftPreSolveFunc preSolve;
-        ftWarmStartFunc warmStart;
-        ftSolveFunc solve;
-    };
+  struct ftJointFunc
+  {
+    ftPreSolveFunc preSolve;
+    ftWarmStartFunc warmStart;
+    ftSolveFunc solve;
+  };
 
-    typedef void (*ftPreSolveFunc)(ftJoint *joint, real dt);
-    typedef void (*ftWarmStartFunc)(ftJoint *joint,
-                                    ftVector2 *vArray,
-                                    real *wArray);
-    typedef void (*ftSolveFunc)(ftJoint *joint,
-                                ftVector2 *vArray,
-                                real *wArray);
+  static ftJointFunc jointFunc[ftJoint::COUNT_JOINT_TYPE];
 
-    // Distance Joint
-    static void preSolveDistanceJoint(ftJoint *joint, real dt);
-    static void warmStartDistanceJoint(ftJoint *joint,
-                                       ftVector2 *vArray,
-                                       real *wArray);
-    static void solveDistanceJoint(ftJoint *joint,
+  // Distance Joint
+  static void preSolveDistanceJoint(ftJoint *joint, real dt);
+  static void warmStartDistanceJoint(ftJoint *joint,
+                                     ftVector2 *vArray,
+                                     real *wArray);
+  static void solveDistanceJoint(ftJoint *joint,
+                                 ftVector2 *vArray,
+                                 real *wArray);
+
+  // Dynamo Joint
+  static void preSolveDynamoJoint(ftJoint *joint, real dt);
+  static void warmStartDynamoJoint(ftJoint *joint,
                                    ftVector2 *vArray,
                                    real *wArray);
+  static void solveDynamoJoint(ftJoint *joint,
+                               ftVector2 *vArray,
+                               real *wArray);
 
-    // Dynamo Joint
-    static void preSolveDynamoJoint(ftJoint *joint, real dt);
-    static void warmStartDynamoJoint(ftJoint *joint,
-                                     ftVector2 *vArray,
-                                     real *wArray);
-    static void solveDynamoJoint(ftJoint *joint,
-                                 ftVector2 *vArray,
-                                 real *wArray);
+  // Hinge Joint
+  static void preSolveHingeJoint(ftJoint *joint, real dt);
+  static void warmStartHingeJoint(ftJoint *joint,
+                                  ftVector2 *vArray,
+                                  real *wArray);
+  static void solveHingeJoint(ftJoint *joint,
+                              ftVector2 *vArray,
+                              real *wArray);
 
-    // Hinge Joint
-    static void preSolveHingeJoint(ftJoint *joint, real dt);
-    static void warmStartHingeJoint(ftJoint *joint,
-                                    ftVector2 *vArray,
-                                    real *wArray);
-    static void solveHingeJoint(ftJoint *joint,
-                                ftVector2 *vArray,
-                                real *wArray);
+  // Piston Joint
+  static void preSolvePistonJoint(ftJoint *joint, real dt);
+  static void warmStartPistonJoint(ftJoint *joint,
+                                   ftVector2 *vArray,
+                                   real *wArray);
+  static void solvePistonJoint(ftJoint *joint,
+                               ftVector2 *vArray,
+                               real *wArray);
 
-    // Piston Joint
-    static void preSolvePistonJoint(ftJoint *joint, real dt);
-    static void warmStartPistonJoint(ftJoint *joint,
-                                     ftVector2 *vArray,
-                                     real *wArray);
-    static void solvePistonJoint(ftJoint *joint,
-                                 ftVector2 *vArray,
-                                 real *wArray);
-
-    // Spring Joint
-    static void preSolveSpringJoint(ftJoint *joint, real dt);
-    static void warmStartSpringJoint(ftJoint *joint,
-                                     ftVector2 *vArray,
-                                     real *wArray);
-    static void solveSpringJoint(ftJoint *joint,
-                                 ftVector2 *vArray,
-                                 real *wArray);
-}
+  // Spring Joint
+  static void preSolveSpringJoint(ftJoint *joint, real dt);
+  static void warmStartSpringJoint(ftJoint *joint,
+                                   ftVector2 *vArray,
+                                   real *wArray);
+  static void solveSpringJoint(ftJoint *joint,
+                               ftVector2 *vArray,
+                               real *wArray);
+};
