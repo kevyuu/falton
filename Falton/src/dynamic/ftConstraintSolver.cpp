@@ -94,18 +94,18 @@ void ftConstraintSolver::shutdown()
 
 void ftConstraintSolver::warmStart()
 {
-    for (uint32 i = 0; i < m_constraintGroup.nConstraint; ++i)
+    for (int32 i = 0; i < m_constraintGroup.nConstraint; ++i)
     {
         ftContactConstraint *constraint = &(m_constraintGroup.constraints[i]);
 
-        uint32 bodyIDA = constraint->bodyIDA;
-        uint32 bodyIDB = constraint->bodyIDB;
+        int32 bodyIDA = constraint->bodyIDA;
+        int32 bodyIDB = constraint->bodyIDB;
         ftVector2 normal = constraint->normal;
         ftVector2 tangent = normal.tangent();
 
         ftManifold *manifold = &(constraint->contact->manifold);
 
-        for (uint32 j = 0; j < constraint->numContactPoint; ++j)
+        for (int32 j = 0; j < constraint->numContactPoint; ++j)
         {
 
             ftContactPointConstraint *pointConstraint = &(constraint->pointConstraint[j]);
@@ -126,7 +126,7 @@ void ftConstraintSolver::warmStart()
         }
     }
 
-    for (uint32 i = 0; i < m_constraintGroup.nJoint; ++i)
+    for (int32 i = 0; i < m_constraintGroup.nJoint; ++i)
     {
         ftJointSolver::warmStart(m_constraintGroup.joints[i],
                                  m_constraintGroup.velocities,
@@ -136,7 +136,7 @@ void ftConstraintSolver::warmStart()
 
 void ftConstraintSolver::preSolve(real dt)
 {
-    for (uint32 i = 0; i < m_constraintGroup.nJoint; ++i)
+    for (int32 i = 0; i < m_constraintGroup.nJoint; ++i)
     {
         ftJointSolver::preSolve(m_constraintGroup.joints[i], dt);
     }
@@ -159,8 +159,8 @@ void ftConstraintSolver::solve(real dt)
         {
 
             ftContactConstraint *constraint = &(m_constraintGroup.constraints[i]);
-            uint32 bodyIDA = constraint->bodyIDA;
-            uint32 bodyIDB = constraint->bodyIDB;
+            int32 bodyIDA = constraint->bodyIDA;
+            int32 bodyIDB = constraint->bodyIDB;
             ftVector2 normal = constraint->normal;
             ftVector2 tangent = normal.tangent();
 
@@ -243,7 +243,7 @@ void ftConstraintSolver::solve(real dt)
             }
         }
 
-        for (uint32 i = 0; i < m_constraintGroup.nJoint; ++i)
+        for (int32 i = 0; i < m_constraintGroup.nJoint; ++i)
         {
             ftJointSolver::solve(m_constraintGroup.joints[i],
                                 m_constraintGroup.velocities,
@@ -253,18 +253,18 @@ void ftConstraintSolver::solve(real dt)
         numIteration--;
     }
 
-    for (uint32 i = 0; i < m_constraintGroup.nBody; i++)
+    for (int32 i = 0; i < m_constraintGroup.nBody; i++)
     {
         m_constraintGroup.bodies[i]->velocity = m_constraintGroup.velocities[i];
         m_constraintGroup.bodies[i]->angularVelocity = m_constraintGroup.angularVelocities[i];
     }
 
-    for (uint32 i = 0; i < m_constraintGroup.nConstraint; ++i)
+    for (int32 i = 0; i < m_constraintGroup.nConstraint; ++i)
     {
         ftContact *contact = m_constraintGroup.constraints[i].contact;
         ftManifold *manifold = &(contact->manifold);
         ftContactConstraint *constraint = &(m_constraintGroup.constraints[i]);
-        for (uint32 j = 0; j < contact->manifold.numContact; ++j)
+        for (int32 j = 0; j < contact->manifold.numContact; ++j)
         {
             manifold->contactPoints[j].nIAcc =
                 constraint->pointConstraint[j].nIAcc;

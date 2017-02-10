@@ -8,7 +8,7 @@
 #include <falton/math.h>
 #include <falton/shape/ftShape.h>
 
-class ftCircle : public ftShape{
+struct ftCircle : public ftShape{
 
 public:
     real radius;

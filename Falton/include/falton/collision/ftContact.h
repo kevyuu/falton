@@ -1,19 +1,19 @@
 //
 // Created by Kevin Yu on 4/15/16.
 //
-
-#ifndef FALTON_FTCONTACT_H
-#define FALTON_FTCONTACT_H
+#pragma once
 
 #include <cstdint>
-#include <falton/math.h>
-#include <falton/container/ftChunkArray.h>
-#include <falton/container/ftRHHashTable.h>
-
 #include <iostream>
+
+#include "falton/math.h"
+#include "falton/container/ftChunkArray.h"
+#include "falton/container/ftRHHashTable.h"
+
 using namespace std;
 
-class ftShape;
+struct ftShape;
+struct ftBody;
 struct ftContactEdge;
 struct ftCollisionShape;
 
@@ -41,6 +41,8 @@ typedef enum ftCollisionState {
     END_COLLISION
 } ftCollisionState;
 
+
+
 struct ftContact {
 
     void *userdataA, *userdataB;
@@ -53,6 +55,14 @@ struct ftContact {
 
     uint32 islandIndex; // used by ftIslandSystem to locate ftContact position
 
+};
+
+
+struct ftContactEdge {
+    ftBody* other = nullptr;
+    ftContact* contact = nullptr;
+    ftContactEdge* prev = nullptr;
+    ftContactEdge* next = nullptr;
 };
 
 class ftContactBuffer {
@@ -194,7 +204,3 @@ void ftContactBuffer3::removeIf(IteratorT func) {
         }
     }
 }
-
-
-
-#endif //FALTON_FTCONTACT_H

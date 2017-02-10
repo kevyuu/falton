@@ -3,10 +3,8 @@
 #include "falton/setting.h"
 #include "falton/math.h"
 #include "falton/dynamic/ftBody.h"
-#include "ftBody.h"
 
-
-class ftJoint
+struct ftJoint
 {
 
   public:
@@ -36,27 +34,13 @@ struct ftJointEdge
     ftJointEdge *next;
 };
 
-class ftDistanceJoint : public ftJoint
+struct ftDistanceJoint : public ftJoint
 {
   public:
     static ftDistanceJoint *create(ftBody *bodyA,
                                    ftBody *bodyB,
                                    ftVector2 localAnchorA,
-                                   ftVector2 localAnchorB)
-    {
-
-        ftDistanceJoint *joint = new ftDistanceJoint;
-        joint->jointType = ftJoint::DISTANCE_JOINT;
-        joint->bodyA = bodyA;
-        joint->bodyB = bodyB;
-        joint->localAnchorA = localAnchorA;
-        joint->localAnchorB = localAnchorB;
-        joint->distance = (bodyA->transform * localAnchorA - bodyB->transform * localAnchorB).magnitude();
-        joint->iAcc = 0;
-
-        return joint;
-    }
-
+                                   ftVector2 localAnchorB);
     real distance;
 
   private:
@@ -78,23 +62,14 @@ class ftDistanceJoint : public ftJoint
     friend class ftJointSolver;
 };
 
-class ftDynamoJoint : public ftJoint
+struct ftDynamoJoint : public ftJoint
 {
 
   public:
     static ftDynamoJoint *create(ftBody *bodyA,
                                  ftBody *bodyB,
                                  real targetRate,
-                                 real maxTorque)
-    {
-        ftDynamoJoint* joint = new ftDynamoJoint;
-        joint->bodyA = bodyA;
-        joint->bodyB = bodyB;
-        joint->targetRate = targetRate;
-        joint->maxTorque = maxTorque;
-        return joint;
-    }
-
+                                 real maxTorque);
     real targetRate;
     real maxTorque;
     real maxImpulse;
@@ -111,27 +86,13 @@ class ftDynamoJoint : public ftJoint
     friend class ftJointSolver;
 };
 
-class ftHingeJoint : public ftJoint
+struct ftHingeJoint : public ftJoint
 {
   public:
     real torqueFriction;
     static ftHingeJoint *create(ftBody *bodyA,
                                 ftBody *bodyB,
-                                ftVector2 anchorPoint)
-    {
-
-        ftHingeJoint *joint = new ftHingeJoint;
-        joint->jointType = ftJoint::HINGE_JOINT;
-        joint->bodyA = bodyA;
-        joint->bodyB = bodyB;
-        joint->anchorPoint = anchorPoint;
-
-        joint->localAnchorA = bodyA->transform.rotation.invRotate(anchorPoint - bodyA->transform.center);
-        joint->localAnchorB = bodyB->transform.rotation.invRotate(anchorPoint - bodyB->transform.center);
-        joint->torqueFriction = 0;
-
-        return joint;
-    }
+                                ftVector2 anchorPoint);
 
   private:
     ftVector2 anchorPoint;
@@ -160,25 +121,14 @@ class ftHingeJoint : public ftJoint
     friend class ftJointSolver;
 };
 
-class ftPistonJoint : public ftJoint
+struct ftPistonJoint : public ftJoint
 {
   public:
     static ftPistonJoint *create(ftBody *bodyA,
                                  ftBody *bodyB,
                                  ftVector2 axis,
                                  ftVector2 lAnchorA,
-                                 ftVector2 lAnchorB)
-    {
-        ftPistonJoint *joint = new ftPistonJoint;
-        joint->jointType = ftJoint::PISTON_JOINT;
-        joint->bodyA = bodyA;
-        joint->bodyB = bodyB;
-        joint->localAnchorA = lAnchorA;
-        joint->localAnchorB = lAnchorB;
-        joint->tAxis = axis.perpendicular();
-
-        return joint;
-    }
+                                 ftVector2 lAnchorB);
 
   private:
     int32 bodyIDA, bodyIDB;
@@ -200,31 +150,13 @@ class ftPistonJoint : public ftJoint
     friend class ftJointSolver;
 };
 
-class ftSpringJoint : public ftJoint
+struct ftSpringJoint : public ftJoint
 {
   public:
     static ftSpringJoint *create(ftBody *bodyA,
                                  ftBody *bodyB,
                                  ftVector2 lAnchorA,
-                                 ftVector2 lAnchorB)
-    {
-        ftSpringJoint *joint = new ftSpringJoint;
-        joint->jointType = ftJoint::SPRING_JOINT;
-        joint->bodyA = bodyA;
-        joint->bodyB = bodyB;
-
-        joint->localAnchorA = lAnchorA;
-        joint->localAnchorB = lAnchorB;
-
-        ftVector2 anchorDiff = bodyB->transform * lAnchorB - bodyA->transform * lAnchorA;
-        joint->springAxis = anchorDiff.unit();
-        joint->tAxis = joint->springAxis.perpendicular();
-
-        joint->stiffness = 1;
-        joint->restLength = anchorDiff.magnitude();
-
-        return joint;
-    }
+                                 ftVector2 lAnchorB);
 
     real stiffness;
     real restLength;

@@ -1,9 +1,7 @@
 //
 // Created by Kevin Yu on 4/20/16.
 //
-
-#ifndef FALTON_FTISLANDSYSTEM_H
-#define FALTON_FTISLANDSYSTEM_H
+#pragma once
 
 #include <falton/container/ftChunkArray.h>
 #include <functional>
@@ -70,6 +68,3 @@ private:
     static void resetIslandID(ftBodyBuffer* buffer);
 
 };
-
-
-#endif //FALTON_FTISLANDSYSTEM_H

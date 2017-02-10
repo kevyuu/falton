@@ -1,12 +1,9 @@
 //
 // Created by Kevin Yu on 3/19/16.
 //
+#pragma once
 
-#ifndef FALTON_FTBITSET_H
-#define FALTON_FTBITSET_H
-
-
-#include <falton/math.h>
+#include "falton/math.h"
 
 class ftBitSet {
 private:
@@ -31,6 +28,3 @@ public:
     uint32 getCapacity();
 
 };
-
-
-#endif //FALTON_FTBITSET_H

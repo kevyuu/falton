@@ -13,6 +13,7 @@
 #include "src/container/ftRHHashTable.cpp"
 
 #include "src/dynamic/ftBody.cpp"
+#include "src/dynamic/ftJoint.cpp"
 #include "src/dynamic/ftConstraintSolver.cpp"
 #include "src/dynamic/ftIslandSystem.cpp"
 #include "src/dynamic/ftMassComputer.cpp"

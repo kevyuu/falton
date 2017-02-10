@@ -7,7 +7,7 @@
 
 #include <string>
 #include <vector>
-#include <intrin.h>
+// #include <intrin.h>
 
 #define PROFILE_BEGIN(TAG) \
     do { \
@@ -35,15 +35,15 @@ public:
         long long start;
     };
     
-    static long long ReadTSC() {      // Returns time stamp counter
-        int dummy[4];           // For unused returns
-        volatile int DontSkip;  // Volatile to prevent optimizing
-        long long clock;        // Time
-        __cpuid(dummy, 0);      // Serialize
-        DontSkip = dummy[0];    // Prevent optimizing away cpuid
-        clock = __rdtsc();      // Read time
-        return clock;
-    }
+    // static long long ReadTSC() {      // Returns time stamp counter
+    //     int dummy[4];           // For unused returns
+    //     volatile int DontSkip;  // Volatile to prevent optimizing
+    //     long long clock;        // Time
+    //     __cpuid(dummy, 0);      // Serialize
+    //     DontSkip = dummy[0];    // Prevent optimizing away cpuid
+    //     clock = __rdtsc();      // Read time
+    //     return clock;
+    // }
 
     static std::vector<BenchUnit> benchUnits;
     
@@ -52,29 +52,30 @@ public:
     static void BeginFrame();
 
     static inline int Begin(std::string tag, int index) {
-        if (index == -1) {
-            index = nTags;
-            benchTables[index].tag = tag;
-            for (int i = 0 ; i < nFrame; ++i) {
-                benchTables[index].data.push_back(0);
-            }
-            ++nTags;
-        }
+        // if (index == -1) {
+        //     index = nTags;
+        //     benchTables[index].tag = tag;
+        //     for (int i = 0 ; i < nFrame; ++i) {
+        //         benchTables[index].data.push_back(0);
+        //     }
+        //     ++nTags;
+        // }
 
-        BenchUnit benchUnit;
-        benchUnit.index = index;
-        benchUnits.push_back(benchUnit);
-        benchUnits.back().start = ReadTSC();
+        // BenchUnit benchUnit;
+        // benchUnit.index = index;
+        // benchUnits.push_back(benchUnit);
+        // benchUnits.back().start = ReadTSC();
 
+        // return index;
         return index;
     }
 
     static inline void End() {
-        long long end = ReadTSC();
-        BenchUnit benchUnit = benchUnits.back();
-        benchUnits.pop_back();
-        float cycleElapsed = (float) (end - benchUnit.start - ReadTSCCycle);
-        benchTables[benchUnit.index].data[nFrame - 1] += cycleElapsed;
+        // long long end = ReadTSC();
+        // BenchUnit benchUnit = benchUnits.back();
+        // benchUnits.pop_back();
+        // float cycleElapsed = (float) (end - benchUnit.start - ReadTSCCycle);
+        // benchTables[benchUnit.index].data[nFrame - 1] += cycleElapsed;
     }
 
     static void EndFrame();

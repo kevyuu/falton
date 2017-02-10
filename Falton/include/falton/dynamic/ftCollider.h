@@ -1,9 +1,7 @@
 //
 // Created by Kevin Yu on 12/29/15.
 //
-
-#ifndef FALTON_FTCOLLIDER_H
-#define FALTON_FTCOLLIDER_H
+#pragma once
 
 #include <falton/math.h>
 #include <falton/shape/ftShape.h>
@@ -31,6 +29,3 @@ struct ftCollider {
     ftCollider* next = nullptr;
 
 };
-
-
-#endif //FALTON_FTCOLLIDER_H

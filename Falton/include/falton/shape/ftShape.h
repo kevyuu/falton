@@ -9,8 +9,8 @@
 #include <falton/math.h>
 #include <falton/shape/ftAABB.h>
 
-class ftPolygon;
-class ftCircle;
+struct ftPolygon;
+struct ftCircle;
 
 enum ShapeType {
     SHAPE_CIRCLE,
@@ -18,7 +18,7 @@ enum ShapeType {
     SHAPE_TYPE_NUMBER_ITEM
 };
 
-class ftShape {
+struct ftShape {
 
 public:
 

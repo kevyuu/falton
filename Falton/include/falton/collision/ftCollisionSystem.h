@@ -4,24 +4,22 @@
 #pragma once
 
 #include <stdint.h>
-#include <falton/math.h>
-#include <falton/container/ftChunkArray.h>
-#include <falton/container/ftIntQueue.h>
-#include <falton/collision/broadphase/ftBroadphaseSystem.h>
-#include <falton/collision/ftContact.h>
-#include <falton/container/ftBitSet.h>
+
+#include "falton/math.h"
+#include "falton/container/ftChunkArray.h"
+#include "falton/container/ftIntQueue.h"
+#include "falton/collision/broadphase/ftBroadphaseSystem.h"
+#include "falton/collision/ftContact.h"
+#include "falton/container/ftBitSet.h"
+
 
 struct ftContact;
+struct ftShape;
 
 typedef void (*ftContactCallbackFunc)(ftContact *contact, void *data);
 typedef bool (*ftCollisionFilterFunc)(void *userdataA, void *userdataB);
-
 typedef uint32 ftColHandle;
 
-struct ftContact;
-class ftShape;
-
-class ftContactBuffer;
 
 struct ftCollisionShape
 {

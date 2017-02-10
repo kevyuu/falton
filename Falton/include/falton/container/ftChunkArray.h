@@ -1,9 +1,7 @@
 //
 // Created by Kevin Yu on 12/24/15.
 //
-
-#ifndef FALTON_CHUNKARRAY_H
-#define FALTON_CHUNKARRAY_H
+#pragma once
 
 #include <cstring>
 #include <falton/setting.h>
@@ -144,5 +142,3 @@ void ftChunkArray<T>::reserve(uint32 size) {
         addChunk();
     }
 }
-
-#endif //FALTON_CHUNKARRAY_H

@@ -1,13 +1,11 @@
 //
 // Created by Kevin Yu on 2016-05-12.
 //
+#pragma once
 
-#ifndef FALTON_FTDYNAMICBVH_H
-#define FALTON_FTDYNAMICBVH_H
-
-#include <falton/setting.h>
-#include <falton/shape/ftAABB.h>
-#include <falton/collision/broadphase/ftBroadphaseSystem.h>
+#include "falton/setting.h"
+#include "falton/shape/ftAABB.h"
+#include "falton/collision/broadphase/ftBroadphaseSystem.h"
 
 class ftDynamicBVH : public ftBroadphaseSystem {
 
@@ -96,5 +94,3 @@ inline void ftDynamicBVH::recomputeHeightAndAABB(uint32 index) {
     ftAABB* rightAABB = &(m_nodes[rightIdx].aabb);
     m_nodes[index].aabb = ftAABB::combine(*leftAABB, *rightAABB);
 }
-
-#endif //FALTON_FTDYNAMICBVH_H

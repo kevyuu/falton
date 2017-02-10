@@ -3,7 +3,8 @@
 #include "falton/setting.h"
 #include "falton/math.h"
 #include "falton/dynamic/ftJoint.h"
-class ftJoint;
+
+struct ftJoint;
 
 /* Role : System */
 class ftJointSolver

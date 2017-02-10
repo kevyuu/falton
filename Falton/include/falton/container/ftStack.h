@@ -1,11 +1,7 @@
 //
 // Created by Kevin Yu on 2016-07-02.
 //
-
-#ifndef FALTON_FTSTACK_H
-#define FALTON_FTSTACK_H
-
-#include <falton/setting.h>
+#pragma once
 
 template <typename Data>
 class ftStack {
@@ -82,5 +78,3 @@ template <typename Data>
 uint32 ftStack<Data>::getCapacity() {
     return m_capacity;
 }
-
-#endif //FALTON_FTSTACK_H

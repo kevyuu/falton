@@ -8,14 +8,14 @@
 #include <falton/math.h>
 #include <falton/shape/ftShape.h>
 
-class ftShape;
+struct ftShape;
 
-class ftPolygon : public ftShape {
+struct ftPolygon : public ftShape {
 public:
     ftVector2* vertices; // stored in counter clockwise order
     ftVector2* normals; // stored in counter clockwise order
 
-    uint32 numVertex;
+    int32 numVertex;
 
     real area;
 

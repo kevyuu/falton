@@ -2,8 +2,8 @@
 // Created by Kevin Yu on 2/9/16.
 //
 
-#include <falton/setting.h>
-#include <falton/shape/ftPolygon.h>
+#include "falton/setting.h"
+#include "falton/shape/ftPolygon.h"
 
 ftPolygon::ftPolygon(): numVertex(0), vertices(nullptr), area(0),
                          normals(nullptr) {
@@ -22,11 +22,11 @@ ftPolygon* ftPolygon::create(int numVertex, const ftVector2 *vertices){
     polygon->vertices = new ftVector2[numConvexVertex];
     polygon->normals = new ftVector2[numConvexVertex];
 
-    for (uint32 i=0;i<polygon->numVertex;i++) {
+    for (int32 i=0;i<polygon->numVertex;i++) {
         polygon->vertices[i] = convexHull[i];
     }
 
-    for (uint32 i=0;i<polygon->numVertex-1;i++) {
+    for (int32 i=0;i<polygon->numVertex-1;i++) {
         polygon->normals[i] = (polygon->vertices[i + 1] - polygon->vertices[i]).perpendicular();
         polygon->normals[i].normalise();
     }
@@ -34,7 +34,7 @@ ftPolygon* ftPolygon::create(int numVertex, const ftVector2 *vertices){
     polygon->normals[numVertex-1].normalise();
 
     polygon->area = 0;
-    for (uint32 i=0;i<polygon->numVertex-1;i++) {
+    for (int32 i=0;i<polygon->numVertex-1;i++) {
 
         ftVector2 a = polygon->vertices[i];
         ftVector2 b = polygon->vertices[i+1];
@@ -121,10 +121,10 @@ void ftPolygon::copy(const ftShape* shape) {
     vertices = new ftVector2[numVertex];
     normals = new ftVector2[numVertex];
 
-    for (uint32 i = 0; i < numVertex; ++i) {
+    for (int32 i = 0; i < numVertex; ++i) {
         vertices[i] = sourcePolygon->vertices[i];
     }
-    for (uint32 i = 0; i < numVertex; ++i) {
+    for (int32 i = 0; i < numVertex; ++i) {
         normals[i] = sourcePolygon->normals[i];
     }
 }
@@ -135,7 +135,7 @@ ftAABB ftPolygon::constructAABB(ftTransform transform) const {
     aabb.min = transform * vertices[0];
     aabb.max = aabb.min;
 
-    for (uint32 i=1;i<numVertex;i++) {
+    for (int32 i=1;i<numVertex;i++) {
         ftVector2 transformVertex = transform * vertices[i];
         if (aabb.min.x > transformVertex.x) aabb.min.x = transformVertex.x;
         if (aabb.min.y > transformVertex.y) aabb.min.y = transformVertex.y;

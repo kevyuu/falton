@@ -1,9 +1,7 @@
 //
 // Created by Kevin Yu on 2016-05-24.
 //
-
-#ifndef FALTON_RHHASHTABLE_H
-#define FALTON_RHHASHTABLE_H
+#pragma once
 
 #include <falton/setting.h>
 
@@ -53,5 +51,3 @@ void ftRHHashTable::forEach(T func) {
             func(m_buckets[i].key1, m_buckets[i].key2, m_buckets[i].object);
     }
 }
-
-#endif //FALTON_RHHASHTABLE_H

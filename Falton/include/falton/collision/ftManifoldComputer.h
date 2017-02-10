@@ -1,12 +1,10 @@
 //
 // Created by Kevin Yu on 2/3/16.
 //
+#pragma once
 
-#ifndef FALTON_COLLISION_H
-#define FALTON_COLLISION_H
-
-#include <falton/math.h>
-#include <falton/shape/ftShape.h>
+#include "falton/math.h"
+#include "falton/shape/ftShape.h"
 
 struct ftManifold;
 struct ftCollisionShape;
@@ -23,11 +21,11 @@ public :
 private:
 
     struct MTVInput {
-        uint32 numVertexA;
+        int32 numVertexA;
         ftVector2* normalsA;
         ftVector2* vertexesA;
 
-        uint32 numVertexB;
+        int32 numVertexB;
         ftVector2* normalsB;
         ftVector2* vertexesB;
     };
@@ -40,13 +38,13 @@ private:
         };
 
         PolygonID polygon;
-        uint32 normalIndex;
+        int32 normalIndex;
         real separation;
     };
 
     struct ClipPoint {
         ftVector2 point[2];
-        uint32 numPoint;
+        int32 numPoint;
     };
 
     static const ftCollisionFunc collisionFunctions[SHAPE_TYPE_NUMBER_ITEM][SHAPE_TYPE_NUMBER_ITEM];
@@ -74,11 +72,8 @@ private:
                                                  const ftVector2& incVertex1, 
                                                  const ftVector2& incVertex2);
 
-    static uint32 FindIncidentEdge(const ftVector2& separatingAxis,
+    static int32 FindIncidentEdge(const ftVector2& separatingAxis,
                                    const ftVector2* incidentNormals,
                                    int normalsCount);
 
 };
-
-
-#endif //FALTON_COLLISION_H

@@ -1,12 +1,9 @@
 //
 // Created by Kevin Yu on 2016-05-23.
 //
+#pragma once
 
-#ifndef FALTON_FTQUADTREE_H
-#define FALTON_FTQUADTREE_H
-
-
-#include <falton/collision/broadphase/ftBroadphaseSystem.h>
+#include "falton/collision/broadphase/ftBroadphaseSystem.h"
 
 class ftQuadTree : public ftBroadphaseSystem {
 
@@ -105,6 +102,3 @@ private:
     real getNodeQuarterArea(ftNode* pNode);
 
 };
-
-
-#endif //FALTON_FTQUADTREE_H

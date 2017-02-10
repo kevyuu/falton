@@ -8,7 +8,7 @@
 #include <falton/shape/ftPolygon.h>
 #include <falton/shape/ftCircle.h>
 
-class ftShape;
+struct ftShape;
 
 class ftShapeBuffer {
 public:

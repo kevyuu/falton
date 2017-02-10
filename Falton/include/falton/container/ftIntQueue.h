@@ -1,9 +1,7 @@
 //
 // Created by Kevin Yu on 3/12/16.
 //
-
-#ifndef FALTON_HANDLEQUEUE_H
-#define FALTON_HANDLEQUEUE_H
+#pragma once
 
 #include <falton/setting.h>
 
@@ -29,4 +27,3 @@ public:
 
 };
 
-#endif //FALTON_HANDLEQUEUE_H

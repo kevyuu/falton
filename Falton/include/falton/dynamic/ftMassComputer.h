@@ -1,9 +1,7 @@
 //
 // Created by Kevin Yu on 4/10/16.
 //
-
-#ifndef FALTON_FTMASSCOMPUTER_H
-#define FALTON_FTMASSCOMPUTER_H
+#pragma once
 
 #include <falton/shape/ftCircle.h>
 #include <falton/shape/ftPolygon.h>
@@ -20,6 +18,3 @@ public:
     static ftMassProperty computeForCircle(const ftCircle& circle, real mass, ftVector2 offset);
     static ftMassProperty computeForPolygon(const ftPolygon& polygon, real mass, ftVector2 offset);
 };
-
-
-#endif //FALTON_FTMASSCOMPUTER_H

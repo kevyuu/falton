@@ -30,7 +30,7 @@ struct ftContactPointConstraint {
 
 struct ftContactConstraint {
 
-    uint32 bodyIDA, bodyIDB;
+    int32 bodyIDA, bodyIDB;
     ftVector2 normal;
     ftContactPointConstraint pointConstraint[2];
     ftContact *contact = nullptr;
@@ -55,8 +55,8 @@ struct ftConstraintGroup {
     ftContactConstraint* constraints;
     ftJoint** joints;
 
-    uint32 nConstraint;
-    uint32 nBody;
-    uint32 nJoint;
+    int32 nConstraint;
+    int32 nBody;
+    int32 nJoint;
 
 };

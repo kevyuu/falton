@@ -1,11 +1,7 @@
 //
 // Created by Kevin Yu on 2016-07-18.
 //
-
-#ifndef FALTON_FTVECTORARRAY_H
-#define FALTON_FTVECTORARRAY_H
-
-#include <falton/setting.h>
+#pragma once
 
 template <typename T>
 class ftVectorArray {
@@ -109,5 +105,3 @@ template <typename T>
 uint32 ftVectorArray<T>::getSize() const {
     return m_nObject;
 }
-
-#endif //FALTON_FTVECTORARRAY_H

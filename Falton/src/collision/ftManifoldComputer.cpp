@@ -147,7 +147,7 @@ void ftManifoldComputer::CircleToPolygonCollision(const ftCollisionShape &shapeA
     ftVector2* polyNormals = new ftVector2[polygon->numVertex];
     ftVector2* polyVertices = new ftVector2[polygon->numVertex];
 
-    for (uint32 i = 0; i < polygon->numVertex; ++i) {
+    for (int32 i = 0; i < polygon->numVertex; ++i) {
         polyNormals[i] = shapeB.transform.rotation * polygon->normals[i];
         polyVertices[i] = shapeB.transform * polygon->vertices[i];
     }
@@ -155,8 +155,8 @@ void ftManifoldComputer::CircleToPolygonCollision(const ftCollisionShape &shapeA
     ftVector2 circleCenter = shapeA.transform.center;
 
     real maxSeparation = real_minInfinity;
-    uint32 separatingNormalIdx = 0;
-    for (uint32 i = 0 ; i < polygon->numVertex; ++i) {
+    int32 separatingNormalIdx = 0;
+    for (int32 i = 0 ; i < polygon->numVertex; ++i) {
         real dist = (circleCenter - polyVertices[i]).dot(polyNormals[i]);
         if (dist > circle->radius) {
             manifold->numContact = 0;
@@ -357,7 +357,7 @@ ftManifoldComputer::ClipPoint ftManifoldComputer::ClipIncidentToReferenceLine(co
 
 }
 
-uint32 ftManifoldComputer::FindIncidentEdge(const ftVector2& separatingAxis, const ftVector2* incidentNormals, int normalsCount) {
+int32 ftManifoldComputer::FindIncidentEdge(const ftVector2& separatingAxis, const ftVector2* incidentNormals, int normalsCount) {
     real minPerpendicularDegree = real_Infinity
     real incidentIndex = 0;
     for (int i=0;i<normalsCount;i++) {

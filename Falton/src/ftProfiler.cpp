@@ -13,13 +13,13 @@ vector<ftProfiler::BenchUnit> ftProfiler::benchUnits;
 ftProfiler::BenchTable ftProfiler::benchTables[100];
 
 void ftProfiler::BeginFrame() {
-    ++nFrame;
-    for (int i = 0 ; i < nTags; ++i) {
-        benchTables[i].data.push_back(0);
-    }
-    long long start = ReadTSC();
-    long long end = ReadTSC();
-    ReadTSCCycle = end - start;
+    // ++nFrame;
+    // for (int i = 0 ; i < nTags; ++i) {
+    //     benchTables[i].data.push_back(0);
+    // }
+    // long long start = ReadTSC();
+    // long long end = ReadTSC();
+    // ReadTSCCycle = end - start;
 }
 
 void ftProfiler::EndFrame() {
@@ -27,8 +27,8 @@ void ftProfiler::EndFrame() {
 }
 
 void ftProfiler::Clear() {
-    for (int i = 0 ; i < nTags; ++i) {
-        benchTables[i].data.clear();
-    }
-    nFrame = 0;
+    // for (int i = 0 ; i < nTags; ++i) {
+    //     benchTables[i].data.clear();
+    // }
+    // nFrame = 0;
 }

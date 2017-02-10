@@ -1,16 +1,12 @@
 //
 // Created by Kevin Yu on 12/30/15.
 //
+#pragma once
 
-#ifndef FALTON_FTNSQUAREDBROADPHASE_H
-#define FALTON_FTNSQUAREDBROADPHASE_H
-
-#include<queue>
-
-#include <falton/collision/broadphase/ftBroadphaseSystem.h>
-#include <falton/container/ftIntQueue.h>
-#include <falton/container/ftChunkArray.h>
-#include <falton/shape/ftAABB.h>
+#include "falton/collision/broadphase/ftBroadphaseSystem.h"
+#include "falton/container/ftIntQueue.h"
+#include "falton/container/ftChunkArray.h"
+#include "falton/shape/ftAABB.h"
 
 struct ftCollisionShape;
 
@@ -44,6 +40,3 @@ private:
     ftIntQueue m_freeHandleList;
 
 };
-
-
-#endif //FALTON_FTNSQUAREDBROADPHASE_H

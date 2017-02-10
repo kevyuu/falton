@@ -1,9 +1,7 @@
 //
 // Created by Kevin Yu on 3/22/16.
 //
-
-#ifndef FALTON_FTCONTACTCONSTRAINTSOLVER_H
-#define FALTON_FTCONTACTCONSTRAINTSOLVER_H
+#pragma once 
 
 #include <falton/collision/ftCollisionSystem.h>
 #include <falton/dynamic/ftContactConstraint.h>
@@ -46,5 +44,3 @@ private:
     ftConfig m_option;
 
 };
-
-#endif //FALTON_FTCONTACTCONSTRAINTSOLVER_H

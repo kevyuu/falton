@@ -1,13 +1,11 @@
 //
 // Created by Kevin Yu on 5/5/16.
 //
+#pragma once
 
-#ifndef FALTON_FTHIERARCHICALGRID_H
-#define FALTON_FTHIERARCHICALGRID_H
-
-#include <falton/container/ftBitSet.h>
-#include <falton/container/ftIntQueue.h>
-#include <falton/collision/broadphase/ftBroadphaseSystem.h>
+#include "falton/container/ftBitSet.h"
+#include "falton/container/ftIntQueue.h"
+#include "falton/collision/broadphase/ftBroadphaseSystem.h"
 
 class ftHierarchicalGrid : public ftBroadphaseSystem
 {
@@ -80,5 +78,3 @@ class ftHierarchicalGrid : public ftBroadphaseSystem
                                   ftChunkArray<ftBroadPhasePair> *pairs);
     void unlink(ftElem *elem);
 };
-
-#endif //FALTON_FTHIERARCHICALGRID_H
