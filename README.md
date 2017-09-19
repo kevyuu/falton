@@ -29,3 +29,8 @@ Falton is still being developed. We don't have a stable version yet. API is not 
 [] Chain Shape
 [] Refactor
 [] Internal memory allocation
+
+# Reference
+- Box2D
+- Chipmunk
+- Bullet
