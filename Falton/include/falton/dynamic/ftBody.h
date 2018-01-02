@@ -9,6 +9,8 @@
 #include "falton/dynamic/ftCollider.h"
 
 struct ftContact;
+struct ftJointEdge;
+struct ftContactEdge;
 
 enum ftBodyType {
     STATIC,
@@ -22,7 +24,6 @@ enum ftActivationState {
     SLEEP,
 };
 
-
 struct ftBody {
 
 public:
@@ -33,20 +34,20 @@ public:
     ftVector2 centerOfMass;
     ftVector2 velocity;
     real angularVelocity = 0;
+    
+    ftBodyType bodyType;
 
     void applyForce(ftVector2 force, ftVector2 localPos);
     void applyForceAtCenterOfMass(ftVector2 force);  
     void applyTorque(real torque);
 
-    void setMass(real mass);
+	void setMass(real mass);
     void setMoment(real moment);
 
     real getMass();
     real getMoment();
 
-    void addContactEdge(ftContactEdge* contactEdge);
-    void addJointEdge(ftJointEdge* jointEdge);
-    void addCollider(ftCollider* collider);
+    void addCollider(ftCollider* collider); 
 
     template <typename T>
     void forEachCollider(T func);
@@ -59,7 +60,6 @@ public:
 
 private:
 
-    ftBodyType bodyType;
     ftActivationState activationState = ACTIVE;
 
     ftVector2 forceAccum;
@@ -85,11 +85,11 @@ private:
     friend class ftConstraintSolver;
     friend class ftJointSolver;
     
-    friend class ftDistanceJoint;
-    friend class ftDynamoJoint;
-    friend class ftHingeJoint;
-    friend class ftPistonJoint;
-    friend class ftSpringJoint;
+    friend struct ftDistanceJoint;
+    friend struct ftDynamoJoint;
+    friend struct ftHingeJoint;
+    friend struct ftPistonJoint;
+    friend struct ftSpringJoint;
     
 };
 

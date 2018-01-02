@@ -18,10 +18,9 @@ void ftHierarchicalGrid::setConfiguration(ftConfig config)
 
 void ftHierarchicalGrid::init()
 {
-
     m_elemList.init(64);
 
-    m_elemBucket = new ftElem *[m_bucketCapacity];
+    m_elemBucket = new ftElem *[m_bucketCapacity];;
     for (uint32 i = 0; i < m_bucketCapacity; ++i)
     {
         m_elemBucket[i] = nullptr;

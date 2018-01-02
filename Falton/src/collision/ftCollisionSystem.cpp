@@ -4,8 +4,8 @@
 
 #include <falton/collision/ftCollisionSystem.h>
 #include <falton/collision/ftManifoldComputer.h>
-#include <ftProfiler.h>
 #include <functional>
+#include <iostream>
 
 void ftCollisionSystem::init(ftBroadphaseSystem *broadphase)
 {
@@ -14,14 +14,11 @@ void ftCollisionSystem::init(ftBroadphaseSystem *broadphase)
     m_curTimeStamp = 0;
     m_nShape = 0;
     m_minQueueSize = 0;
-
     m_shapes.init(64);
     broadphase->init();
     m_contactBuffer.init();
-
     m_moveMasks.init(64);
     m_movedShapes.init(64);
-
     m_freeShapes = nulluint;
     m_nFreeShape = 0;
 }
@@ -224,6 +221,19 @@ void ftCollisionSystem::updateOneAtATime(ftCollisionFilterFunc filter,
     m_minQueueSize = 0;
     m_moveMasks.clear();
     m_movedShapes.removeAll();
+}
+
+
+void ftCollisionSystem::regionQuery(ftAABB region, ftVectorArray<void*>* userdataResults) {
+	ftChunkArray<const void *> results;
+	results.init(128);
+    m_broadphase->regionQuery(region, &results);
+	for (int j = 0; j < results.getSize(); ++j) {
+		ftColHandle handle = (ftColHandle)results[j];
+		void* userdata = m_shapes[handle].userdata;
+		userdataResults->push(userdata);
+	}
+	results.cleanup();
 }
 
 void ftCollisionSystem::destroyEndingContacts(ftCollisionCallback callback)

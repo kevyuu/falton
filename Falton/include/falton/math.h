@@ -175,7 +175,7 @@ class ftRotation {
 public:
     real cosValue;
     real sinValue;
-    real angle;
+    real angle; // in radian
 
     ftRotation() : cosValue(0), sinValue(0) {}
 
@@ -190,6 +190,9 @@ public:
         cosValue = cos(angle);
         sinValue = sin(angle);
     }
+
+    static ftRotation Angle(real angle);
+    static ftRotation Direction(ftVector2 direction);
 
     void operator+=(real angle);
     ftRotation operator*(const ftRotation& rhs) const;
@@ -207,6 +210,7 @@ inline ftRotation ftRotation::operator*(const ftRotation &rhs) const {
     ftRotation rotation;
     rotation.cosValue = this->cosValue * rhs.cosValue - this->sinValue * rhs.sinValue;
     rotation.sinValue = this->sinValue * rhs.cosValue + this->cosValue * rhs.sinValue;
+    rotation.angle = this->angle + rhs.angle;
 
     return rotation;
 }
@@ -220,6 +224,7 @@ inline void ftRotation::operator*=(const ftRotation &rhs) {
 
     this->cosValue = resultCosValue;
     this->sinValue = resultSinValue;
+    this->angle += rhs.angle;
 }
 
 inline ftVector2 ftRotation::operator*(const ftVector2& rhs) const {
@@ -240,6 +245,23 @@ inline ftVector2 ftRotation::invRotate(const ftVector2 &rhs) const {
     return result;
 }
 
+inline ftRotation ftRotation::Angle(real angle) {
+    ftRotation rotation;
+    rotation.cosValue = cos(angle);
+    rotation.sinValue = sin(angle);
+    rotation.angle = angle;
+    return rotation;
+}
+
+inline ftRotation ftRotation::Direction(ftVector2 direction) {
+    ftRotation rotation;
+    real distance = sqrt(direction.x * direction.x + direction.y * direction.y);
+    rotation.sinValue = direction.y / distance;
+    rotation.cosValue = direction.x / distance;
+    rotation.angle = atan2(direction.y, direction.x);
+    return rotation;
+}
+
 class ftTransform {
 public:
     ftVector2 center;
@@ -248,6 +270,11 @@ public:
 
     ftTransform() : center(0,0), rotation(0) {}
 
+    ftTransform(ftVector2 center, ftRotation rotation) {
+        this->center = center;
+        this->rotation = rotation;
+    }
+    
     ftTransform(ftVector2 center, real angle) : center(center), rotation(angle) {}
 
     ftVector2 operator*(const ftVector2& vec) const {

@@ -33,7 +33,9 @@ find_package(OpenGL REQUIRED)
 
 set (GLFW_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/external/GLFW/include)
 set (IMGUI_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/external/ImGui/include)
+set (DEPENDENCIES_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/external)
 set (FALTON_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/Falton/include)
+
 
 set (GLFW_LIBRARY_DIR ${CMAKE_SOURCE_DIR}/external/GLFW/lib)
 
@@ -41,7 +43,7 @@ find_library(GLFW_LIBRARY glfw3 HINTS ${GLFW_LIBRARY_DIR})
 
 file (GLOB IMGUI_SOURCES ${CMAKE_SOURCE_DIR}/external/ImGui/src/*.cpp ${CMAKE_SOURCE_DIR}/external/ImGui/src/*.c)
 
-add_subdirectory(src)
+add_subdirectory(phyvis)
 
 set(CONFIGURED_ONCE TRUE CACHE INTERNAL
         "A flag showing that CMake has configured at least once.")

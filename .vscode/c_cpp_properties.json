@@ -2,38 +2,73 @@
     "configurations": [
         {
             "name": "Mac",
-            "includePath": ["/usr/include",
-                            "${workspaceRoot}/external/include",
-                            "${workspaceRoot}/Falton/include"],
-            "browse" : {
-                "limitSymbolsToIncludedHeaders" : true,
-                "databaseFilename" : ""
-            }
+            "includePath": [
+                "/usr/include",
+                "${workspaceRoot}/external/include",
+                "${workspaceRoot}/Falton/include",
+                "${workspaceRoot}"
+            ],
+            "browse": {
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": "",
+                "path": [
+                    "/usr/include",
+                    "${workspaceRoot}/external/include",
+                    "${workspaceRoot}/Falton/include",
+                    "${workspaceRoot}"
+                ]
+            },
+            "intelliSenseMode": "clang-x64",
+            "macFrameworkPath": [
+                "/System/Library/Frameworks",
+                "/Library/Frameworks"
+            ]
         },
         {
             "name": "Linux",
-            "includePath": ["/usr/include",
-                            "${workspaceRoot}/external/include",
-                            "${workspaceRoot}/Falton/include"],
-            "browse" : {
-                "limitSymbolsToIncludedHeaders" : true,
-                "databaseFilename" : ""
-            }
+            "includePath": [
+                "/usr/include",
+                "${workspaceRoot}/external/include",
+                "${workspaceRoot}/Falton/include",
+                "${workspaceRoot}"
+            ],
+            "browse": {
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": "",
+                "path": [
+                    "/usr/include",
+                    "${workspaceRoot}/external/include",
+                    "${workspaceRoot}/Falton/include",
+                    "${workspaceRoot}"
+                ]
+            },
+            "intelliSenseMode": "clang-x64"
         },
         {
             "name": "Win32",
-            "includePath": ["c:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include",
-                            "${workspaceRoot}/external/include",
-                            "${workspaceRoot}/Falton/include"],
-            "browse" : {
-                "limitSymbolsToIncludedHeaders" : true,
-                "databaseFilename" : ""
-            }
+            "includePath": [
+                "c:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include",
+                "${workspaceRoot}/external/include",
+                "${workspaceRoot}/Falton/include",
+                "${workspaceRoot}"
+            ],
+            "browse": {
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": "",
+                "path": [
+                    "c:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include",
+                    "${workspaceRoot}/external/include",
+                    "${workspaceRoot}/Falton/include",
+                    "${workspaceRoot}"
+                ]
+            },
+            "intelliSenseMode": "msvc-x64"
         }
     ],
-    "clang_format" : {
-        "style" : "file",
-        "fallback-style" : "LLVM",
-        "sort-includes" : false
-    }
+    "clang_format": {
+        "style": "file",
+        "fallback-style": "LLVM",
+        "sort-includes": false
+    },
+    "version": 3
 }

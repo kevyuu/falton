@@ -61,6 +61,8 @@ class ftPhysicsSystem
     void iterateKinematicBody(ftBodyIterFunc iterFunc, void *data);
     void iterateDynamicBody(ftBodyIterFunc iterFunc, void *data);
 
+	void regionQuery(ftAABB region, ftVectorArray<ftCollider*>* collidersInRegion);
+
     template <typename T>
     void forEachBody(T func);
     template <typename T>

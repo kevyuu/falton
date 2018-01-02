@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{CB6BEF7D-AAA7-4C89-9BC0-550F49ABA4FF}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>C:\Users\kevin\Dev\falton\Falton\include;C:\Users\kevin\Dev\falton\external\ImGui\include;C:\Users\kevin\Dev\falton\external;C:\Users\kevin\Dev\falton\external\GLFW\include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\Falton\include\ ..\external\GLFW\include\ ..\external\ImGui\include\ ..\external\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX86</TargetMachine>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\Falton\include\ ..\external\GLFW\include\ ..\external\ImGui\include\ ..\external\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX86</TargetMachine>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="external\imgui\src\gl3w.c" />
+    <ClCompile Include="external\imgui\src\imgui.cpp" />
+    <ClCompile Include="external\imgui\src\imgui_demo.cpp" />
+    <ClCompile Include="external\imgui\src\imgui_draw.cpp" />
+    <ClCompile Include="falton\src\collision\broadphase\ftDynamicBVH.cpp" />
+    <ClCompile Include="falton\src\collision\broadphase\ftHierarchicalGrid.cpp" />
+    <ClCompile Include="falton\src\collision\broadphase\ftNSquaredBroadphase.cpp" />
+    <ClCompile Include="falton\src\collision\broadphase\ftQuadTree.cpp" />
+    <ClCompile Include="falton\src\collision\broadphase\ftToroidalGrid.cpp" />
+    <ClCompile Include="falton\src\collision\ftCollisionSystem.cpp" />
+    <ClCompile Include="falton\src\collision\ftContact.cpp" />
+    <ClCompile Include="falton\src\collision\ftManifoldComputer.cpp" />
+    <ClCompile Include="falton\src\container\ftBitSet.cpp" />
+    <ClCompile Include="falton\src\container\ftIntQueue.cpp" />
+    <ClCompile Include="falton\src\container\ftRHHashTable.cpp" />
+    <ClCompile Include="falton\src\dynamic\ftBody.cpp" />
+    <ClCompile Include="falton\src\dynamic\ftConstraintSolver.cpp" />
+    <ClCompile Include="falton\src\dynamic\ftIslandSystem.cpp" />
+    <ClCompile Include="falton\src\dynamic\ftJoint.cpp" />
+    <ClCompile Include="falton\src\dynamic\ftJointSolver.cpp" />
+    <ClCompile Include="falton\src\dynamic\ftMassComputer.cpp" />
+    <ClCompile Include="falton\src\dynamic\ftPhysicsSystem.cpp" />
+    <ClCompile Include="falton\src\shape\ftCircle.cpp" />
+    <ClCompile Include="falton\src\shape\ftPolygon.cpp" />
+    <ClCompile Include="falton\src\shape\ftShapeBuffer.cpp" />
+    <ClCompile Include="falton\unity.cpp" />
+    <ClCompile Include="phyvis\imgui_impl_glfw_gl3.cpp" />
+    <ClCompile Include="phyvis\main.cpp" />
+    <ClCompile Include="phyvis\phyvis.cpp" />
+    <ClCompile Include="phyvis\phyvis_entity.cpp" />
+    <ClCompile Include="phyvis\phyvis_render.cpp" />
+    <ClCompile Include="phyvis\phyvis_window.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="external\dirent_portable.h" />
+    <ClInclude Include="external\glfw\include\glfw\glfw3.h" />
+    <ClInclude Include="external\glfw\include\glfw\glfw3native.h" />
+    <ClInclude Include="external\imgui\include\gl\eglew.h" />
+    <ClInclude Include="external\imgui\include\gl\gl3w.h" />
+    <ClInclude Include="external\imgui\include\gl\glcorearb.h" />
+    <ClInclude Include="external\imgui\include\gl\glew.h" />
+    <ClInclude Include="external\imgui\include\gl\glxew.h" />
+    <ClInclude Include="external\imgui\include\gl\wglew.h" />
+    <ClInclude Include="external\imgui\include\imgui\imconfig.h" />
+    <ClInclude Include="external\imgui\include\imgui\imgui.h" />
+    <ClInclude Include="external\imgui\include\imgui\imgui_internal.h" />
+    <ClInclude Include="external\imgui\include\imgui\stb_rect_pack.h" />
+    <ClInclude Include="external\imgui\include\imgui\stb_textedit.h" />
+    <ClInclude Include="external\imgui\include\imgui\stb_truetype.h" />
+    <ClInclude Include="falton\include\falton\collision\broadphase\ftBroadphaseSystem.h" />
+    <ClInclude Include="falton\include\falton\collision\broadphase\ftDynamicBVH.h" />
+    <ClInclude Include="falton\include\falton\collision\broadphase\ftHierarchicalGrid.h" />
+    <ClInclude Include="falton\include\falton\collision\broadphase\ftNSquaredBroadphase.h" />
+    <ClInclude Include="falton\include\falton\collision\broadphase\ftQuadTree.h" />
+    <ClInclude Include="falton\include\falton\collision\broadphase\ftToroidalGrid.h" />
+    <ClInclude Include="falton\include\falton\collision\ftCollisionSystem.h" />
+    <ClInclude Include="falton\include\falton\collision\ftContact.h" />
+    <ClInclude Include="falton\include\falton\collision\ftManifoldComputer.h" />
+    <ClInclude Include="falton\include\falton\container\ftBitSet.h" />
+    <ClInclude Include="falton\include\falton\container\ftChunkArray.h" />
+    <ClInclude Include="falton\include\falton\container\ftIDBuffer.h" />
+    <ClInclude Include="falton\include\falton\container\ftIntQueue.h" />
+    <ClInclude Include="falton\include\falton\container\ftRHHashTable.h" />
+    <ClInclude Include="falton\include\falton\container\ftStack.h" />
+    <ClInclude Include="falton\include\falton\container\ftVectorArray.h" />
+    <ClInclude Include="falton\include\falton\dynamic\ftBody.h" />
+    <ClInclude Include="falton\include\falton\dynamic\ftCollider.h" />
+    <ClInclude Include="falton\include\falton\dynamic\ftConstraintSolver.h" />
+    <ClInclude Include="falton\include\falton\dynamic\ftContactConstraint.h" />
+    <ClInclude Include="falton\include\falton\dynamic\ftIsland.h" />
+    <ClInclude Include="falton\include\falton\dynamic\ftIslandSystem.h" />
+    <ClInclude Include="falton\include\falton\dynamic\ftJoint.h" />
+    <ClInclude Include="falton\include\falton\dynamic\ftJointSolver.h" />
+    <ClInclude Include="falton\include\falton\dynamic\ftMassComputer.h" />
+    <ClInclude Include="falton\include\falton\dynamic\ftPhysicsSystem.h" />
+    <ClInclude Include="falton\include\falton\math.h" />
+    <ClInclude Include="falton\include\falton\physics.h" />
+    <ClInclude Include="falton\include\falton\setting.h" />
+    <ClInclude Include="falton\include\falton\shape\ftAABB.h" />
+    <ClInclude Include="falton\include\falton\shape\ftCircle.h" />
+    <ClInclude Include="falton\include\falton\shape\ftPolygon.h" />
+    <ClInclude Include="falton\include\falton\shape\ftShape.h" />
+    <ClInclude Include="falton\include\falton\shape\ftShapeBuffer.h" />
+    <ClInclude Include="phyvis\imgui_impl_glfw_gl3.h" />
+    <ClInclude Include="phyvis\phyvis.h" />
+    <ClInclude Include="phyvis\phyvis_entity.h" />
+    <ClInclude Include="phyvis\phyvis_render.h" />
+    <ClInclude Include="phyvis\phyvis_window.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

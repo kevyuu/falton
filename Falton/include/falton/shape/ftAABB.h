@@ -44,6 +44,26 @@ struct ftAABB {
         aabb.max.y = ftMax(a.max.y, b.max.y);
         return aabb;
     }
+
+    static ftAABB Create(ftVector2 p1, ftVector2 p2) {
+        ftAABB aabb;
+        
+        aabb.min.x = p1.x;
+        aabb.max.x = p2.x;
+        if (p1.x > p2.x) {
+            aabb.min.x = p2.x;
+            aabb.max.x = p1.x;
+        }
+
+        aabb.min.y = p1.y;
+        aabb.max.y = p2.y;
+        if (p1.y > p2.y) {
+            aabb.min.y = p2.y;
+            aabb.max.y = p1.y;
+        }
+
+        return aabb;
+    }
 };
 
 

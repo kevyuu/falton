@@ -23,5 +23,3 @@
 #include "src/shape/ftCircle.cpp"
 #include "src/shape/ftPolygon.cpp"
 #include "src/shape/ftShapeBuffer.cpp"
-
-#include "src/ftProfiler.cpp"

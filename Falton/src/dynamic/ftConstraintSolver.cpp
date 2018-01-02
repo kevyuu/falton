@@ -10,7 +10,7 @@
 #include <falton/dynamic/ftIsland.h>
 #include <falton/collision/ftContact.h>
 
-using namespace std;
+#include <iostream>
 
 void ftConstraintSolver::createContactConstraint(ftCollider *colliderA,
                                                  ftCollider *colliderB,
@@ -157,7 +157,6 @@ void ftConstraintSolver::solve(real dt)
 
         for (int i = 0; i < m_constraintGroup.nConstraint; ++i)
         {
-
             ftContactConstraint *constraint = &(m_constraintGroup.constraints[i]);
             int32 bodyIDA = constraint->bodyIDA;
             int32 bodyIDB = constraint->bodyIDB;
@@ -166,7 +165,7 @@ void ftConstraintSolver::solve(real dt)
 
             for (int j = 0; j < constraint->numContactPoint; ++j)
             {
-
+				
                 ftContactPointConstraint *pointConstraint = &(constraint->pointConstraint[j]);
 
                 //normal impulse

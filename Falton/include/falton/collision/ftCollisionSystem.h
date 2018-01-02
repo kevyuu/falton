@@ -11,6 +11,7 @@
 #include "falton/collision/broadphase/ftBroadphaseSystem.h"
 #include "falton/collision/ftContact.h"
 #include "falton/container/ftBitSet.h"
+#include "falton/container/ftVectorArray.h"
 
 
 struct ftContact;
@@ -55,6 +56,7 @@ class ftCollisionSystem
     void updateContacts(ftCollisionFilterFunc filter, ftCollisionCallback callback);
     void updateOneAtATime(ftCollisionFilterFunc filter, ftCollisionCallback callback);
     void updateAllAtOnce(ftCollisionFilterFunc filter, ftCollisionCallback callback);
+	void regionQuery(ftAABB region, ftVectorArray<void*>* results);
 
     void destroyContact(ftContact *contact);
 

@@ -6,7 +6,7 @@
 #include "falton/dynamic/ftJoint.h"
 #include "falton/dynamic/ftIsland.h"
 
-#include "ftProfiler.h"
+#include <iostream>
 
 void ftPhysicsSystem::setConfiguration(const ftConfig &config)
 {
@@ -358,7 +358,7 @@ void ftPhysicsSystem::step(real dt)
 
     integrateVelocity(dt);
 
-    const auto updateColSystem = [this](ftBody *body) -> void {
+    auto updateColSystem = [this](ftBody *body) -> void {
         for (auto collider = body->colliders; collider != nullptr; collider = collider->next)
         {
             this->m_collisionSystem.moveShape(collider->collisionHandle, body->transform * collider->transform);
@@ -368,7 +368,7 @@ void ftPhysicsSystem::step(real dt)
     m_dynamicBodies.forEach(std::cref(updateColSystem));
     m_kinematicBodies.forEach(std::cref(updateColSystem));
 
-    const auto colFilter = [](void *userdataA, void *userdataB) -> bool {
+    auto colFilter = [](void *userdataA, void *userdataB) -> bool {
 
         ftCollider *colliderA = (ftCollider *)userdataA;
         ftCollider *colliderB = (ftCollider *)userdataB;
@@ -403,7 +403,8 @@ void ftPhysicsSystem::step(real dt)
 
     m_collisionSystem.updateContacts(colFilter, callback);
 
-    const auto processIsland =
+
+    auto processIsland =
         [this, dt](const ftIsland &island) -> void {
         bool allSleeping = true;
         const ftChunkArray<ftBody *> *bodies = &(island.bodies);
@@ -507,9 +508,19 @@ void ftPhysicsSystem::updateBodiesActivation(real dt)
     }
 }
 
+
+void ftPhysicsSystem::regionQuery(ftAABB region, ftVectorArray<ftCollider*>* collidersInRegion) {
+	ftVectorArray<void*> results;
+	results.init(collidersInRegion->getCapacity());
+    m_collisionSystem.regionQuery(region, &results);
+	for (int i = 0; i < results.getSize(); ++i) {
+		collidersInRegion->push((ftCollider*)results[i]);
+	}
+	results.cleanup();
+}
+
 void ftPhysicsSystem::beginContactListener(ftContact *contact, void *data)
 {
-
     ftIslandSystem *islandSystem = (ftIslandSystem *)data;
     islandSystem->addContact(contact);
 }

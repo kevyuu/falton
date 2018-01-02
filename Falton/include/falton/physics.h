@@ -8,6 +8,14 @@
 #include "collision/broadphase/ftQuadTree.h"
 #include "collision/broadphase/ftToroidalGrid.h"
 
+#include "container/ftBitSet.h"
+#include "container/ftChunkArray.h"
+#include "container/ftIntQueue.h"
+#include "container/ftRHHashTable.h"
+#include "container/ftStack.h"
+#include "container/ftVectorArray.h"
+#include "container/ftIDBuffer.h"
+
 #include "dynamic/ftBody.h"
 #include "dynamic/ftCollider.h"
 #include "dynamic/ftPhysicsSystem.h"

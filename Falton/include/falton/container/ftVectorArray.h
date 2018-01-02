@@ -40,7 +40,7 @@ template <typename T>
 void ftVectorArray<T>::cleanup() {
     m_capacity = 0;
     m_nObject = 0;
-    delete []T;
+    delete[] m_objects;
 }
 
 template <typename T>

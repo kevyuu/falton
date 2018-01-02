@@ -18,7 +18,7 @@ class ftConstraintSolver {
 public:
 
     struct ftConfig {
-        uint8 numIteration = 10;
+        int numIteration = 10;
         real baumgarteCoef = 0.2;
         real allowedPenetration = 0.01;
     };

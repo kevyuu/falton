@@ -4,6 +4,8 @@
 
 #include "falton/setting.h"
 #include "falton/shape/ftPolygon.h"
+#include "falton/collision/ftContact.h"
+#include "falton/collision/ftManifoldComputer.h"
 
 ftPolygon::ftPolygon(): numVertex(0), vertices(nullptr), area(0),
                          normals(nullptr) {

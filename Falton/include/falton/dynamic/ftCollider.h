@@ -16,7 +16,7 @@ struct ftCollider {
     //position and orientation relative to body
     ftTransform transform;
 
-    real friction = 0.2;
+    real friction = 0.2f;
     real restitution = 0;
 
     uint32 group = 0;
