@@ -15,6 +15,9 @@ struct ftMassProperty {
 
 class ftMassComputer {
 public:
+	static ftMassProperty computeForCircle(real radius, real mass, ftVector2 offset);
+	static ftMassProperty computeForPolygon(int vertexCount, ftVector2* vertexes, real mass, ftVector2 offset);
+
     static ftMassProperty computeForCircle(const ftCircle& circle, real mass, ftVector2 offset);
     static ftMassProperty computeForPolygon(const ftPolygon& polygon, real mass, ftVector2 offset);
 };

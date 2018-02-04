@@ -58,10 +58,9 @@ public:
     template <typename T>
     void forEachJoint(T func);
 
-private:
+	ftActivationState activationState = ACTIVE;
 
-    ftActivationState activationState = ACTIVE;
-
+// private
     ftVector2 forceAccum;
 
     real torqueAccum = 0;

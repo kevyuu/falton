@@ -7,6 +7,7 @@
 #include <falton/shape/ftCircle.h>
 #include <falton/shape/ftPolygon.h>
 
+
 const ftCollisionFunc ftManifoldComputer::collisionFunctions[SHAPE_TYPE_NUMBER_ITEM][SHAPE_TYPE_NUMBER_ITEM] = {
 
         ftManifoldComputer::CircleToCircleCollission,
@@ -182,6 +183,7 @@ void ftManifoldComputer::CircleToPolygonCollision(const ftCollisionShape &shapeA
         manifold->numContact = 1;
         manifold->normal = -1 * polyNormals[separatingNormalIdx];
         manifold->contactPoints[0].r1 = circleCenter + manifold->normal * circle->radius;
+        
         manifold->contactPoints[0].r2 = (v1 + v2) * 0.5;
         manifold->penetrationDepth[0] = -1 * maxSeparation;
     }
@@ -209,7 +211,8 @@ void ftManifoldComputer::CircleToPolygonCollision(const ftCollisionShape &shapeA
         manifold->numContact = 1;
         manifold->normal = -1 * polyNormals[separatingNormalIdx];
         manifold->contactPoints[0].r1 = circleCenter + manifold->normal * circle->radius;
-        manifold->contactPoints[0].r2 = (v1 + v2) * 0.5f;
+        ftVector2 diff = v2 - v1;
+        manifold->contactPoints[0].r2 = v1 + (diff * u1 / diff.square_magnitude());
         manifold->penetrationDepth[0] = -1 * maxSeparation;
     }
 

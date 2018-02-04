@@ -9,6 +9,10 @@
 #include "falton/container/ftChunkArray.h"
 #include "falton/container/ftIntQueue.h"
 #include "falton/collision/broadphase/ftBroadphaseSystem.h"
+#include "falton/collision/broadphase/ftDynamicBVH.h"
+#include "falton/collision/broadphase/ftHierarchicalGrid.h"
+#include "falton/collision/broadphase/ftToroidalGrid.h"
+#include "falton/collision/broadphase/ftQuadTree.h"
 #include "falton/collision/ftContact.h"
 #include "falton/container/ftBitSet.h"
 #include "falton/container/ftVectorArray.h"
@@ -44,9 +48,19 @@ struct ftCollisionCallback
 /* Role : System */
 class ftCollisionSystem
 {
-
   public:
-    void init(ftBroadphaseSystem *broadphase);
+
+    struct ftConfig {
+        ftBroadphaseType broadphaseType = FT_BROADPHASE_TYPE_DYNAMIC_BVH;
+        ftDynamicBVH::ftConfig dynamicBVHConfig;
+        ftHierarchicalGrid::ftConfig hierarchicalGridConfig;
+        ftQuadTree::ftConfig quadTreeConfig;
+        ftToroidalGrid::ftConfig toroidalGridConfig;
+        
+    };
+
+    void setConfiguration(const ftConfig &config);
+    void init();
     void shutdown();
 
     ftColHandle addShape(ftTransform transform, ftShape *shape, void *userData);
@@ -68,7 +82,12 @@ class ftCollisionSystem
     template <typename T>
     void forEachContact(T func);
 
+    
+
   private:
+
+    ftConfig m_config;
+
     ftChunkArray<ftCollisionShape> m_shapes;
     ftColHandle m_freeShapes;
     uint32 m_nShape;

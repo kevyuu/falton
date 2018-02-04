@@ -19,6 +19,8 @@ public:
     ftAABB constructAABB(ftTransform transform) const override;
 
     static ftCircle* create(real radius);
+
+    void setRadius(real radius);
 };
 
 

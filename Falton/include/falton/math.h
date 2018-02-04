@@ -26,6 +26,12 @@ inline real ftMax(real x, real y) {
     return x > y ? x : y;
 }
 
+inline real ftClamp(real value, real min, real max) {
+    if (value > max) return max;
+    if (value < min) return min;
+    return value;
+}
+
 struct ftVector2 {
 
 public:
@@ -302,6 +308,11 @@ public:
         this->rotation *= transform.rotation;
 
     }
+
+    ftVector2 invTransform(const ftVector2 vector) {
+        ftVector2 result = vector - center;
+        return rotation.invRotate(result);
+    }
 };
 
 class ftMat2x2 {
@@ -318,16 +329,15 @@ inline void ftMat2x2::invert() {
     element[0][0] = element[1][1] / determinant;
     element[1][1] = tmp / determinant;
 
-    tmp = element[0][1];
-    element[0][1] = - element[1][0] / determinant;
-    element[1][0] = - tmp / determinant;
+    element[0][1] = - element[0][1] / determinant;
+    element[1][0] = - element[1][0] / determinant;
 }
 
 inline ftVector2 ftMat2x2::operator*(const ftVector2& rhs) {
-    ftVector2 result;
+ftVector2 result;
 
-    result.x = element[0][0] * rhs.x + element[0][1] * rhs.y;
-    result.y = element[1][0] * rhs.x + element[1][1] * rhs.y;
+    result.x = element[0][0] * rhs.x + element[1][0] * rhs.y;
+    result.y = element[0][1] * rhs.x + element[1][1] * rhs.y;
 
     return result;
 }

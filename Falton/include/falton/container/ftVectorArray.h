@@ -57,6 +57,7 @@ void ftVectorArray<T>::push(T obj) {
         m_capacity *= 2;
         m_objects = new T[m_capacity];
         memcpy(m_objects, old, oldCapacity * sizeof(T));
+        delete[] old;
     }
     m_objects[m_nObject] = obj;
     ++m_nObject;
@@ -70,6 +71,7 @@ uint32 ftVectorArray<T>::push() {
         m_capacity *= 2;
         m_objects = new T[m_capacity];
         memcpy(m_objects, old, oldCapacity * sizeof(T));
+        delete[] old;
     }
     ++m_nObject;
     return m_nObject-1;
@@ -83,6 +85,7 @@ void ftVectorArray<T>::reserve(uint32 newCapacity) {
         m_objects = new T[newCapacity];
         memcpy(m_objects, old, m_capacity * sizeof(T));
         m_capacity = newCapacity;
+        delete[] old;
     }
 }
 

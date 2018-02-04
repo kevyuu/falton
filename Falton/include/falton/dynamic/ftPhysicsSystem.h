@@ -30,6 +30,7 @@ class ftPhysicsSystem
         real sleepRatio = 0.2f;
         ftVector2 gravity = {0, -10};
 
+        ftCollisionSystem::ftConfig  collisionConfig;
         ftConstraintSolver::ftConfig solverConfig;
     };
 
@@ -39,8 +40,6 @@ class ftPhysicsSystem
 
     void init();
     void shutdown();
-
-    void installBroadphase(ftBroadphaseSystem *broadphase);
 
     ftBody *createStaticBody(const ftVector2 &position, real orientation);
     ftBody *createKinematicBody(const ftVector2 &position, real orientation);
@@ -55,7 +54,9 @@ class ftPhysicsSystem
     ftDistanceJoint *createDistanceJoint(ftBody *bodyA, ftBody *bodyB, ftVector2 localAnchorA, ftVector2 localAnchorB);
     ftSpringJoint *createSpringJoint(ftBody *bodyA, ftBody *bodyB, ftVector2 localAnchorA, ftVector2 localAnchorB);
     ftDynamoJoint *createDynamoJoint(ftBody *bodyA, ftBody *bodyB, real targetRate, real maxTorque);
-
+    ftPistonJoint* createPistonJoint(ftBody* bodyA, ftBody* bodyB, ftVector2 localAnchorA, ftVector2 localAnchorB, ftVector2 axis);
+    void destroyJoint(ftJoint *joint);
+    
     void iterateBody(ftBodyIterFunc iterFunc, void *data);
     void iterateStaticBody(ftBodyIterFunc iterFunc, void *data);
     void iterateKinematicBody(ftBodyIterFunc iterFunc, void *data);
@@ -75,6 +76,9 @@ class ftPhysicsSystem
     template <typename T>
     void forEachContact(T func);
 
+	template <typename T>
+	void forEachJoint(T func);
+
     void step(real dt);
 
   private:
@@ -88,8 +92,6 @@ class ftPhysicsSystem
     ftConstraintSolver m_contactSolver;
     ftCollisionSystem m_collisionSystem;
     ftIslandSystem m_islandSystem;
-
-    ftBroadphaseSystem *m_broadphase;
 
     ftChunkArray<ftJoint *> m_joints;
 
@@ -146,4 +148,12 @@ inline void ftPhysicsSystem::forEachContact(T func)
         func(contact);
     };
     m_collisionSystem.forEachContact(std::cref(iterate));
+}
+
+template <typename T>
+inline void ftPhysicsSystem::forEachJoint(T func) 
+{
+	for (int i = 0; i < m_joints.getSize(); ++i) {
+		func(m_joints[i]);
+	}
 }

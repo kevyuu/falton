@@ -10,7 +10,10 @@
 
 void ftPhysicsSystem::setConfiguration(const ftConfig &config)
 {
+    
     m_contactSolver.setConfiguration(config.solverConfig);
+    m_collisionSystem.setConfiguration(config.collisionConfig);
+
     m_collisionSystem.setSleepRatio(config.sleepRatio);
     m_sleepLinearLimit = config.sleepLinearLimit;
     m_sleepAngualrLimit = config.sleepAngularLimit;
@@ -22,8 +25,7 @@ void ftPhysicsSystem::init()
 {
 
     m_contactSolver.init();
-
-    m_collisionSystem.init(m_broadphase);
+    m_collisionSystem.init();
 
     m_dynamicBodies.init();
     m_kinematicBodies.init();
@@ -47,8 +49,7 @@ void ftPhysicsSystem::shutdown()
 
     m_contactSolver.shutdown();
     m_collisionSystem.shutdown();
-    m_islandSystem.shutdown();
-
+    
     auto deleteColliders = [](ftBody *body) {
         for (ftCollider *collider = body->colliders; collider != nullptr;)
         {
@@ -68,14 +69,14 @@ void ftPhysicsSystem::shutdown()
     m_staticBodies.cleanup();
     m_sleepingBodies.cleanup();
 
+    m_islandSystem.shutdown();
+
     m_joints.cleanup();
+    for (int i = 0; i < m_joints.getSize(); ++i) {
+        delete m_joints[i];
+    }
 
     m_shapeBuffer.cleanup();
-}
-
-void ftPhysicsSystem::installBroadphase(ftBroadphaseSystem *broadphase)
-{
-    m_broadphase = broadphase;
 }
 
 ftBody *ftPhysicsSystem::createStaticBody(const ftVector2 &pos, real orientation)
@@ -88,6 +89,7 @@ ftBody *ftPhysicsSystem::createStaticBody(const ftVector2 &pos, real orientation
     body->bodyType = STATIC;
     body->transform.center = pos;
     body->transform.rotation.setAngle(orientation);
+    body->centerOfMass = ftVector2(0, 0);
     return body;
 }
 
@@ -101,6 +103,7 @@ ftBody *ftPhysicsSystem::createKinematicBody(const ftVector2 &pos, real orientat
     body->bodyType = KINEMATIC;
     body->transform.center = pos;
     body->transform.rotation.setAngle(orientation);
+    body->centerOfMass = ftVector2(0, 0);
     return body;
 }
 
@@ -115,6 +118,7 @@ ftBody *ftPhysicsSystem::createDynamicBody(const ftVector2 &pos, real orientatio
     body->bodyType = DYNAMIC;
     body->transform.center = pos;
     body->transform.rotation.setAngle(orientation);
+    body->centerOfMass = ftVector2(0, 0);
     return body;
 }
 
@@ -128,6 +132,8 @@ void ftPhysicsSystem::updateBody(ftBody *body)
         m_sleepingBodies.unlink(body);
         m_dynamicBodies.insert(body);
     }
+
+    body->inverseMass = 1 / body->mass;
 }
 
 void ftPhysicsSystem::destroyBody(ftBody *body)
@@ -309,6 +315,23 @@ ftDynamoJoint *ftPhysicsSystem::createDynamoJoint(ftBody *bodyA,
     return joint;
 }
 
+ftPistonJoint* ftPhysicsSystem::createPistonJoint(ftBody* bodyA, 
+                                ftBody* bodyB, 
+                                ftVector2 localAnchorA, 
+                                ftVector2 localAnchorB, 
+                                ftVector2 axis) {
+    ftAssert(bodyA != nullptr, "");
+    ftAssert(bodyB != nullptr, "");
+    ftPistonJoint *joint = ftPistonJoint::create(bodyA, bodyB, axis, localAnchorA, localAnchorB);
+    m_joints.push(joint);
+    m_islandSystem.addJoint(joint);
+    return joint;
+}
+
+void ftPhysicsSystem::destroyJoint(ftJoint* joint) {
+    ftAssert(joint != nullptr, "Cannot destory null joint");
+}
+
 void ftPhysicsSystem::iterateBody(ftBodyIterFunc iterFunc, void *data)
 {
     iterateStaticBody(iterFunc, data);
@@ -355,7 +378,6 @@ void ftPhysicsSystem::iterateDynamicBody(ftBodyIterFunc iterFunc, void *data)
 
 void ftPhysicsSystem::step(real dt)
 {
-
     integrateVelocity(dt);
 
     auto updateColSystem = [this](ftBody *body) -> void {
@@ -404,7 +426,7 @@ void ftPhysicsSystem::step(real dt)
     m_collisionSystem.updateContacts(colFilter, callback);
 
 
-    auto processIsland =
+    auto solveIslandConstraint =
         [this, dt](const ftIsland &island) -> void {
         bool allSleeping = true;
         const ftChunkArray<ftBody *> *bodies = &(island.bodies);
@@ -458,7 +480,7 @@ void ftPhysicsSystem::step(real dt)
         }
     };
 
-    m_islandSystem.buildAndProcessIsland(std::cref(processIsland));
+    m_islandSystem.buildAndProcessIsland(std::cref(solveIslandConstraint));
 
     updateBodiesActivation(dt);
 
@@ -479,10 +501,11 @@ void ftPhysicsSystem::integrateVelocity(real dt)
 void ftPhysicsSystem::integratePosition(real dt)
 {
     const auto updatePos = [dt](ftBody *body) {
-        body->transform.rotation += body->angularVelocity * dt;
 
         ftVector2 worldCom = body->transform * body->centerOfMass;
         worldCom += body->velocity * dt;
+        
+        body->transform.rotation += body->angularVelocity * dt;
         body->transform.center = worldCom + (body->transform.rotation * (body->centerOfMass * -1));
     };
 

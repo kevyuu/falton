@@ -32,7 +32,7 @@ struct ftManifold {
     ftVector2 normal; //normal pointing from first shape to second shape
     ftManifoldPoint contactPoints[2];
     real penetrationDepth[2];
-    uint8 numContact = 0;
+    int numContact = 0;
 };
 
 typedef enum ftCollisionState {

@@ -43,7 +43,6 @@ struct ftDistanceJoint : public ftJoint
                                    ftVector2 localAnchorB);
     real distance;
 
-  private:
     ftVector2 localAnchorA;
     ftVector2 localAnchorB;
 
@@ -75,7 +74,6 @@ struct ftDynamoJoint : public ftJoint
     real maxImpulse;
     real iAcc;
 
-  private:
     int32 bodyIDA, bodyIDB;
 
     real invK;
@@ -94,7 +92,6 @@ struct ftHingeJoint : public ftJoint
                                 ftBody *bodyB,
                                 ftVector2 anchorPoint);
 
-  private:
     ftVector2 anchorPoint;
 
     //derivative variable
@@ -117,6 +114,15 @@ struct ftHingeJoint : public ftJoint
     ftVector2 rA;
     ftVector2 rB;
     ftVector2 dIAcc;
+    ftVector2 dBias;
+
+    //angular limit constraint
+    bool enableLimit;
+    real lowerLimit;
+    real upperLimit;
+    real limitImpulseAcc;
+    real limitBias;
+    real invKLimit;
 
     friend class ftJointSolver;
 };
@@ -126,12 +132,18 @@ struct ftPistonJoint : public ftJoint
   public:
     static ftPistonJoint *create(ftBody *bodyA,
                                  ftBody *bodyB,
-                                 ftVector2 axis,
+                                 ftVector2 localAxis,
                                  ftVector2 lAnchorA,
                                  ftVector2 lAnchorB);
 
-  private:
     int32 bodyIDA, bodyIDB;
+    ftVector2 localAnchorA;
+    ftVector2 localAnchorB;
+    ftVector2 rA;
+    ftVector2 rB;
+    ftVector2 localAxis;
+    ftVector2 tAxis;
+    real refAngle;
 
     real invMassA;
     real invMomentA;
@@ -139,13 +151,12 @@ struct ftPistonJoint : public ftJoint
     real invMomentB;
 
     real invKRot;
+    real rotBias;
+    real rotImpulseAcc = 0;
 
     real invKTrans;
-    ftVector2 localAnchorA;
-    ftVector2 localAnchorB;
-    ftVector2 rA;
-    ftVector2 rB;
-    ftVector2 tAxis; // axis that perpendicular to translation axis
+    real transBias;
+    real transImpulseAcc;
 
     friend class ftJointSolver;
 };
@@ -161,7 +172,6 @@ struct ftSpringJoint : public ftJoint
     real stiffness;
     real restLength;
 
-  private:
     int32 bodyIDA, bodyIDB;
 
     real invMassA;

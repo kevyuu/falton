@@ -41,8 +41,8 @@ void ftConstraintSolver::createContactConstraint(ftCollider *colliderA,
     {
         ftContactPointConstraint *pointConstraint = &constraint->pointConstraint[i];
 
-        pointConstraint->r1 = manifold->contactPoints[i].r1 - bodyA->transform.center;
-        pointConstraint->r2 = manifold->contactPoints[i].r2 - bodyB->transform.center;
+        pointConstraint->r1 = manifold->contactPoints[i].r1 - (bodyA->transform * bodyA->centerOfMass);
+        pointConstraint->r2 = manifold->contactPoints[i].r2 - (bodyB->transform * bodyB->centerOfMass);
 
         real kNormal = bodyA->inverseMass + bodyB->inverseMass;
 
@@ -60,10 +60,8 @@ void ftConstraintSolver::createContactConstraint(ftCollider *colliderA,
 
         kTangent += (bodyA->inverseMoment * rtA * rtA + bodyB->inverseMoment * rtB * rtB);
         pointConstraint->tangentMass = 1 / kTangent;
-
-        real slop = manifold->penetrationDepth[i] - m_option.allowedPenetration;
-        if (slop < 0)
-            slop = 0;
+        
+        real slop = ftMax(manifold->penetrationDepth[i] - m_option.allowedPenetration, 0);
         pointConstraint->positionBias = m_option.baumgarteCoef * slop;
 
         ftVector2 vA = bodyA->velocity;
@@ -73,7 +71,7 @@ void ftConstraintSolver::createContactConstraint(ftCollider *colliderA,
 
         ftVector2 dv = (vB + pointConstraint->r2.invCross(wB) - vA - pointConstraint->r1.invCross(wA));
         real jnV = dv.dot(constraint->normal);
-        pointConstraint->restitutionBias = -restitution * jnV;
+        pointConstraint->restitutionBias = -restitution * ftMin(jnV + m_option.restitutionSlop, 0);
     }
 }
 
@@ -200,6 +198,8 @@ void ftConstraintSolver::solve(real dt)
 
                     m_constraintGroup.angularVelocities[bodyIDA] -= constraint->invMomentA * nAngularIA;
                     m_constraintGroup.angularVelocities[bodyIDB] += constraint->invMomentB * nAngularIB;
+
+                    //ftAssert(I < 2 * 60, "Max Impulse Achieved in Contact Penetration Resolution");
                 }
 
                 //tangent impulse
@@ -238,6 +238,8 @@ void ftConstraintSolver::solve(real dt)
 
                     m_constraintGroup.angularVelocities[bodyIDA] -= constraint->invMomentA * nAngularIA;
                     m_constraintGroup.angularVelocities[bodyIDB] += constraint->invMomentB * nAngularIB;
+
+                    //ftAssert(I < 2 * 60, "Max Impulse Achieved in Friction Resolution");
                 }
             }
         }

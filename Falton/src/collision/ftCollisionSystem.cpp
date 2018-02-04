@@ -7,15 +7,51 @@
 #include <functional>
 #include <iostream>
 
-void ftCollisionSystem::init(ftBroadphaseSystem *broadphase)
-{
+void ftCollisionSystem::setConfiguration(const ftConfig& config) {
+    m_config = config;
+}
 
-    this->m_broadphase = broadphase;
+void ftCollisionSystem::init() {
+
+    switch (m_config.broadphaseType) {
+        case FT_BROADPHASE_TYPE_NSQUARED:
+            m_broadphase = new ftNSquaredBroadphase();
+            break;
+        case FT_BROADPHASE_TYPE_DYNAMIC_BVH: {
+            ftDynamicBVH* bvh = new ftDynamicBVH();
+            bvh->setConfiguration(m_config.dynamicBVHConfig);
+            bvh->init();
+            m_broadphase = bvh;
+            break;
+        }
+        case FT_BROADPHASE_TYPE_HIERARCHICAL_GRID: {
+            ftHierarchicalGrid* hGrid = new ftHierarchicalGrid();
+            hGrid->setConfiguration(m_config.hierarchicalGridConfig);
+            hGrid->init();
+            m_broadphase = hGrid;
+            break;
+        }
+        case FT_BROADPHASE_TYPE_TOROIDAL_GRID: {
+            ftToroidalGrid* toroidalGrid = new ftToroidalGrid();
+            toroidalGrid->setConfiguration(m_config.toroidalGridConfig);
+            toroidalGrid->init();
+            m_broadphase = toroidalGrid;
+            break;
+        }
+        case FT_BROADPHASE_TYPE_QUAD_TREE: {
+            ftQuadTree* quadTree = new ftQuadTree();
+            quadTree->setConfiguration(m_config.quadTreeConfig);
+            quadTree->init();
+            m_broadphase = quadTree;
+            break;
+        }
+    }
+
     m_curTimeStamp = 0;
     m_nShape = 0;
     m_minQueueSize = 0;
     m_shapes.init(64);
-    broadphase->init();
+    m_broadphase->init();
     m_contactBuffer.init();
     m_moveMasks.init(64);
     m_movedShapes.init(64);
@@ -27,6 +63,8 @@ void ftCollisionSystem::shutdown()
 {
 
     m_broadphase->shutdown();
+    delete m_broadphase;
+
     m_shapes.cleanup();
     m_contactBuffer.cleanup();
     m_moveMasks.cleanup();

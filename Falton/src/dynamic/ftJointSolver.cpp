@@ -2,6 +2,10 @@
 #include "falton/dynamic/ftJoint.h"
 #include "falton/dynamic/ftBody.h"
 
+static float s_baumgarteCoef = 0.2;
+static float s_linearSlop = 0.01;
+static float s_angularSlop = 0.01;
+
 ftJointSolver::ftJointFunc ftJointSolver::jointFunc[] = {
     {
         ftJointSolver::preSolveDistanceJoint,
@@ -78,7 +82,9 @@ void ftJointSolver::preSolveDistanceJoint(ftJoint *joint, real dt)
     dist->invK = 1 / k;
 
     real curDistance = dist->jVa.magnitude();
-    dist->positionBias = 0.2 * (curDistance - dist->distance) / dt;
+    real positionDrift = curDistance - dist->distance;
+    if (ftAbs(positionDrift) < s_linearSlop) positionDrift = 0;
+    dist->positionBias = s_baumgarteCoef * positionDrift / dt;
 }
 
 void ftJointSolver::warmStartDistanceJoint(ftJoint *joint,
@@ -87,9 +93,9 @@ void ftJointSolver::warmStartDistanceJoint(ftJoint *joint,
 {
     ftDistanceJoint *dist = (ftDistanceJoint *)joint;
 
-    ftVector2 linearI = dist->jVa * dist->iAcc;
-    real angularIA = dist->jWa * dist->iAcc;
-    real angularIB = dist->jWb * dist->iAcc;
+    ftVector2 linearI = dist->jVa * dist->iAcc / 60;
+    real angularIA = dist->jWa * dist->iAcc / 60;
+    real angularIB = dist->jWb * dist->iAcc / 60;
 
     vArray[dist->bodyIDA] += dist->invMassA * linearI;
     vArray[dist->bodyIDB] -= dist->invMassB * linearI;
@@ -226,18 +232,41 @@ void ftJointSolver::preSolveHingeJoint(ftJoint *joint,
     hinge->invKDistance.element[0][0] = invMassA + invMassB +
                                         invMomentA * rA.y * rA.y +
                                         invMomentB * rB.y * rB.y;
-    hinge->invKDistance.element[0][1] = -invMassA * rA.y * rA.x -
-                                        invMassB * rB.y * rB.x;
+    hinge->invKDistance.element[0][1] = -invMomentA * rA.y * rA.x -
+                                        invMomentB * rB.y * rB.x;
     hinge->invKDistance.element[1][0] = hinge->invKDistance.element[0][1];
     hinge->invKDistance.element[1][1] = invMassA + invMassB +
                                         invMomentA * rA.x * rA.x +
                                         invMomentB * rB.x * rB.x;
-
     hinge->invKDistance.invert();
 
-    hinge->fIAcc = 0;
+    ftVector2 worldAnchorA = bodyA->transform * hinge->localAnchorA;
+    ftVector2 worldAnchorB = bodyB->transform * hinge->localAnchorB;
+    ftVector2 positionDrift = worldAnchorA - worldAnchorB;
+    if (positionDrift.x * positionDrift.x + positionDrift.y * positionDrift.y < s_linearSlop * s_linearSlop) {
+        positionDrift = ftVector2(0, 0);
+    }
+    hinge->dBias = positionDrift * 0.2f / dt;
+
     hinge->fMaxImpulse = hinge->torqueFriction * dt;
     hinge->invKFriction = 1 / (invMomentA + invMomentB);
+
+    if (hinge->enableLimit) {
+        real diffAngle = bodyB->transform.rotation.angle - bodyA->transform.rotation.angle;
+        real minAngle = hinge->lowerLimit;
+        real maxAngle = hinge->upperLimit;
+        hinge->invKLimit = 1 / (invMomentA + invMomentB);
+        real angleDrift = 0;
+        if (diffAngle < minAngle) {
+            angleDrift = minAngle - diffAngle;
+        } else if (diffAngle > maxAngle) {
+            angleDrift = maxAngle - diffAngle;
+        } else {
+            hinge->limitImpulseAcc = 0;
+        }
+        hinge->limitBias = -1 * s_baumgarteCoef * angleDrift / dt;
+    }
+
 }
 
 void ftJointSolver::warmStartHingeJoint(ftJoint *joint,
@@ -264,12 +293,20 @@ void ftJointSolver::warmStartHingeJoint(ftJoint *joint,
         wArray[bodyIDB] += (invMomentB * rB.cross(impulse));
     }
 
-    //friction constraint
+    // friction constraint
     {
         real impulse = hinge->fIAcc;
 
         wArray[bodyIDB] += invMomentB * impulse;
         wArray[bodyIDA] -= invMomentA * impulse;
+    }
+
+    // limit constraint
+    {
+        if (hinge->enableLimit) {
+            wArray[bodyIDB] += invMomentB * hinge->limitImpulseAcc;
+            wArray[bodyIDA] -= invMomentA * hinge->limitImpulseAcc;
+        }
     }
 }
 
@@ -295,7 +332,8 @@ void ftJointSolver::solveHingeJoint(ftJoint *joint,
                        vArray[bodyIDA] -
                        rA.invCross(wArray[bodyIDA]);
 
-        ftVector2 impulse = hinge->invKDistance * (jv * -1);
+        ftVector2 impulse = hinge->invKDistance * (-1 * (jv - hinge->dBias));
+        
         hinge->dIAcc += impulse;
 
         vArray[bodyIDA] -= (invMassA * impulse);
@@ -303,6 +341,7 @@ void ftJointSolver::solveHingeJoint(ftJoint *joint,
 
         vArray[bodyIDB] += (invMassB * impulse);
         wArray[bodyIDB] += (invMomentB * rB.cross(impulse));
+
     }
 
     //friction constraint
@@ -324,6 +363,24 @@ void ftJointSolver::solveHingeJoint(ftJoint *joint,
         wArray[bodyIDB] += invMomentB * impulse;
         wArray[bodyIDA] -= invMomentA * impulse;
     }
+
+    //angle limit constraint
+    if (hinge->enableLimit) {
+        if (hinge->limitBias == 0) return;
+
+        real jv = wArray[bodyIDB] - wArray[bodyIDA];
+        real impulse = hinge->invKLimit * ((jv + hinge->limitBias) * -1);
+        real oldImpulse = hinge->limitImpulseAcc;
+        if (hinge->limitBias < 0) {
+            hinge->limitImpulseAcc = ftMax(oldImpulse + impulse, 0);
+        } else {
+            hinge->limitImpulseAcc = ftMin(oldImpulse + impulse, 0);
+        }
+        impulse = hinge->limitImpulseAcc - oldImpulse;
+        wArray[bodyIDB] += invMomentB * impulse;
+        wArray[bodyIDA] -= invMomentA * impulse;
+
+    }
 }
 // End of Hinge Joint
 
@@ -341,8 +398,15 @@ void ftJointSolver::preSolvePistonJoint(ftJoint *joint, real dt)
     piston->invMomentA = bodyA->inverseMoment;
     piston->invMassB = bodyB->inverseMass;
     piston->invMomentB = bodyB->inverseMoment;
-
+    piston->tAxis = (bodyA->transform.rotation * piston->localAxis).perpendicular();
+    
     piston->invKRot = 1 / (piston->invMomentA + piston->invMomentB);
+    real diffAngle = bodyB->transform.rotation.angle - bodyA->transform.rotation.angle;
+    if (fabs(diffAngle) < s_angularSlop) {
+        diffAngle = 0;
+    }
+    piston->rotBias = 1 * s_baumgarteCoef * (diffAngle - piston->refAngle);
+    
 
     piston->rA = bodyA->transform.rotation *
                  (piston->localAnchorA - bodyA->centerOfMass);
@@ -353,13 +417,45 @@ void ftJointSolver::preSolvePistonJoint(ftJoint *joint, real dt)
     real rtB = piston->rB.cross(piston->tAxis);
     kTrans += (piston->invMomentA * rtA * rtA + piston->invMomentB * rtB * rtB);
     piston->invKTrans = 1 / kTrans;
+
+    ftVector2 worldAnchorA = bodyA->transform * piston->localAnchorA;
+    ftVector2 worldAnchorB = bodyB->transform * piston->localAnchorB;
+    real separation = (worldAnchorB - worldAnchorA).dot(piston->tAxis);
+    if (fabs(separation) < s_linearSlop) {
+        separation = 0;
+    }
+    piston->transBias = -1 * s_baumgarteCoef * (separation / dt);
+
 }
 
 void ftJointSolver::warmStartPistonJoint(ftJoint *joint,
                                          ftVector2 *vArray,
                                          real *wArray)
 {
-    // TODO
+    ftPistonJoint* piston = (ftPistonJoint*) joint;
+    int bodyIDA = piston->bodyIDA;
+    int bodyIDB = piston->bodyIDB;
+
+    // translation constraint
+    {
+        real rtA = piston->rA.cross(piston->tAxis);
+        real rtB = piston->rB.cross(piston->tAxis);
+        real angularIA = rtA * piston->transImpulseAcc;
+        real angularIB = rtB * piston->transImpulseAcc;
+        ftVector2 linearI = piston->tAxis * piston->transImpulseAcc;
+
+        vArray[piston->bodyIDA] -= (piston->invMassA * linearI);
+        wArray[piston->bodyIDA] -= (piston->invMomentA * angularIA);
+
+        vArray[piston->bodyIDB] += (piston->invMassB * linearI);
+        wArray[piston->bodyIDB] += (piston->invMomentB * angularIB);
+    }
+
+    // rotation constraint
+    {
+        wArray[piston->bodyIDB] += piston->invMomentB * piston->rotImpulseAcc;
+        wArray[piston->bodyIDA] -= piston->invMomentA * piston->rotImpulseAcc;
+    }
 }
 
 void ftJointSolver::solvePistonJoint(ftJoint *joint,
@@ -372,24 +468,34 @@ void ftJointSolver::solvePistonJoint(ftJoint *joint,
 
     // solve translation constraint
     {
-        ftVector2 jv = vArray[bodyIDB] +
+        ftVector2 relV = vArray[bodyIDB] +
                        piston->rB.invCross(wArray[piston->bodyIDB]) -
                        vArray[bodyIDA] -
                        piston->rA.invCross(wArray[piston->bodyIDB]);
+        real jv = relV.dot(piston->tAxis);
 
-        ftVector2 impulse = piston->invKTrans * (jv * -1);
+        real lambda = -(jv - piston->transBias)* piston->invKTrans;
 
-        vArray[piston->bodyIDA] -= (piston->invMassA * impulse);
-        wArray[piston->bodyIDA] -= (piston->invMomentA * piston->rA.cross(impulse));
+        piston->transImpulseAcc += lambda;
 
-        vArray[piston->bodyIDB] += (piston->invMassB * impulse);
-        wArray[piston->bodyIDB] += (piston->invMomentB * piston->rB.cross(impulse));
+        real rtA = piston->rA.cross(piston->tAxis);
+        real rtB = piston->rB.cross(piston->tAxis);
+        real angularIA = rtA * lambda;
+        real angularIB = rtB * lambda;
+        ftVector2 linearI = piston->tAxis * lambda;
+
+        vArray[piston->bodyIDA] -= (piston->invMassA * linearI);
+        wArray[piston->bodyIDA] -= (piston->invMomentA * angularIA);
+
+        vArray[piston->bodyIDB] += (piston->invMassB * linearI);
+        wArray[piston->bodyIDB] += (piston->invMomentB * angularIB);
     }
 
     // solve rotation constraint
     {
         real jv = wArray[piston->bodyIDB] - wArray[piston->bodyIDA];
-        real impulse = piston->invKRot * (jv * -1);
+        real impulse = piston->invKRot * -(jv + piston->rotBias);
+        piston->rotImpulseAcc += impulse;
 
         wArray[piston->bodyIDB] += piston->invMomentB * impulse;
         wArray[piston->bodyIDA] -= piston->invMomentA * impulse;
@@ -424,6 +530,10 @@ void ftJointSolver::preSolveSpringJoint(ftJoint *joint, real dt)
     kTrans += (spring->invMomentA * rtA * rtA + spring->invMomentB * rtB * rtB);
     spring->invKTrans = 1 / kTrans;
 
+    ftVector2 anchorDiff = bodyB->transform * spring->localAnchorA - bodyA->transform * spring->localAnchorB;
+    spring->springAxis = anchorDiff.unit();
+    spring->tAxis = spring->springAxis.perpendicular();
+
     //apply spring force
     {
         ftVector2 worldAnchorA = bodyA->transform * spring->localAnchorA;
@@ -432,8 +542,10 @@ void ftJointSolver::preSolveSpringJoint(ftJoint *joint, real dt)
         real forceMagnitude = (spring->restLength - dist) * spring->stiffness;
         real impulseMagnitude = forceMagnitude * dt;
         ftVector2 impulse = spring->springAxis * impulseMagnitude;
-        bodyB->velocity += spring->invMassB * impulse;
-        bodyA->velocity -= spring->invMassA * impulse;
+        bodyB->velocity += (spring->invMassB * impulse);
+        bodyA->velocity -= (spring->invMassA * impulse);
+        bodyB->angularVelocity += (spring->invMomentB * impulse.cross(spring->rB));
+        bodyA->angularVelocity -= (spring->invMomentA * impulse.cross(spring->rA));
     }
 }
 
@@ -461,8 +573,8 @@ void ftJointSolver::warmStartSpringJoint(ftJoint *joint,
 
     // rotation constraint
     {
-        wArray[bodyIDB] += spring->invMomentB * spring->rotationIAcc;
-        wArray[bodyIDA] -= spring->invMomentA * spring->rotationIAcc;
+        wArray[bodyIDB] += (spring->invMomentB * spring->rotationIAcc);
+        wArray[bodyIDA] -= (spring->invMomentA * spring->rotationIAcc);
     }
 }
 

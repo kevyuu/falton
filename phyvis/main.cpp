@@ -13,6 +13,13 @@
 #include "imgui_impl_glfw_gl3.cpp"
 #include "phyvis.h"
 #include "phyvis.cpp"
+#include "phyvis_overlay.h"
+#include "phyvis_overlay.cpp"
+#include "phyvis_entity.h"
+#include "phyvis_entity.cpp"
+#include "phyvis_render.h"
+#include "phyvis_render.cpp"
+#
 
 static void error_callback(int error, const char* description)
 {
@@ -33,6 +40,7 @@ int main(int, char**){
 #if __APPLE__
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
+    glfwWindowHint(GLFW_SAMPLES, 4);
     GLFWwindow* window = glfwCreateWindow(1280, 720, "Falton Debug Visualizer", NULL, NULL);
     glfwMakeContextCurrent(window);
     gl3wInit();
@@ -43,36 +51,28 @@ int main(int, char**){
     ImVec4 clear_color = ImColor(0, 0, 0);
 
     Phyvis::Context ctx;
-    Phyvis::Init(&ctx);
-
-    double prevTime = glfwGetTime();
-    double lag = 0.0f;
+    Phyvis::Init(&ctx, window);
 
     // Main loop
+    glfwSwapInterval(1);
     while (!glfwWindowShouldClose(window))
     {
-        double time0 = glfwGetTime();
-        double delta = time0- prevTime;
-        lag += delta;
-        prevTime = time0;
 
-        while (lag >= FRAME_INTERVAL) {
-            glfwPollEvents();
-            ImGui_ImplGlfwGL3_NewFrame();
-            
-            // Rendering
-            int display_w, display_h;
-            glfwGetFramebufferSize(window, &display_w, &display_h);
-            glViewport(0, 0, display_w, display_h);
-            glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glfwPollEvents();
+        ImGui_ImplGlfwGL3_NewFrame();
+        
+        // Rendering
+        int display_w, display_h;
+        glfwGetFramebufferSize(window, &display_w, &display_h);
+        glViewport(0, 0, display_w, display_h);
+        glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            Phyvis::Tick(&ctx, display_w, display_h);
-            ImGui::Render();
-            
-            glfwSwapBuffers(window);
-            lag -= FRAME_INTERVAL;
-        }
+        Phyvis::Tick(&ctx, display_w, display_h);
+        ImGui::Render();
+        
+        glfwSwapBuffers(window);
+
     }
 
     Phyvis::Cleanup(&ctx);

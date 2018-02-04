@@ -1,5 +1,4 @@
 #pragma once
-
 template <typename T>
 class ftIDBuffer {
 public:
@@ -13,6 +12,7 @@ public:
     T* remove(int id);
 	T* remove(T* object);
     void removeAll();
+	void reserve(int newCapacity);
 
     T* buffer;
     int freeID;
@@ -47,16 +47,22 @@ int ftIDBuffer<T>::alloc() {
     if (size == capacity) {
         int oldCapacity = capacity;
         capacity *= GROW_FACTOR;
-
+        
         T* oldBuffer = buffer;
         buffer = (T*) malloc(sizeof(T) * capacity);
-        memcpy(buffer, oldBuffer, oldCapacity * sizeof(T));
+        memcpy(buffer, oldBuffer, size * sizeof(T));
         free(oldBuffer);
         
         int* oldIndexMap = indexMap;
         indexMap = (int*) malloc(sizeof(int) * capacity);
-        memcpy(indexMap, oldIndexMap, oldCapacity * sizeof(T));
+        memcpy(indexMap, oldIndexMap, size * sizeof(int));
         free(oldIndexMap);
+
+        int *oldIndexBackMap = indexBackMap;
+        indexBackMap = (int*) malloc(sizeof(int) * capacity);
+        memcpy(indexBackMap, oldIndexBackMap, size * sizeof(int));
+        free(oldIndexBackMap);
+
         freeID = size;
         for (int i = size; i < capacity - 1; ++i) {
             indexMap[i] = i + 1;
@@ -126,6 +132,32 @@ void ftIDBuffer<T>::removeAll() {
     }
     indexMap[capacity - 1] = END_FREE_LIST;
     freeID = 0;
+}
+
+template<typename T>
+void ftIDBuffer<T>::reserve(int newCapacity) {
+	if (newCapacity < capacity) return;
+
+	T* oldBuffer = buffer;
+	buffer = (T*)malloc(newCapacity * sizeof(T));
+	memcpy(buffer, oldBuffer, size * sizeof(T));
+	free(oldBuffer);
+
+	int* oldIndexMap = indexMap;
+	indexMap = (int*)malloc(sizeof(int) * newCapacity);
+	memcpy(indexMap, oldIndexMap, capacity * sizeof(int));
+	free(oldIndexMap);
+	for (int i = size; i < newCapacity - 1; ++i) {
+		indexMap[i] = i + 1;
+	}
+	indexMap[newCapacity - 1] = END_FREE_LIST;
+
+	int *oldIndexBackMap = indexBackMap;
+	indexBackMap = (int*)malloc(sizeof(int) * newCapacity);
+	memcpy(indexBackMap, oldIndexBackMap, capacity * sizeof(int));
+	free(oldIndexBackMap);
+
+	capacity = newCapacity;
 }
 
 template <typename T>

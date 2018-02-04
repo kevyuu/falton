@@ -21,6 +21,7 @@ public:
         int numIteration = 10;
         real baumgarteCoef = 0.2;
         real allowedPenetration = 0.01;
+        real restitutionSlop = 0.01;
     };
 
     void setConfiguration(const ftConfig& config);

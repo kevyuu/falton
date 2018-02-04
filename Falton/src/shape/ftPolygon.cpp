@@ -51,6 +51,7 @@ ftPolygon* ftPolygon::create(int numVertex, const ftVector2 *vertices){
     return polygon;
 }
 
+
 ftPolygon* ftPolygon::createBox(const ftVector2 &corner1, const ftVector2 &corner2) {
 
     ftPolygon *polygon = new ftPolygon;

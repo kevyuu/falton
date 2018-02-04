@@ -15,6 +15,14 @@ struct ftBroadPhasePair
     const void *userdataB;
 };
 
+enum ftBroadphaseType {
+  FT_BROADPHASE_TYPE_NSQUARED,
+  FT_BROADPHASE_TYPE_DYNAMIC_BVH,
+  FT_BROADPHASE_TYPE_TOROIDAL_GRID,
+  FT_BROADPHASE_TYPE_HIERARCHICAL_GRID,
+  FT_BROADPHASE_TYPE_QUAD_TREE
+};
+
 class ftBroadphaseSystem
 {
   public:

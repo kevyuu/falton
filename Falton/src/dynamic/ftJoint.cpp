@@ -12,7 +12,6 @@ ftDistanceJoint *ftDistanceJoint::create(ftBody *bodyA,
     joint->localAnchorA = localAnchorA;
     joint->localAnchorB = localAnchorB;
     joint->distance = (bodyA->transform * localAnchorA - bodyB->transform * localAnchorB).magnitude();
-    joint->iAcc = 0;
 
     return joint;
 }
@@ -23,6 +22,7 @@ ftDynamoJoint *ftDynamoJoint::create(ftBody *bodyA,
                                      real maxTorque)
 {
     ftDynamoJoint *joint = new ftDynamoJoint;
+    joint->jointType = ftJoint::DYNAMO_JOINT;
     joint->bodyA = bodyA;
     joint->bodyB = bodyB;
     joint->targetRate = targetRate;
@@ -41,9 +41,14 @@ ftHingeJoint *ftHingeJoint::create(ftBody *bodyA,
     joint->bodyB = bodyB;
     joint->anchorPoint = anchorPoint;
 
-    joint->localAnchorA = bodyA->transform.rotation.invRotate(anchorPoint - bodyA->transform.center);
-    joint->localAnchorB = bodyB->transform.rotation.invRotate(anchorPoint - bodyB->transform.center);
+    joint->localAnchorA = bodyA->transform.invTransform(anchorPoint);
+    joint->localAnchorB = bodyB->transform.invTransform(anchorPoint);
     joint->torqueFriction = 0;
+
+    joint->enableLimit = false;
+    joint->lowerLimit = -2 * 3.14;
+    joint->upperLimit = 2 * 3.14;
+    joint->limitImpulseAcc = 0;
 
     return joint;
 }
@@ -60,7 +65,8 @@ ftPistonJoint *ftPistonJoint::create(ftBody *bodyA,
     joint->bodyB = bodyB;
     joint->localAnchorA = lAnchorA;
     joint->localAnchorB = lAnchorB;
-    joint->tAxis = axis.perpendicular();
+    joint->localAxis = axis;
+    joint->refAngle = bodyB->transform.rotation.angle - bodyA->transform.rotation.angle;
 
     return joint;
 }
@@ -79,11 +85,11 @@ ftSpringJoint *ftSpringJoint::create(ftBody *bodyA,
     joint->localAnchorB = lAnchorB;
 
     ftVector2 anchorDiff = bodyB->transform * lAnchorB - bodyA->transform * lAnchorA;
-    joint->springAxis = anchorDiff.unit();
-    joint->tAxis = joint->springAxis.perpendicular();
-
     joint->stiffness = 1;
     joint->restLength = anchorDiff.magnitude();
+
+	joint->translationIAcc = 0;
+	joint->rotationIAcc = 0;
 
     return joint;
 }

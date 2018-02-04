@@ -6,6 +6,7 @@
                 "/usr/include",
                 "${workspaceRoot}/external/include",
                 "${workspaceRoot}/Falton/include",
+                "${workspaceRoot}/phyvis/",
                 "${workspaceRoot}"
             ],
             "browse": {
@@ -13,7 +14,10 @@
                 "databaseFilename": "",
                 "path": [
                     "/usr/include",
-                    "${workspaceRoot}/external/include",
+                    "${workspaceRoot}/phyvis/",
+                    "${workspaceRoot}/external/",
+                    "${workspaceRoot}/external/GLFW/include",
+                    "${workspaceRoot}/external/ImGui/include",
                     "${workspaceRoot}/Falton/include",
                     "${workspaceRoot}"
                 ]
