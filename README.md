@@ -23,6 +23,8 @@ There are four broadphase algorithm in Falton2D currently. They are :
 # Demo
 ![Liquid](demogif/LIquid.gif)
 ![Newton's Cradle](demogif/Newton'sCradle.gif)
+![Liquid](demogif/Piston.gif)
+![Newton's Cradle](demogif/TheoJansen.gif)
 Falton is still being developed. We don't have a stable version yet. API is not final.
 
 # TODO
